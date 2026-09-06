@@ -6,6 +6,7 @@ several repositories can share them. Add this repository as a submodule and use 
 | | |
 |---|---|
 | [`report-editing-policy.md`](report-editing-policy.md) | What goes in a report and what does not: which document carries what, the source form, and the rules a draft is edited against |
+| [`subproject-structure.md`](subproject-structure.md) | How a study directory is laid out: which file is the source for which, the shape of its `AGENTS.md`, and how a new one picks it up |
 | [`markdown-report-pipeline.md`](markdown-report-pipeline.md) | Authoring a report in markdown and building it to a single self-contained HTML file: the conventions, the Unicode-to-MathJax conversion, and the traps |
 | `scripts/md_to_html.js` | The builder. `node scripts/md_to_html.js <report.md>` |
 | `scripts/tex_unicode.js` | The Unicode-to-LaTeX conversion the builder applies, and the guard that refuses a character it does not know |
