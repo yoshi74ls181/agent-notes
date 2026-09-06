@@ -362,57 +362,71 @@ ratio — does belong there.
    proper noun it contained, then grep the survivor for each. Check the display equations and the
    figures, including any left on disk with nothing pointing at them.
 
-### The two-reader pass
+### The three-reader pass
 
-Two readers, separately. The author cannot see a naming collision or an unclosed sum in their own
-document, and the two kinds of reader find disjoint sets.
+Three readers, none of them the author, because the author cannot see a naming collision or an
+unclosed sum in their own document. **Run the first two at once** — they need nothing from each
+other and they find disjoint sets. **Run the third only after both sets of findings are in the
+document**, since its job is to rewrite what the first two have already corrected.
 
-**Read it as someone with the field's background and none of the project's.** State that background
-explicitly before starting: the field's standard training yes, this device and this method no. Go
-front to back noting every place you stopped, re-read or guessed, and quote the sentence. Finds §16
-collisions, §17 arithmetic, symbols used before they are defined, terms the author has stopped
-hearing, and whether the headline can be interpreted at all.
+Readers two and three are deliberately from a different model family than reader one. Two readers
+of the same family share blind spots, and the pass that catches the convention a project has
+stopped seeing is the one run from outside it.
 
-**Read it as a referee, with the evidence open** — the logbook, the result logs and this policy
-file. Check the science and check the numbers against `results/`. Finds sign errors, quantities
-described as the wrong thing, claims that outrun their support, and the §18 analysis that was never
-pointed at the device.
+**Reader 1, the referee: a Claude Code agent with the whole repository.** The report, the logbook,
+the result logs, the scripts and this policy. Check the science, and check every number against
+`results/`. Finds sign errors, quantities described as the wrong thing, claims that outrun their
+support, and the §18 analysis that was never pointed at the device.
 
-**Do not merge the two.** The reader must not be primed with the policy or the project; the referee
-must have both.
+**Reader 2, the second-year graduate student: a Codex agent given the report and its figures and
+nothing else.** It has the field's background and none of the project's. Ask it to go front to
+back naming every place it stopped, re-read or guessed and to quote the sentence; to ask for every
+non-standard term to be explained rather than inferring it; and to say what a first-time reader
+with limited patience would give up on and how the report should be reordered so they do not.
+Finds §16 collisions, §17 arithmetic, symbols used before they are defined, terms the author has
+stopped hearing, and whether the headline can be interpreted at all.
 
-**Ask both readers about the structure, not only the sentences,** in as many words: does the order
-carry the argument, is anything in the wrong place, what did you need earlier than you got it, and
-what could go. Line-level defects are volunteered; structural ones have to be asked for.
+**Reader 3, the editor: a Codex agent given the report and nothing else.** It does not report
+findings. It returns the whole report rewritten in the style of a well-written PhD dissertation
+addressed to an incoming graduate student. Diff the rewrite against the source and take it
+paragraph by paragraph: an editor holding no evidence can improve a sentence and break a number,
+so every number, hedge and stated limit in what you accept goes back through the staleness sweep.
 
-**Ask for the findings in small numbered batches, and put that in the brief** — one topic per
-message, a few hundred words each, numbered so a gap is visible. Output limits truncate the tail,
-which is where the structural findings sit. When re-requesting, say which items are already in
-hand, or the reader re-summarises instead of continuing.
+**Do not merge readers 1 and 2.** The referee must have the policy and the project; the student
+must have neither, or it stops noticing what it was convened to notice.
 
-**Expect the two to disagree.** Resolve it in the text rather than by picking a side; where that is
-impossible, the referee wins on accuracy and the reader wins on placement.
+**Ask readers 1 and 2 about the structure, not only the sentences,** in as many words: does the
+order carry the argument, is anything in the wrong place, what did you need earlier than you got
+it, and what could go. Line-level defects are volunteered; structural ones have to be asked for.
+
+**Ask readers 1 and 2 for their findings in small numbered batches, and put that in the brief** —
+one topic per message, a few hundred words each, numbered so a gap is visible. Output limits
+truncate the tail, which is where the structural findings sit. When re-requesting, say which items
+are already in hand, or the reader re-summarises instead of continuing.
+
+**Expect readers 1 and 2 to disagree.** Resolve it in the text rather than by picking a side; where
+that is impossible, the referee wins on accuracy and the student wins on placement.
 
 **A fix is an edit, so re-run the checks after it.** After any substantial edit, diff the prose for
 repeated sentences, re-run the number audit, and re-render every figure whose data moved.
 
-### A third reader from outside the model family
+#### Handing a report to a reader outside the local model family
 
-Worth the setup once a report has survived the other two: it catches the convention the project
-shares and has stopped seeing.
+Readers 2 and 3 are the ones this applies to, and the pass is easily faked.
 
 - **Verify which model actually read the document.** A plugin offering a foreign model may route
   through a wrapper of the local family. The give-away is a reader describing tools of its own
   rather than the foreign runtime.
-- **The foreign harness reads `AGENTS.md` by default, which destroys the pass**, and no instruction
-  prevents it.
+- **The foreign harness reads `AGENTS.md` by default, which destroys the restricted view**, and no
+  instruction prevents it.
 - **So inline the document rather than pointing at a path.** Put the whole report in the prompt
   inside `<document>` tags with `cat -n` line numbers so it can cite them. Do not move the file to
   a scratch directory: the sandbox is pinned to the repository root, so an outside path *hangs*.
-- **Attach the figures and ask about them specifically.** Send raster renders of any figure the
-  report embeds as vector art.
-- **Set the reasoning effort explicitly**, since it defaults from the CLI's own config, and **say
-  the report has already been reviewed**, or the reader invents concerns to fill every heading.
+  Inlining is also what actually enforces "the report and nothing else".
+- **Attach the figures to reader 2, and ask about them specifically.** Send raster renders of any
+  figure the report embeds as vector art. Reader 3 gets the text alone.
+- **Set the reasoning effort explicitly**, since it defaults from the CLI's own config, and **tell
+  reader 2 the report has already been reviewed**, or it invents concerns to fill every heading.
 
 ### The staleness sweep, once the edits have settled
 
