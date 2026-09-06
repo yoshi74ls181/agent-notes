@@ -1,0 +1,8 @@
+{
+  "name": "markdown-report-pipeline",
+  "private": true,
+  "description": "Build-time dependency for scripts/md_to_html.js, which turns a markdown report into a self-contained HTML file. Not a package; nothing here is published or imported.",
+  "devDependencies": {
+    "mathjax-full": "^3.2.1"
+  }
+}
