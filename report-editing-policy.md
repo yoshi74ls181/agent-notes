@@ -387,30 +387,38 @@ Three readers, none of them the author. **Run the first two at once**; **run the
 both sets of findings are in the document.** Readers 2 and 3 come from a different model family
 than reader 1.
 
-**Reader 1, the referee: an agent with the whole repository** — the report, the logbook, the
-result logs, the scripts and this policy. Check the science, and check every number against the
-evidence. Finds sign errors, quantities described as the wrong thing, claims that outrun their
-support, and the §18 analysis that was never pointed at the device.
-
-**Reader 2, the second-year graduate student: a foreign-family agent given the report and its
-figures and nothing else.** Ask it to go front to back naming every place it stopped, re-read or
-guessed and to quote the sentence; to ask for every non-standard term to be explained rather than
-inferring it; and to say what a first-time reader with limited patience would give up on and how
-the report should be reordered so they do not. Finds §16 collisions, §17 arithmetic, symbols used
-before they are defined, terms the author has stopped hearing, and whether the headline can be
-interpreted at all.
-
-**Reader 3, the editor: a foreign-family agent given the report and nothing else.** It reports no
-findings; it returns the whole report rewritten in the style of a well-written PhD dissertation
-addressed to an incoming graduate student. **Accept the rewrite as the base document.** Diff it
-against the source to find and correct any errors the editor might have introduced.
-
 **Do not merge readers 1 and 2.** The referee must have the policy and the project; the student
 must have neither.
 
-**Ask readers 1 and 2 about the structure, not only the sentences,** in as many words: does the
-order carry the argument, is anything in the wrong place, what did you need earlier than you got
-it, and what could go.
+#### Reader 1, the referee
+
+**An agent with the whole repository** — the report, the logbook, the result logs, the scripts and
+this policy. Check the science, and check every number against the evidence. Finds sign errors,
+quantities described as the wrong thing, claims that outrun their support, and the §18 analysis
+that was never pointed at the device.
+
+#### Reader 2, the second-year graduate student
+
+**A foreign-family agent given the report and its figures and nothing else.** Ask it to go front
+to back naming every place it stopped, re-read or guessed and to quote the sentence; to ask for
+every non-standard term to be explained rather than inferring it; and to say what a first-time
+reader with limited patience would give up on and how the report should be reordered so they do
+not. Finds §16 collisions, §17 arithmetic, symbols used before they are defined, terms the author
+has stopped hearing, and whether the headline can be interpreted at all.
+
+Two things this reader needs and the others do not:
+
+- **Attach raster renders of any vector figure, and ask about them specifically.** It cannot
+  rasterise an SVG or a PDF itself.
+- **Say that the report has already been reviewed**, or it invents concerns to fill every heading,
+  and **say that the reply must cover the whole document**, or it reads the first fifty lines
+  exhaustively and stops.
+
+#### Readers 1 and 2, and what comes back from them
+
+**Ask both about the structure, not only the sentences,** in as many words: does the order carry
+the argument, is anything in the wrong place, what did you need earlier than you got it, and what
+could go.
 
 **Both readers' findings go to a file, in one invocation each, not into messages.** Reader 1
 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file,
@@ -434,17 +442,22 @@ material, deleted once the findings are in the report.
 a follow-up question. There: two items per message, prompt for every one, and when re-requesting
 give the item number you already hold and quote the last words you received.
 
-**Expect readers 1 and 2 to disagree.** Resolve it in the text rather than by picking a side;
-where that is impossible, the referee wins on accuracy and the student wins on placement.
+**Expect the two to disagree.** Resolve it in the text rather than by picking a side; where that
+is impossible, the referee wins on accuracy and the student wins on placement.
 
-**A fix is an edit, so re-run the checks after it.** Diff the prose for repeated sentences, re-run
-the number audit, and re-render every figure whose data moved.
+#### Reader 3, the editor
 
-#### Handing a report to a reader outside the local model family
+**A foreign-family agent given the report and nothing else** — the text alone, with no figures.
+It reports no findings; it returns the whole report rewritten in the style of a well-written PhD
+dissertation addressed to an incoming graduate student. **Accept the rewrite as the base
+document.** Diff it against the source to find and correct any errors the editor might have
+introduced.
+
+#### Readers 2 and 3, which come from outside the local model family
 
 **The mechanics of running one are in [`codex-cli.md`](codex-cli.md)** — the flags, how to get
 the reply into a file, how to restrict what the reader can see, and the traps. Read it before
-convening readers 2 and 3. What that note does not decide, this one does:
+convening either. What that note does not decide, this one does:
 
 - **Verify which model read the document.** Ask it to name its own model and runtime before
   anything else, and keep the answer at the head of what it writes. A plugin offering a foreign
@@ -453,12 +466,12 @@ convening readers 2 and 3. What that note does not decide, this one does:
   `AGENTS.md` and the restricted view is gone.
 - **Inline the document rather than pointing at a path.** The whole report in the prompt, inside
   `<document>` tags, with `cat -n` line numbers so it can cite them.
-- **Attach raster renders of any vector figure to reader 2, and ask about them specifically.**
-  Reader 3 gets the text alone.
 - **Set the reasoning effort explicitly**, since it defaults from the runner's own config.
-- **Tell reader 2 the report has already been reviewed**, or it invents concerns to fill every
-  heading, and **tell it to cover the whole document**, or it reads the first fifty lines
-  exhaustively and stops.
+
+#### Once a finding has been acted on
+
+**A fix is an edit, so re-run the checks after it.** Diff the prose for repeated sentences, re-run
+the number audit, and re-render every figure whose data moved.
 
 ### The staleness sweep, once the edits have settled
 
