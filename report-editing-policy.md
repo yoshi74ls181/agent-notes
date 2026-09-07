@@ -399,25 +399,31 @@ must have neither, or it stops noticing what it was convened to notice.
 order carry the argument, is anything in the wrong place, what did you need earlier than you got
 it, and what could go. Line-level defects are volunteered; structural ones have to be asked for.
 
-**Ask readers 1 and 2 for their findings in small numbered batches, and put that in the brief** —
-one topic per message, numbered continuously so a gap is visible. Output limits truncate the tail,
-which is where the structural findings sit.
+**Have reader 1 write its findings to a file, not send them as messages.** A message is subject
+to an output limit and a long finding list hits it; the cut lands at about the same length every
+time, so re-requesting the tail the same way loses the same tail again. A file has no such limit.
+Ask for `referee-report.md` at the repository root, written with the editor tool rather than a
+shell heredoc, and have the reader send only a short confirmation listing the item numbers it
+contains. Read the file yourself. Keep the structural findings in their own section of it, or they
+end up at the tail of a long document and get skimmed exactly as they would have been truncated.
 
-**Two items per message, not five.** A batch of five arrives cut inside the fourth, and the cut
-lands at about the same length every time, so asking the same reader for "the rest" the same way
-loses the same tail again. Say so in the brief, in as many words: *a short message that arrives
-whole beats a complete one I only get 80% of, so cut the batch and send the remainder next.*
+Per finding: the line number, the quoted sentence, what is wrong, the evidence by file and line,
+what it should say, and **CONFIRMED** against **PLAUSIBLE** — whether the reader checked the
+evidence or only suspects it. Numbered continuously, so a gap is visible.
+
+**Reader 2 cannot write to a file, since restricting its view is the point**, so it stays on
+messages and needs the batch discipline: **two items per message, not five**, one topic each, and
+*a short message that arrives whole beats a complete one you only get 80% of.*
 
 **Prompt for every batch. A reader that has sent one goes idle and stays there.** It is waiting
 for a request it has no way to know is wanted, and a batch never arrives unasked — budget one
-message per batch and expect to send them all. Do not wait for the next one to appear; it will
-not.
+message per batch and expect to send them all.
 
 **When re-requesting, give the high-water mark and not a description.** "I have items 1 through 7
 complete and nothing after" continues; "send the rest" and "carry on where you left off"
-re-summarise, and a reader asked twice for a tail may resend the whole batch instead. Say which
-items are in hand every time, and name the fragment you are missing by quoting its last few words
-— a reader cannot see where its own output was cut.
+re-summarise, and a reader asked twice for a tail may resend the whole batch instead. Name the
+fragment you are missing by quoting its last few words — a reader cannot see where its own output
+was cut.
 
 **Expect readers 1 and 2 to disagree.** Resolve it in the text rather than by picking a side; where
 that is impossible, the referee wins on accuracy and the student wins on placement.
