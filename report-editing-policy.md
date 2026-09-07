@@ -43,6 +43,13 @@ outside it.
   reproducing the paper's own formula.
 - **Define what survives, once, before it is used**, in a short table ahead of the first section
   that needs it.
+- **That table declares dimensions and signs, not only meanings.** A row whose value column
+  reads like the others invites the reader to treat the quantity like the others. Say which
+  entries are frequencies and which are dimensionless — one table introduced four quantities as
+  "all of which are frequencies" when one was an energy fraction — and say whether the table
+  gives magnitudes or signed coefficients, where the body carries a signed matrix of the same
+  quantities. Say too which of the values are design *targets* and which are consequences: a
+  column headed "for this device" that mixes the two is read as all targets.
 - **The summary box uses no symbol at all.** It sits before that table. Write the quantity out;
   every number must survive the translation. Do not gloss a symbol inline — remove it. Audit the
   box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, **then grep
@@ -99,6 +106,17 @@ formulas for values and comparisons carried over from the old design point.
 **The report presents one device.** Every comparison against a previous one is history, however
 quantitative, and every number from it is wrong. A retarget is a sweep of the whole document; the
 staleness sweep of §10 is the procedure.
+
+**And the shape that survives every automated check is the one where the number is still in
+`results/`.** A value solved against the *old* target is not stale as a number — its log is
+right there, so §10.1's grep passes it and §10.2's passes it too. What is stale is the target it
+was solved for, and nothing in the report records that. On one report a resonator capacitance and
+impedance solved for a shift ten times smaller than the one the document designs were attached to
+the new shift for three review rounds, alongside a comparison — "a factor of two short" — that
+was a factor of twenty short of the target actually in force. **So sweep for the old target's
+value, not only for stale numbers**: grep the logs for the superseded target, list every design
+value solved in the same run, and check each against the sentence that now quotes it. A
+comparative phrase is the tell, because it carries the old target implicitly.
 
 **One flagged violation is a class, not an instance.** When a reader points at a sentence, grep the
 document for the *shape* before replying.
@@ -255,11 +273,30 @@ read "3.2 × 10⁻³ per gate. This is 3.2 times the zero-temperature 9.8 × 10�
 3.1 × 10⁻³; the two factors were evaluated at different qubit frequencies and neither the report
 nor its logs said which.
 
+**A comparison says what it holds fixed, and the thing held is rarely the thing of interest.**
+Two designs compared "at the same" something need that something named, because the reader will
+assume it is whichever quantity the sentence is about. One report offered a device that bought a
+factor of 1.32 in separation "at the same contrast" — the contrast in fact fell by 17.6%, as the
+same section said two paragraphs earlier, and what had been held across the comparison was the
+gain. Where a sweep holds one quantity to make another comparable, name it at every place the
+comparison is quoted, and give what the held quantity cost.
+
 **A numerical correction states the conditions it was computed under.** A table of thermal
 populations gives its temperature, its assumed level spectrum, how many levels were kept and which
 probability convention is meant. This bites hardest where the report has already said that the
 spectrum an exact treatment would need is unavailable: an approximate correction quoted without its
 model reads as the exact one, and a reader who tries to reproduce it cannot.
+
+**An edge found between two samples is bracketed, not located, and a solver failure is not a
+physical bound.** Both halves fail together, because the sentence that reports a ceiling is the
+one that has to say what kind of ceiling it is. Three things get conflated: the last parameter
+value at which a solve converged, the point at which a model extrapolates to a limit, and a bound
+the device actually has. Say which, and where the edge came from two samples with nothing tried
+between them, say so — "nothing between the two was tried, so the ceiling is bracketed and not
+located" is the whole fix, and a report that writes it correctly in one place and not in another
+reads as though the second edge were better established. Where the ceiling is a solver's, a
+second construction is what separates it from the device's, and the report should either carry
+that check or decline the claim.
 
 **Check it after editing, not only after writing.**
 
@@ -275,6 +312,22 @@ Three honest endings, and the report must pick one: **apply it** and quote the p
 the measurement; **say it was not applied**, so the quantity is an input rather than a prediction;
 or **delete it** and leave the record in `LOGBOOK.md`. Presenting the validation as though it
 licensed the result is not available.
+
+**A closed form that is maximised somewhere has an optimum of ITS OWN quantity, and that is not
+the optimum of what was measured.** The step from one to the other needs the rest of the chain to
+be flat in the swept parameter, and usually it is not: a susceptibility denominator depends on
+the same parameter, or the drive is separately re-optimised at each point. One report derived a
+self-energy difference maximised at a particular ratio and wrote that the expression "places the
+maximum" of the measured field separation, which it does not — it corroborates a sampled maximum
+and locates its own. Say which quantity the form maximises, and let it support the sweep rather
+than replace it.
+
+**And a maximum in one variable does not become a prescription on a ratio.** A condition written
+as one quantity equalling another reads as advice about both, and it is normally advice about the
+one that was swept. On the same report a maximum at "shift equals linewidth", established by
+moving the shift, was read as licensing a linewidth chosen to match a shift; read the other way
+the same expression falls monotonically and has no interior maximum at all. Where only one factor
+of a ratio has been varied, say so in the sentence that states the ratio.
 
 ## 8. When restructuring an existing report
 
@@ -310,6 +363,12 @@ and this policy. Check every number against evidence, the science, signs, scope,
 against a directory of logs, and an unbounded brief is how it fails: it audits until it runs out
 of room and writes nothing at all. Cap the investigation explicitly, in tool calls or in tables,
 and say that a finished file with twenty evidenced findings beats an unwritten one with forty.
+**Tell it to audit the summary last and as its own pass.** A brief that points a referee at the
+sections carrying the new work will get those sections audited and the front matter skimmed with
+whatever attention is left, and the summary is where a wrong claim does the most damage, because
+it is the part a reader quotes to someone else. On one pass the single finding that changed a
+conclusion was in the summary, and the referee reached it having nearly run out of room.
+
 **If it still does not deliver, the editor does the audit itself and says so in the file's
 header.** A pass whose reader 1 was not independent, and which declares it, is worth more than a
 pass with no number audit — that audit is the one thing readers 2 and 3 cannot supply, because
@@ -416,6 +475,14 @@ the number audit, and re-render every figure whose data moved.
    is for. The question is whether this table's numbers are in the file *this table came from*, and
    nothing in the report records which file that is. What can be automated is one layer down: an
    identity the printed numbers must satisfy, checked inside the script that prints them.
+
+   **And a range quoted from a sweep carries the sub-range it was taken over.** Where a script
+   excludes rows because the reasoning behind a quantity does not apply to them — and prints them,
+   and says why — the report inherits the exclusion along with the number. One report quoted a
+   spread "across a factor of four" from a sweep spanning a factor of thirty without saying so,
+   and dropped the excluded row whose value was six times off the trend and unexplained. Where two
+   claims in one paragraph hold over different sub-ranges, both need stating: a constancy result
+   and the ratio derived from it survived to different ends of the same sweep.
 2. **Every number has a script.** No number or figure quoted in the report may exist only in a
    scratch calculation and in prose. This covers two kinds that do not look like measurements and
    are the ones that survive a sweep: **a number derived in prose** from ones that were measured,
@@ -430,6 +497,13 @@ the number audit, and re-render every figure whose data moved.
    between them had missed, one of which described a case no script could run. Expect false
    positives and check them rather than suppressing them — a value formatted at runtime with
    `%.2f` and a rounded physical constant both fail the grep and are both correct.
+
+   **Expect it to come back, and grep the scripts for the last person who fixed it.** This defect
+   recurs in the same passages, because the arithmetic that derives one number from measured ones
+   is natural to do in prose. On one report a script carried a comment written by whoever closed
+   it the previous time, in the very section where a paragraph three lines further down the report
+   had re-introduced it. A comment saying "these are printed because the report quotes them and
+   nothing printed them" is a marker for where to look first.
 3. **Every figure and link resolves,** and every figure on disk is either used or deliberately not.
 4. **Every reference line, annotation and legend label a figure hardcodes, against the table it
    claims to match.** A constant baked into a plotting script is prose: it goes stale like prose,
@@ -447,3 +521,14 @@ the number audit, and re-render every figure whose data moved.
 7. **The symbol table against the body,** both ways: nothing defined and unused, nothing used and
    undefined. Expect false positives from LaTeX inside display blocks and from fragments of image
    filenames, and check them rather than suppressing them.
+8. **Every DIRECTION the summary asserts, re-derived from the current tables.** This is the item
+   the other seven cannot supply, and the reason it is needed is that a direction contains no
+   number. "Improves as the modes are narrowed" has nothing for §10.1 to check against `results/`,
+   a script behind every number it does quote so §10.2 passes it, and sound cross-references. It
+   is nonetheless capable of asserting the exact opposite of the section it summarises — on one
+   report it reproduced the trend of a comparison that the body itself discredits two paragraphs
+   later, because a new sweep had inverted the answer and the summary was written from the old
+   one. So after any new sweep, list every rises, falls, improves, grows, better and worse in the
+   summary and confirm each against the table it now describes. §1's audit of the box's
+   comparatives is the neighbouring check; a direction is neither a comparative nor a
+   superlative, so that audit does not catch it.

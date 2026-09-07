@@ -5,8 +5,11 @@ quantisation of superconducting circuits with **lumped and distributed elements 
 It accepts coplanar-waveguide sections and returns mode frequencies, linewidths, participation
 ratios, and the Kerr matrix.
 
-**Read the four checks below before using results.** Missing modes affect participation and Kerr
-values; the remaining sections cover distributed energy, dielectric assumptions, and search windows.
+**Read the four checks below before using results.** The first covers three separate ways the
+mode finder loses a mode -- two modes closer together than one scan step, a high node count, and
+a single mode too broad for a sign change to survive -- and any one of them changes the
+normalisation of every participation ratio and so every Kerr, including for the modes it found.
+The remaining sections cover distributed energy, dielectric assumptions, and search windows.
 
 > **Scope.** These observations came from circuits with a transmon, a tapped quarter-wave line,
 > and lumped nodes. The measurements describe those tests; retain the checks when applying the
@@ -67,6 +70,41 @@ four-mode circuit was tested with its line replaced by two `N`-section L-C ladde
 The surviving pair was 327 MHz apart near 24 GHz; modes at 3.1 and 6 GHz disappeared. Halving
 `step` to 0.005 GHz did not recover them. Test the practical node-count limit for each circuit
 and assert the mode count; finer scanning alone does not catch this failure.
+
+### And a third: a single well-separated mode is lost for being BROAD
+
+The two failures above are about how many modes there are and how many nodes carry them. This one
+is about one mode's own linewidth, and it bounds what a design solve can reach rather than what a
+single solve can see.
+
+Measured while sweeping the out-coupling capacitor of a four-mode circuit, holding the other six
+element values fixed so the coupled mode was free to broaden. The mode that disappears is the
+**broad** one, not a member of the close pair:
+
+| out-coupling capacitor | that mode's `kappa/2pi` | its Q | modes found (there are four) |
+|---|---|---|---|
+| 37.4 fF | 81.3 MHz | 74 | 4 |
+| 40 fF | 90.4 MHz | 66 | 4 |
+| 42 fF | 97.4 MHz | 58 | 4 |
+| 44 fF | — | — | **3** |
+| 46 fF | — | — | **3** |
+| 50 fF | — | — | **3** |
+
+So the edge sits where that mode's quality factor falls to about **58**, and the mode is still
+there: a harmonic-balance solver on the same circuit, locating modes from the driven response
+rather than by scanning a characteristic polynomial, finds it at every capacitance past the edge
+with its width rising smoothly to 127 MHz, and agrees with this package to 0.02% in width and
+3e-5 in frequency wherever both find it. **A root-finder that scans for sign changes can lose a
+pole whose imaginary part is large**, and no step size recovers it, because the sign change it is
+looking for has been smeared out rather than stepped over.
+
+**What this costs is the design solve, and that is the reason to know about it.** A single solve
+that loses a mode raises, and a wrapper asserting the count catches it. A Newton solve that calls
+the mode finder inside its Jacobian cannot proceed at all: it fails at whatever target first
+drives the mode past the edge, and the failure looks like the *circuit* running out of room. It is
+not. Report such a ceiling as a limit on the solve, bracketed between the last target that
+converged and the first that did not, and check it against a second construction before calling it
+a property of the device.
 
 ## 2. `CPW.inductive_energy` is marked unverified in its own source, and it is correct
 
