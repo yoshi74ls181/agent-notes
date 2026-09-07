@@ -15,38 +15,21 @@ that already exists.
 
 ## 0. Which document carries what
 
-| | reader | carries |
-|---|---|---|
-| `AGENTS.md` | an agent about to change something | what is needed *before* opening anything: what the study is in a paragraph, which document answers which question, and the constraints that stop a wrong edit |
-| `README.md` | a human arriving at the directory | brief orientation only: what this is, who owns it, where to start, the layout, how to run it |
-| `report.md` | a human who has never seen the project | the science, in logical order, and the limits on it |
-| `LOGBOOK.md` | someone continuing the work | **the project record**: every measured number, in script order, plus the history — what was tried, what failed, what was corrected and why |
-| `scripts/*` | someone re-running or extending a measurement | the method, and the traps in it, next to the code that hits them |
-
-**Findings are owned by `report.md` and `LOGBOOK.md`, and by nothing else.** Two exceptions:
-`AGENTS.md` may carry a number when the number *is* the constraint, and `README.md` may carry one
-line on what the study concluded.
-
-**Code structure has no document of its own.** Layout to `README.md`; the contracts an editor must
-not break to `AGENTS.md`; what each measured field means to `LOGBOOK.md`; anything that outlives
-the study to the project's shared notes.
+| document | reader | carries | does not carry |
+|---|---|---|---|
+| `AGENTS.md` | an agent about to change something | what is needed *before* opening anything: what the study is in a paragraph, which document answers which question, the constraints that stop a wrong edit, and the contracts an editor must not break. A number only when the number *is* the constraint | a fact rather than a constraint on action — link to the document that owns it. Any other finding. It loads into every session in its subtree, so prefer a pointer to a précis; much past 150 lines it has started restating its neighbours |
+| `README.md` | a human arriving at the directory | brief orientation only: what this is, who owns it, where to start, the code layout, how to run it. One line on what the study concluded | any other finding, and any result `report.md` or `LOGBOOK.md` owns |
+| `report.md` | a human who has never seen the project | the science, in logical order, and the limits on it | project history of any kind. Completeness: its scope is whatever story it tells, which may be one extension rather than the whole subproject, and it must not be widened to cover more. A chronological order |
+| `LOGBOOK.md` | someone continuing the work | **the project record**: every measured number, in script order, what each measured field means, and the history — what was tried, what failed, what was corrected and why. Every superseded claim, dead end, correction and abandoned approach the rules below take out of the report, and any finding with no place in the report's story. May be chronological | — |
+| `scripts/*` | someone re-running or extending a measurement | the method, and the traps in it, next to the code that hits them | — |
+| the project's shared notes | someone starting the next study | anything that outlives this one | anything naming a study or a path that exists in one repository only |
+| `report.html` | whoever the report is sent to | nothing of its own — it is regenerated on every build, so any edit to it is lost | — |
 
 **A line belongs in `AGENTS.md` only if:** *would someone about to edit do the wrong thing without
-it?* A fact rather than a constraint on action goes in another document, with `AGENTS.md` linking
-to it. That file loads into every session in its subtree, so prefer a pointer to a précis. Much
-past 150 lines it has started restating its neighbours.
+it?*
 
-**`LOGBOOK.md` is the designated home for project history** — every superseded claim, dead end,
-correction and abandoned approach the rules below take out of the report. It may be chronological.
-The report may not.
-
-**A report is not obliged to be complete, and must not be widened to make it so.** Its scope is
-whatever story it tells, which may be one extension rather than the whole subproject. A finding
-with no place in that story belongs in `LOGBOOK.md` alone.
-
-**`report.md` and `LOGBOOK.md` may cover the same material** in different orders; do not collapse
-them. `README.md` and `AGENTS.md` may not restate a result those two own. `report.html` is
-regenerated on every build, so any edit to it is lost.
+**Findings are owned by `report.md` and `LOGBOOK.md`,** and the two may cover the same material in
+different orders; do not collapse them.
 
 ## 1. Write for a working experimentalist, and define what survives
 
