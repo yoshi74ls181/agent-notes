@@ -50,6 +50,18 @@ outside it.
   still appears in the body. The underscore pattern alone is not the rule and is not enough — it
   passes κ, ω, Σ, and any bare single letter standing for a quantity, which on one audited box
   was five of the eleven symbols present.
+- **Audit the box's comparatives, not only its symbols.** The symbol audit is four greps and a
+  box can pass all of them while asserting something the body contradicts. Any superlative or
+  comparative in it — best, worst, beats everything, the largest — is a claim about the whole
+  document and has to be checked against every table in it. One box called an unranked alternative
+  one that "would beat everything recommended here" while the report's own frequency scan beat that
+  alternative by a factor of fifteen, without needing either of the alternative's prerequisites.
+- **Name a proxy as a proxy where it first appears, including in the box.** A quantity standing in
+  for a measurement — a damage estimate, a figure of merit, an infidelity proxy — carries its metric
+  and its normalisation at first use. The word "estimate" is not enough when the coefficient, the
+  saturation rule and the choice of representative value are all conventions: a reader who meets
+  the number before the convention reads it as an infidelity, and the headline percentages will
+  have done their argumentative work by the time the definition arrives.
 - **Expand every acronym on first use,** including the ones that name the device.
 - **Name a special function on first use, and give the particular numerical facts the report
   leans on** — the peaks, zeros and limits its results sit on.
@@ -63,6 +75,19 @@ carries its own history tends to be arranged in the order the work happened.
 
 Delete discovery narratives such as "an earlier version" or "originally", and first person.
 State what is true; keep how it came to be believed in the logbook.
+
+**Deleting the narrative is not deleting the choice.** Where "an earlier version did X" is the only
+place the report says why it does Y, rewrite it as a statement of what it does and why, then check
+the replacement still carries the reason. That a scan holds an action fixed rather than a duration
+is a methodological choice a reader needs; that it replaced a previous scan is not. The §0 table
+has the right instinct for dead ends, but an agent editing prose finds §2's flat instruction first
+and takes the justification out with the history.
+
+**A limitation that governs a table belongs beside that table.** State it where the numbers are
+read and keep the full version where the limits are collected. The same goes for a stipulated input
+that can reverse a comparison: name it as consequential wherever the comparison appears. One report
+listed a stipulation as "inconsequential" in its own inventory of stipulations, having shown
+fourteen paragraphs earlier that moving it by a decade decides which of two channels dominates.
 
 **A caption carries neither the figure's edit history nor a branch of its plotting code that did
 not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
