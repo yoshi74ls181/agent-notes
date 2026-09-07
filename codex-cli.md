@@ -126,8 +126,12 @@ cross-check, not proof of identity.
 
 - **Allow time for long reviews.** High-effort reads can take minutes; use the runner's background
   or wait mechanism.
-- **Check completion.** A failed run may leave no output file. Check the exit status and that the
-  file exists and is non-empty before accepting a review.
+- **Check completion, and wait on the process rather than polling for the file.** `-o` writes
+  the output only when the run finishes, so an absent file means "not done yet" and never
+  "nothing came back". Wait for the runner to exit and read its exit status; a review was
+  once abandoned as having produced nothing, and three substitute runs were launched, when
+  the original had in fact completed and written its whole reply. A failed run does leave no
+  output file, so check the file exists and is non-empty **after** the process has exited.
 - **Ask for whole-document coverage.** A reader may exhaust its response on the opening pages.
 - **Read configuration warnings.** Managed settings can override requested values.
 - **Cite section numbers and quote passages; record the input version.** Include line numbers
