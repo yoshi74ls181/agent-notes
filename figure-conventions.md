@@ -1,19 +1,13 @@
 # Figure conventions
 
-The rules for every plot, and the traps in the toolchain. They apply to whatever the figures are
-built for — a web report, a journal manuscript, a slide — which is why this note sits apart from
-any one pipeline document.
+Plotting rules for web reports, manuscripts, and slides.
 
-**What is portable and what is not.** The colour rules and the honesty rules are
-toolkit-independent: they hold equally in Plots.jl, matplotlib or D3. The GR font traps and the
-Plots.jl snippets are Julia-specific and can be skipped if that is not the stack. The palettes
-are validated values meant to be copied as they stand.
+Colour and data-validity rules are toolkit-independent. The Plots.jl examples and GR font
+notes are Julia-specific; skip those if using another stack. Copy the validated palettes as given.
 
-**The convention these assume**, and it is worth adopting even where none of the rest is: one
-script builds every figure a study ships, from committed data files, and writes them to one
-directory. Then a figure can always be regenerated, and a figure nobody can regenerate is a
-figure nobody can correct. Paths below of the form `scripts/` and `results/` are relative to a
-study's own directory.
+**Use one script to build every shipped figure from committed data into one output directory.**
+This keeps regeneration straightforward. Paths such as `scripts/` and `results/` below are
+relative to the study directory.
 
 ---
 
@@ -62,9 +56,8 @@ mentioned reads as "we covered everything".
 
 ## Make both series visible
 
-When two series coincide — often because the coincidence is the result — one is simply invisible
-drawn as a second line. Draw the first as a line and the second as sparse markers (every 6th
-point, white-outlined):
+For coincident series, draw one as a line and the other as sparse, white-outlined markers
+(every sixth point in this example):
 
 ```julia
 plot!(p, x1, y1; color = CAT3[1], linewidth = 2.5, label = "...")
@@ -72,9 +65,7 @@ scatter!(p, x2[1:6:end], y2[1:6:end]; color = CAT3[2], markersize = 4,
          markerstrokecolor = :white, markerstrokewidth = 1.0, label = "...")
 ```
 
-**Say in the caption why the second series is drawn as markers**, or a reader who can see the two
-traces apart will read the marker style as meaning something about the data. Where they separate
-in one region and coincide in another, say which.
+**Explain the marker choice in the caption**, including where the series coincide or separate.
 
 ## Mark data you do not trust, rather than dropping it
 
@@ -93,24 +84,15 @@ scatter!(p, P[.!ok], et[.!ok]; color = :white, markershape = :diamond,
          markerstrokecolor = CAT3[2], markerstrokewidth = 1.6, label = "")
 ```
 
-**Derive the validity test from the data, not from a threshold on the knob.** A fixed cutoff on
-the independent variable — "everything below this drive is unresolved" — is a guess that ages
-badly, and it will mark good points as noise. Test the quantity that actually goes flat or
-degenerate: a leading run where the output-to-input ratio has collapsed, say. A note recording
-this trap in one repository also recorded that a script and its own plotting code disagreed for
-months about which points were floored, because one used the fixed threshold and the other the
-measured one.
+**Derive validity from the data, not a cutoff on the independent variable.** Test the measured
+quantity that becomes unresolved or degenerate, and use the same test in the analysis and plot.
 
-**Plot a family at a matched independent variable, not at each member's own optimum.** Where each
-member's sweep stops at a different point, plotting each member's best value against the knob mixes
-the knob's effect with how far each member could be pushed, and inflates the apparent lever.
-Whenever the stopping point of a sweep is itself data-dependent, say what it was and hold it fixed
-if you can.
+**Compare a family at a matched independent variable, not at each member's optimum.** Otherwise
+the comparison mixes the parameter's effect with different sweep endpoints. State data-dependent
+stopping conditions and hold them fixed where possible.
 
-**Say in the caption when a dashed grey reference curve is a prediction rather than a fit.** A
-fitted curve and a predicted curve look identical on the page and mean opposite things; where a
-prediction stops tracking the data, that gap is the finding, and it is legible only if the reader
-knows it was never fitted.
+**Label a reference curve as a prediction or a fit.** A prediction's disagreement with data is
+interpretable only when the reader knows it was not fitted.
 
 ## Two output sizes from one script
 
@@ -132,10 +114,8 @@ julia --project=. scripts/NN_plots.jl                      # -> results/figures/
 FIGSTYLE=manuscript julia --project=. scripts/NN_plots.jl  # -> results/figures/manuscript/
 ```
 
-**A single-panel figure needs its own title path.** A helper that keeps a leading `(a)` at print
-size and truncates everything else is right for a faceted figure and silently wrong for a lone
-panel — one shipped for several commits with a title reading `the`. Return an empty title when
-there is no panel letter and let the caption carry the description.
+**Handle single-panel titles separately.** In print mode, retain a leading `(a)` or `(b)` only
+when present; otherwise return an empty title and leave the description to the caption.
 
 ## GR font traps
 
@@ -178,21 +158,15 @@ colour.
 
 ## Never ship a figure with a transparent background
 
-**Every figure gets an opaque background, and it is white.** A transparent one takes the
-background of whatever displays it, and half the things that display these are dark-themed — a
-browser or viewer in dark mode, a chat message, a report someone reads at night. Dark axes, black
-strokes and near-black text then sit on a dark background and the figure ranges from
-low-contrast to invisible. The figure has no way to know, and nothing in a build warns.
+**Every figure gets an opaque white background.** Transparent canvases can make dark axes and
+text disappear in dark-themed viewers.
 
-**It is not the default in either toolchain covered here.** Plots.jl honours a theme, so put it
-there — `background_color` *and* `background_color_inside`, since the outer canvas and the plot
-area are separate keys. A `standalone` LaTeX figure has a transparent page, and so does every PDF
-that comes out of it and every SVG converted from that PDF; the fix for that one is in
-[`circuit-figures.md`](circuit-figures.md), and it is **not** `\pagecolor`.
+Set both `background_color` and `background_color_inside` in Plots.jl. For a `standalone`
+LaTeX figure, use the background rectangle in [`circuit-figures.md`](circuit-figures.md);
+`\pagecolor` interferes with cropping.
 
-**Checking it needs the right test, because a viewer will lie to you.** Almost every image viewer
-composites transparency onto its own white canvas, so a transparent figure looks correct in the
-one place you are most likely to look. Test the file, not the picture:
+**Inspect the file's background, not just its appearance.** Viewers often composite transparency
+onto white, hiding the problem:
 
 ```bash
 # PNG: colour type 6 or 4 carries an alpha channel, 2 or 0 does not
@@ -201,16 +175,13 @@ python -c "import struct,sys; d=open(sys.argv[1],'rb').read(26); print('colourty
 grep -o 'rgb(100%,100%,100%)' fig.svg | head -1
 ```
 
-Alpha in a PNG is not by itself a fault if every pixel is opaque, but it is the thing to look at
-first. For an SVG the question is whether a background rectangle exists at all — a converted PDF
-has none unless the source asked for one.
+A PNG alpha channel is acceptable if all pixels are opaque. An SVG needs a filled shape covering
+the whole viewBox; finding a white fill somewhere is only an initial check.
 
 ## Look at every figure before shipping — in both sizes
 
-The validator checks colour, not layout. Rendering and inspecting is what catches a legend sitting
-on the data, an annotation overlapping a legend, tick labels left in `10^-1.8` form where explicit
-ticks were wanted (`xticks = (vals, labels)`), and silently dropped subscripts. None of these is
-visible in the code.
+Inspect renders for obscured data, overlapping legends and annotations, missing subscripts, and
+unintended tick formatting. Use `xticks = (vals, labels)` where explicit ticks are needed.
 
 **Check the print-sized render too.** Because text is larger *relative* to the canvas at print
 size, anything placed in data coordinates can fit in one size and overflow in the other. Anchor an
@@ -221,21 +192,15 @@ scales, and scale its font with `FSCALE`:
 annotate!(p, xb - 0.6, ylo + 4, text("multivalued →", round(Int, 7 * FSCALE), INK, :right))
 ```
 
-**A figure whose result is a length needs an equal aspect ratio and one shared box.** Where the
-finding is the distance between two points — a separation in a complex plane, say — autoscaling
-each panel makes two such distances incomparable while the caption invites the comparison, and
-symmetric limits about the origin can waste half the panel. Compute one box over every series,
-widen it to include whatever the distance is measured from, and square it up so the equal aspect
-is exact.
+**Distance comparisons need an equal aspect ratio and shared limits.** Compute one bounding box
+across the compared series, include the reference points, and square it up. Independent panel
+autoscaling makes distances incomparable; symmetry about the origin may waste space.
 
-**Draw the comparison you are asserting.** A claim stated as holding across a family can hold
-over a wide range for one member and a narrow one for another, with no individual number wrong.
-The figure shows that overreach at a glance; the numbers do not.
+**Draw the comparison the claim makes.** A claim across a family needs to show the relevant
+range for each member.
 
-**Check a quantified comment against the data like any other claim.** A comment justifying a
-layout choice — why the aspect ratio is equal, why a limit is where it is — can carry a number,
-and a wrong number there survives precisely because nothing computed depends on it. One claimed a
-20× ratio between two panels where the truth was 2.04×.
+**Check numbers in comments against the data too.** Layout justifications can contain stale
+ratios or limits even when the executable calculation is correct.
 
 `groupedbar` lives in StatsPlots, not Plots — dodged bars by hand are two `bar` calls with
 `bar_width = 0.34` at `x ± 0.19`, with a white outline giving the 2 px gap between the pair.

@@ -1,28 +1,20 @@
 # Using QuLTRA
 
-Working notes on [QuLTRA](https://github.com/SimonaZaccaria/QuLTRA), a Python package that does
-energy-participation-ratio quantisation of superconducting circuits containing **lumped and
-distributed elements together**. That combination is the reason to reach for it: it will take a
-netlist with a coplanar-waveguide section in it and hand back mode frequencies, linewidths,
-participation ratios and the full Kerr matrix, which a lumped nodal-admittance solver cannot do
-at all.
+[QuLTRA](https://github.com/SimonaZaccaria/QuLTRA) performs energy-participation-ratio
+quantisation of superconducting circuits with **lumped and distributed elements together**.
+It accepts coplanar-waveguide sections and returns mode frequencies, linewidths, participation
+ratios, and the Kerr matrix.
 
-**Read the four numbered sections below before trusting a number out of it.** Section 1 is the
-one that fails *silently* — the answer is wrong and nothing is raised — and it makes every
-participation ratio in the run wrong at once. Section 3 is a silent idealisation rather than a
-fault. Section 2 is a term the package's own author marks as unchecked, and it is correct.
+**Read the four checks below before using results.** Missing modes affect participation and Kerr
+values; the remaining sections cover distributed energy, dielectric assumptions, and search windows.
 
-> **Scope.** Everything here is about the package rather than about anyone's physics, so it
-> transfers to any project using it. The numbers quoted are measurements of the package's
-> behaviour, taken on real circuits with a transmon, a tapped quarter-wave line and a few lumped
-> nodes; nothing here needs any particular circuit to be read.
+> **Scope.** These observations came from circuits with a transmon, a tapped quarter-wave line,
+> and lumped nodes. The measurements describe those tests; retain the checks when applying the
+> package to another circuit.
 
 ---
 
 ## 1. The default scan step silently misses modes, and one missed mode poisons everything
-
-This is the trap to know before any other, because it does not announce itself and it is not
-local: a short mode list makes *every* participation ratio wrong at once.
 
 `find_zeros.zero_algo` locates modes by scanning for sign changes of the characteristic
 polynomial in steps of a module-level constant, `qultra.constants.step`, whose default is
@@ -30,10 +22,9 @@ polynomial in steps of a module-level constant, `qultra.constants.step`, whose d
 does not change across it, and **both are missed with nothing raised**. The mode list simply
 comes back short.
 
-That would be survivable if it stayed local, and it does not. `total_inductive_energy` sums over
-the modes it was given, so a short list gives the wrong total, and every participation ratio is
-divided by it. Every `p` is then wrong, and because every Kerr is a function of the frequencies
-and `p` alone, every Kerr is wrong with them — including modes the scan *did* find.
+`total_inductive_energy` sums over the supplied modes. An incomplete list changes the
+normalisation of every participation ratio and therefore the derived Kerrs, including
+those for modes the scan found.
 
 Measured on a four-mode circuit whose two highest modes sat **25 MHz** apart:
 
@@ -44,8 +35,7 @@ Measured on a four-mode circuit whose two highest modes sat **25 MHz** apart:
 | 0.02 GHz | 4 |
 | 0.01 GHz | 4 |
 
-**Set it before importing anything that builds a circuit**, because it is read at solve time but
-the import order is the thing you will get wrong:
+**Set the step before importing code that builds a circuit.** It is read at solve time:
 
 ```python
 import qultra.constants as KQ
@@ -63,14 +53,10 @@ if len(modes) < 4:
                        % [round(f / 1e9, 4) for f in modes])
 ```
 
-That assertion is what turns a silent wrong answer into a stack trace, and it is cheap.
-
 ### The same failure also arrives from the NODE COUNT, with no step that fixes it
 
-Worth knowing as a separate case, because the fix for the one above does not touch it and the
-assertion is the only thing that catches both. Modes go missing when the netlist gets *large*,
-however far apart they are. Measured on the same four-mode circuit with its line replaced by a
-pair of `N`-section L-C ladders, so that only the node count moved:
+Mode loss also occurred as node count increased, even for well-separated modes. The same
+four-mode circuit was tested with its line replaced by two `N`-section L-C ladders:
 
 | ladder sections per segment | nodes | modes found (there are four) | time |
 |---|---|---|---|
@@ -78,20 +64,15 @@ pair of `N`-section L-C ladders, so that only the node count moved:
 | 32 | 65 | **2** | 28 s |
 | 48 | 97 | **2** | 169 s |
 
-The two survivors were a pair 327 MHz apart near 24 GHz; what vanished were modes at 3.1 GHz and
-6 GHz, nowhere near each other or anything else. Halving `step` to 0.005 GHz recovered neither,
-so this is not section 1's mechanism wearing a different hat — a sign change that a finer scan
-would find is not what is being lost. Expect a practical ceiling somewhere around a few tens of
-nodes, find it by experiment for the circuit in hand, and assert on the count.
+The surviving pair was 327 MHz apart near 24 GHz; modes at 3.1 and 6 GHz disappeared. Halving
+`step` to 0.005 GHz did not recover them. Test the practical node-count limit for each circuit
+and assert the mode count; finer scanning alone does not catch this failure.
 
 ## 2. `CPW.inductive_energy` is marked unverified in its own source, and it is correct
 
-The function that supplies the inductive energy of a coplanar-waveguide section carries the
-comment `da verificare se e giusto !!!!!` — the author flagging it as unchecked. It is also
-precisely the term that makes a participation ratio meaningful whenever the netlist has a line in
-it, which is the case you chose this package for. A wrong prefactor there would move every `p`
-and so every Kerr while leaving every frequency and every linewidth right, which is the signature
-no internal check of the linear solve responds to.
+`CPW.inductive_energy` carries the comment `da verificare se e giusto !!!!!`. A wrong prefactor
+would alter participation ratios and Kerrs without changing frequencies or linewidths, so the
+linear solve alone cannot validate it.
 
 **It is verified and it is right — take numbers out of it.** Its prefactor `Z0/(2v)` is exactly
 `L'/2` for a line whose inductance per unit length is `L' = Z0/v`, so what it evaluates is the
@@ -102,8 +83,7 @@ electrical lengths from 0.05π to 1.5π, the lumped limit as the length goes to 
 `N`-section L-C ladder put in place of the line so that the same circuit is quantised with the
 distributed term present and then absent.
 
-**If a participation ratio out of this package looks wrong, this is not the first thing to
-suspect. Section 1 is.**
+**Check mode completeness (§1) before suspecting this energy term.**
 
 ## 3. `epsilon_eff = (1 + epsilon_r)/2` is the package's own idealisation
 
@@ -111,44 +91,37 @@ The phase velocity used for a CPW comes from `qultra.constants.epsilon_r` throug
 `epsilon_eff = (1 + epsilon_r)/2`, the standard thin-film half-space estimate. On silicon that is
 `epsilon_eff = 6.45` and `v = 1.18043 × 10⁸ m/s`.
 
-It is an idealisation of a real coplanar waveguide, which has a finite centre-conductor width, a
-gap, a metal thickness and a substrate of finite depth. **Any length the package hands back is
-therefore a length in its own idealised medium**, and a layout tool will not agree with it. Quote
-it as such, and do not treat a solved line length as fabrication-ready without a cross-section
-calculation.
+The model omits finite conductor width, gap, metal thickness, and substrate depth. **Its line
+lengths describe that idealised medium.** Validate them with a cross-section calculation before
+using them as fabrication dimensions.
 
 ## 4. A mode leaving its search window surfaces as an error from inside the Jacobian
 
-`QuLTRA` raises `No zeros found in the specified interval` when the `(fmin, fmax)` window it was
-given contains no mode. In an outer solve — a Newton step, a bisection, a parameter sweep — that
-arrives from three levels down, with no indication of which knob moved a mode out of which
-window, and it reads as a puzzle rather than as a message.
+`QuLTRA` raises `No zeros found in the specified interval` when `(fmin, fmax)` contains no mode.
+During a Newton solve, bisection, or sweep, check which parameter moved the mode outside its window.
 
 The cause is nearly always a **fixed** window over a swept parameter. Two measured cases: over a
 search on a shunt capacitance, that node's own resonance ran from 153 GHz down to 1.5, and over a
 search on a line length the line's resonance left any window pinned near its design value.
 
-**Scale every window and every bracket to its own target rather than to a design value**, and
-where a solve takes a full Newton step into a region with no mode, halve the step and retry
-rather than letting the raise escape. Both are cheaper than reading the traceback.
+**Scale windows and brackets to the current target.** If a full Newton step enters a region
+with no mode, halve the step and retry.
 
 ---
 
 ## What it publishes, and what that is good for
 
-Worth knowing because it changes what is worth cross-checking. `run_epr` returns the
-participation ratios **directly**, alongside the frequencies, the linewidths and the Kerr matrix.
+`run_epr` returns participation ratios **directly**, alongside frequencies, linewidths, and the
+Kerr matrix.
 
 Every Kerr is a function of the mode frequencies and `p` alone,
 
     alpha_i  = -f_i^2 p_i^2   / (8 EJ),
     chi_ij   = -f_i f_j p_i p_j / (4 EJ),
 
-so comparing only the Kerrs against another tool checks the *output* of those formulas twice and
-the *input* never. Because this package publishes `p`, a cross-check can compare the input as
-well, which is the tighter test — in one measured three-way comparison against two other
-quantisations of the same lumped circuit, the participations agreed to 7.4 × 10⁻⁵ while the worst
-deviation on anything was 1.6 × 10⁻⁴.
+so compare the participation inputs as well as derived Kerrs. In one three-way comparison
+against two other quantisations of the same lumped circuit, participations agreed to
+7.4 × 10⁻⁵ and the worst deviation on any quantity was 1.6 × 10⁻⁴.
 
 It also takes the junction's linear inductance and **derives `EJ` from it** rather than accepting
 both. That is the right way round: a tool given both can end up describing two different

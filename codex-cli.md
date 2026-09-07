@@ -1,10 +1,9 @@
 # Driving the Codex CLI as a non-interactive reader
 
-How to run an OpenAI model from the command line as one of the readers in
-[`report-editing-policy.md`](report-editing-policy.md)'s three-reader pass. The pass needs readers
-2 and 3 to come from a **different model family** than reader 1, and this is one way to get one.
-Nothing here is specific to any repository, and nothing here is the only way — any runner that can
-take a prompt on stdin and write a reply to a file will do.
+Run an OpenAI model as a reader in the
+[`report-editing-policy.md`](report-editing-policy.md) three-reader pass. Readers 2 and 3 must
+come from a different model family than reader 1. Any runner accepting stdin and saving a
+final response can serve the same role.
 
 Verified against `codex-cli` **0.153.4**. Check `codex exec --help` before trusting a flag; this
 CLI moves.
@@ -44,17 +43,14 @@ appends the stdin as a `<stdin>` block instead of replacing it.
 
 ## `-o` is the flag that matters
 
-**`-o, --output-last-message <FILE>` writes the model's final message, and only that, to a file.**
-Redirecting stdout instead gives you the startup banner, the reasoning stream and a token count
-wrapped around the answer. In one run the final message was 3.6 kB and stdout was 77 kB.
+**`-o, --output-last-message <FILE>` saves the final message.** Progress normally goes to stderr
+and the final message to stdout; `--json` changes stdout to an event stream.
+See the [official non-interactive guide](https://developers.openai.com/codex/noninteractive).
 
-Two consequences:
-
-- **A file has no output limit, so ask for everything in one invocation.** Splitting a long
-  answer into batches is only necessary when the reply comes back as a chat message.
-- **`-o` overwrites and does not append.** For genuinely separate calls, write each to its own
-  path and join them with a plain byte copy (`cat`) — never a shell heredoc, which mangles
-  backslashes in whatever LaTeX the reader wrote.
+- **Request the full review in one invocation**, but check that it covers the requested scope;
+  writing to a file does not remove model output limits.
+- **`-o` overwrites rather than appends.** Use separate paths for separate calls. If joining
+  outputs, use a byte copy (`cat`) rather than a shell heredoc that can alter backslashes.
 
 `--json` streams events as JSONL if you need to watch progress; `--output-schema <FILE>` takes a
 JSON Schema and constrains the shape of the final reply.
@@ -63,28 +59,22 @@ JSON Schema and constrains the shape of the final reply.
 
 For a reader that is supposed to hold one document and nothing else:
 
-- **`-C, --cd <DIR>`** sets the working root. Point it at an empty scratch directory *outside* the
-  repository and the reader finds no `AGENTS.md` and no source to wander into. This is the part
-  that actually enforces the restriction.
-- **`--skip-git-repo-check`** is then required, because the scratch directory is not a git
-  repository and `exec` refuses to start in one by default.
-- **`-s read-only`** stops it writing anything even if it tries. The other values are
-  `workspace-write` and `danger-full-access`.
-- **Inline the document in the prompt** rather than naming a path, so the restriction holds over
-  the content and not merely over the filesystem. Wrap it in `<document>` tags and number the
-  lines with `cat -n` so the reader can cite them:
+- **`-C, --cd <DIR>`** sets the working root. An empty scratch directory outside the repository
+  avoids incidental project context, but does not enforce a read-access boundary.
+- **`--skip-git-repo-check`** allows that non-repository working directory.
+- **`-s read-only`** restricts model-generated shell writes; it does not restrict reads to the
+  working directory. Use environment access controls if strict isolation is required.
+- **Inline the document in the prompt**, wrapped in `<document>` tags, and number the lines
+  with `cat -n` so the reader can cite them:
 
 ```bash
 { cat brief.txt; echo '<document>'; cat -n report.md; echo '</document>'; } > prompt.txt
 ```
 
-Pointing a *repository-rooted* sandbox at a path outside itself is the thing that hangs. Moving
-the reader's root with `-C` is a different operation and works.
-
 ## Images
 
-**`-i, --image <FILE>`** attaches an image to the prompt, repeatable. Send raster renders of any
-figure that exists only as vector art, since the reader cannot rasterise an SVG or a PDF itself:
+**`-i, --image <FILE>`** attaches an image and is repeatable. Supply raster renders of vector
+figures so review does not depend on the reader's conversion tools:
 
 ```bash
 pdftocairo -png -r 200 -singlefile figure.pdf figure     # -> figure.png
@@ -101,9 +91,8 @@ restarting.
 -c model_reasoning_effort=high          # low | medium | high
 ```
 
-**Set the reasoning effort explicitly.** It defaults from `config.toml`, and a config left at
-`low` will quietly give you a shallow read. `-c` takes any dotted config key and parses the value
-as TOML, falling back to a literal string.
+**Set reasoning effort explicitly** rather than inheriting an unintended `config.toml` default.
+`-c` accepts dotted config keys, parsing values as TOML with a literal-string fallback.
 
 ## Continuing a session
 
@@ -112,8 +101,8 @@ codex exec resume <SESSION_ID> -c model_reasoning_effort=high -o out.md - < foll
 codex exec resume --last  ...                    # most recent session instead
 ```
 
-The session id is printed in the startup banner (`session id: 01a0...`), so capture stdout on the
-first call even when using `-o`.
+Capture the session ID from runtime output or JSONL events on the first call, even when using
+`-o` for the final message.
 
 **`resume` does not take the same flags as `exec`.** It rejects `-C` and `-s` with
 `unexpected argument '-C' found`, because the working root and the sandbox belong to the session
@@ -122,30 +111,24 @@ than assuming any of this.
 
 ## Verify which model actually answered
 
-A wrapper or plugin can route a request meant for a foreign model back through the local family,
-which silently destroys the point of having a second family read the document. Two checks, and do
-both:
+Check runtime provenance when using a different model family; wrappers may route requests.
+Use both checks:
 
 - **The banner** prints `model:`, `provider:`, `sandbox:`, `reasoning effort:` and the session id
   before the reply. Keep it.
 - **Ask the reader, in the first line of the brief, to name its own model and runtime.** The
   give-away is a reader describing tools of its own rather than the foreign runtime.
 
-Have the reader put that answer at the head of the document it writes, so the provenance travels
-with the findings.
+Record provenance at the head of the findings. Treat the model's self-description as a
+cross-check, not proof of identity.
 
 ## Traps
 
-- **It is slow.** A high-effort read of a long document runs for minutes. Start it in the
-  background and do something else; do not poll it.
-- **`-o` is silent about failure.** If the run dies the file may simply not appear, so check that
-  it exists and is non-empty before treating the absence of findings as a clean bill of health.
-- **The reply can be shorter than you asked for.** A reader told to review a long document may
-  treat the first page or two exhaustively and stop. Say how much ground the reply must cover and
-  that reaching the end matters more than completeness inside any one part.
-- **Enterprise-managed settings can override what you pass.** An `approval_policy` of `never` was
-  refused and replaced with `on-request`, with a warning on stderr and no failure. Read the
-  warnings.
-- **Line numbers in the reply go stale immediately**, because the document changes as findings are
-  applied. Have the reader state which version it read, and cite the section number and the
-  quoted sentence as well as the line.
+- **Allow time for long reviews.** High-effort reads can take minutes; use the runner's background
+  or wait mechanism.
+- **Check completion.** A failed run may leave no output file. Check the exit status and that the
+  file exists and is non-empty before accepting a review.
+- **Ask for whole-document coverage.** A reader may exhaust its response on the opening pages.
+- **Read configuration warnings.** Managed settings can override requested values.
+- **Cite section numbers and quote passages; record the input version.** Include line numbers
+  for the reviewed version, but expect them to change as findings are applied.

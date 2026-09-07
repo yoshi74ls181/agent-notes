@@ -1,12 +1,11 @@
 # Editing policy for reports
 
-A report is **reader-facing**: someone who has never seen the project reads it front to back and
-follows the science, learning nothing about the order in which it was found.
+A report is **reader-facing**: a newcomer should follow the science in logical order without
+learning the project's discovery history.
 
-This note covers *what goes in the report*, including what form the source may take. The build
-that turns that source into a shareable HTML file is
-[`markdown-report-pipeline.md`](markdown-report-pipeline.md). Plotting conventions and the file
-set of a study directory are a project's own to fix, and this note assumes only that they exist.
+This note covers report content and source form. The build is documented in
+[`markdown-report-pipeline.md`](markdown-report-pipeline.md); figure conventions and study
+layout have separate notes.
 
 **The rules are ordered by what an agent needs first when drafting**: where a fact belongs and
 who it is written for, then what must not be carried over from the work, then structure and
@@ -33,9 +32,9 @@ different orders; do not collapse them.
 
 ## 1. Write for a working experimentalist, and define what survives
 
-**Assume a working experimentalist in the report's own field.** The field's standard vocabulary
-goes unexplained. Anything outside its common training keeps its correct name — so a reader can
-look it up — and gets one operational sentence saying what was actually computed.
+**Assume a working experimentalist in the report's field.** Leave standard vocabulary
+unexplained. For unfamiliar concepts, retain the correct name and add one operational sentence
+stating what was computed.
 
 **Do not assume the reader has read the source paper.** Its private symbols carry no meaning
 outside it.
@@ -53,27 +52,21 @@ outside it.
   leans on** — the peaks, zeros and limits its results sit on.
 - **Name a sibling study rather than pointing at it.** "The sibling study" means nothing.
 
-A number quoted with an undefined symbol is not a checkable number: this is a correctness rule.
-
 ## 2. Order by logic, not by discovery, and keep the history out
 
 The report says what is true, not how it came to be believed. That governs the sentences and the
 order of the sections alike, and it is one rule because the two fail together: a document that
 carries its own history tends to be arranged in the order the work happened.
 
-**Delete every account of how the work went** — "an earlier version of this script",
-"originally", "it took a check to notice", "the simulation overruled it" — and first person of any
-kind.
+Delete discovery narratives such as "an earlier version" or "originally", and first person.
+State what is true; keep how it came to be believed in the logbook.
 
 **A caption carries neither the figure's edit history nor a branch of its plotting code that did
 not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
 ratio — does belong there.
 
-**A superseded target is project history, and it hides in the numbers.** When a study is
-retargeted, the old design point returns as prose: a value attributed to the design this one grew
-out of, a component this study started from, a comparison against something the reader has never
-been shown. Worse, it returns as whole paragraphs of the old point's numbers standing beside the
-new.
+**Superseded design targets are history too.** After retargeting, sweep prose, tables, and
+formulas for values and comparisons carried over from the old design point.
 
 **The report presents one device.** Every comparison against a previous one is history, however
 quantitative, and every number from it is wrong. A retarget is a sweep of the whole document; the
@@ -102,25 +95,22 @@ alternative, a bound, or an explicitly unreachable ideal. Put the anchor in the 
 result rather than a scale.
 
 Applying either half usually means *moving* material rather than cutting it.
+
 ## 3. One name, one meaning
 
 A symbol, a word or a phrase means exactly one thing in a document. Four shapes:
 
-**A symbol reused for an unrelated quantity.** **The fix is never to gloss it, it is to rename**,
-and often the better rename removes the symbol entirely, since a constant that appears twice does
-not need a name.
+**Rename symbols reused for unrelated quantities.** A gloss does not remove the collision.
+Remove the symbol entirely when the quantity does not need a name.
 
-**Two objects with the same generic name** — two devices both called "the device", two source
-papers both "the paper". A reader who combines a number from one with a number from the other gets
-a contradiction and cannot tell whether the report is wrong or they are. Name each on first use and
-say explicitly that the one is *not* the other.
+**Name objects distinctly.** Two devices called "the device", or two sources called "the paper",
+invite readers to combine incompatible numbers. Name each on first use and distinguish them.
 
-**A word standing for several numbers** — a quantity meaning one thing in a table, another on a
-figure axis and a third to the reader. Name the referent every time; never use the bare word.
+**Name the referent when a word could stand for several numbers**, such as different quantities
+in a table and on a figure axis.
 
-**One quantity measured several ways, quoted without saying which** — several values, each correct
-for its own method or condition, quoted as though they were one. **Say which variant produced the
-number, every time, or use one variant throughout.** Grepping finds nothing wrong with this one.
+**Identify the measurement variant behind every quoted number**, or use one variant throughout.
+Values from different methods or conditions are not interchangeable.
 
 **Finding them.** Extract every symbol and every capitalised or quoted term and list the distinct
 quantities each denotes. Where a system holds several instances of a component, the bare noun is
@@ -131,21 +121,10 @@ places agree before quoting either.
 
 The source carries **neither raw HTML nor inline LaTeX**.
 
-**Do not hard-wrap. One paragraph is one line.** Let the editor soft-wrap it to whatever width
-the window has. A source hard-wrapped to a fixed column is unreadable in any editor narrower
-than that column, which is the case the wrapping was supposed to help, and it re-wraps to a
-different width for every reader who has a different one.
+**Do not hard-wrap. One paragraph is one line.** Let the editor soft-wrap for the reader's window.
 
-Three further reasons, and the last is the one that bites:
-
-- **A diff of hard-wrapped prose is unreadable.** Change a word in the first sentence and every
-  line of the paragraph reflows, so the diff shows the whole paragraph and hides which word
-  moved. Unwrapped, the diff is the paragraph that changed and nothing else.
-- **Search and edit both work on whole sentences.** A grep for a phrase fails when a line break
-  falls inside it, and an exact-string edit needs the break reproduced.
-- **Wrapping can change what markdown means.** A wrap that puts `|S21|` at the start of a line
-  invents a table row; one that lands on `- ` or `1. ` invents a list. A hard-wrapper has to know
-  the markup to avoid this, and none of ours did — this is not a hypothetical.
+Hard wrapping reflows unrelated text in diffs and splits searchable phrases. It can also change
+Markdown structure: a break before `|S21|`, `- `, or `1. ` may introduce a table row or list.
 
 **What stays on its own line regardless**: headings, table rows, the `![alt](path)` figure lines
 with their alt text intact, and display blocks. Those are already one logical unit per line.
@@ -162,9 +141,8 @@ them as `<sub>`. Two consequences:
   subscript; backticked spans are never touched. `proseSubscript` in `scripts/tex_unicode.js` is
   the rule.
 
-**Display equations stay as `$$...$$`,** and **a load-bearing formula gets `$$` even if it would
-fit on one line.** The test is what the formula does, not how long it is: if the reader has to stop
-and look at it, display it; an aside, a definition restated or a unit conversion stays inline.
+**Display equations stay as `$$...$$`.** Display a load-bearing formula even when it fits on
+one line. Asides, restated definitions, and unit conversions may stay inline.
 
 **Use Unicode for the symbols inside the `$$` too.** Three things stay macros:
 
@@ -176,10 +154,8 @@ and look at it, display it; an aside, a definition restated or a unit conversion
 Nothing is converted inside text and upright-roman arguments. **None of this applies to the
 prose**, which never goes near MathJax: Unicode maths is simply correct there.
 
-**Verify a rewrite, do not assume it.** Compare the rendered MathML before and after the change
-rather than the rendered text, and note that the build refuses any character it cannot hand to
-MathJax. The conversion table is in
-[`markdown-report-pipeline.md`](markdown-report-pipeline.md).
+**Verify notation rewrites by comparing rendered MathML.** The build rejects unknown Unicode;
+see the conversion table in [`markdown-report-pipeline.md`](markdown-report-pipeline.md).
 
 **What no-HTML costs, and accept it:** semantic colouring becomes bold, multi-column layouts
 become sequential sections, badges fold into their heading text, and sub- and superscripts become
@@ -202,13 +178,11 @@ silently. Name the section by its number, or name the object.
 
 ## 6. Arithmetic the reader will attempt must close
 
-**A vague quantifier is a number the writer had and did not print** — "a comfortable factor", "not
-a small perturbation", "a big win". Print it, or cut the restatement where the surrounding text
-already gives the number.
+**Replace vague quantifiers with numbers:** "a comfortable factor", "not a small perturbation",
+and "a big win". If the surrounding text already gives the number, cut the restatement.
 
-Print two operands near a result and a reader will do the sum. **A sum that does not close is a
-missing sentence, not a rounding problem**: it usually conceals a definition or a design decision
-that was never stated, and a phrase like "with nothing fitted" invites exactly that check.
+**Arithmetic must close.** If nearby operands do not produce the stated result, explain the
+missing definition or design decision rather than dismissing the discrepancy as rounding.
 
 Three related shapes: **"so" between two independently computed numbers**, which hides an agreement
 worth stating plainly; **a factor the reader has to derive**, so print the expression rather than
@@ -219,9 +193,8 @@ arithmetic the other way.
 
 ## 7. Evaluate the closed form, and apply the method to the device
 
-**A closed form that is printed and never evaluated.** Put numbers in it. It usually predicts, for
-free, results the report is asserting from a parameter scan, and a prediction confirmed by a scan
-is a stronger claim than a scan alone.
+**Evaluate printed closed forms.** They may predict results otherwise asserted from a parameter
+scan, turning the scan into an independent check.
 
 **A method validated on something other than the device** — a prescription validated on a test case
 and never applied to the device the report designs, whose corresponding number is fitted instead.
@@ -257,19 +230,16 @@ reading is the one thing only reader 2 can supply.
 
 ### Reader 1, the referee
 
-**An agent with the whole repository** — the report, the logbook, the result logs, the scripts and
-this policy. Check the science, and check every number against the evidence. Finds sign errors,
-quantities described as the wrong thing, claims that outrun their support, and the §7 analysis
-that was never pointed at the device.
+**An agent with the whole repository**, including the report, logbook, result logs, scripts,
+and this policy. Check every number against evidence, the science, signs, scope, and whether
+§7's method was applied to the device.
 
 ### Reader 2, the second-year graduate student
 
-**A foreign-family agent given the report and its figures and nothing else.** Ask it to go front
-to back naming every place it stopped, re-read or guessed and to quote the sentence; to ask for
-every non-standard term to be explained rather than inferring it; and to say what a first-time
-reader with limited patience would give up on and how the report should be reordered so they do
-not. Finds §3 collisions, §6 arithmetic, symbols used before they are defined, terms the author
-has stopped hearing, and whether the headline can be interpreted at all.
+**A foreign-family agent given only the report and its figures.** Read front to back and quote
+every passage requiring a reread or guess. Identify unexplained nonstandard terms, §3 name
+collisions, §6 arithmetic, and definitions introduced late. Say where a first-time reader would
+give up and what order would help.
 
 Two things this reader needs and the others do not:
 
@@ -281,9 +251,8 @@ Two things this reader needs and the others do not:
 
 ### Readers 1 and 2, and what comes back from them
 
-**Ask both about the structure, not only the sentences,** in as many words: does the order carry
-the argument, is anything in the wrong place, what did you need earlier than you got it, and what
-could go.
+**Ask readers 1 and 2 about structure explicitly:** what belongs earlier, what is misplaced,
+whether the order carries the argument, and what could be removed.
 
 **Ask reader 1 to propose additions and modifications to this policy, and reader 2 additions
 only**, in a section of their own. Reader 2 has not seen the policy and so cannot say what in it
@@ -329,9 +298,8 @@ introduced.
 
 ### Readers 2 and 3, which come from outside the local model family
 
-**The mechanics of running one are in [`codex-cli.md`](codex-cli.md)** — the flags, how to get
-the reply into a file, how to restrict what the reader can see, and the traps. Read it before
-convening either. What that note does not decide, this one does:
+Use [`codex-cli.md`](codex-cli.md) for runner commands, output capture, and review context.
+Read it before convening readers 2 and 3. The review-specific requirements are:
 
 - **Verify which model read the document.** Ask it to name its own model and runtime before
   anything else, and keep the answer at the head of what it writes. A plugin offering a foreign
