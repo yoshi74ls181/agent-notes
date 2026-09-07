@@ -443,13 +443,15 @@ the number audit, and re-render every figure whose data moved.
 
 #### Handing a report to a reader outside the local model family
 
+**The mechanics of running one are in [`codex-cli.md`](codex-cli.md)** — the flags, how to get
+the reply into a file, how to restrict what the reader can see, and the traps. Read it before
+convening readers 2 and 3. What that note does not decide, this one does:
+
 - **Verify which model read the document.** Ask it to name its own model and runtime before
-  anything else, and keep the answer. A plugin offering a foreign model may route through a
-  wrapper of the local family; the give-away is a reader describing tools of its own rather than
-  the foreign runtime.
-- **Give the reader a working root outside the repository** — its own `--cd`/`-C` to a scratch
-  directory, with the git-repo check skipped. Otherwise the foreign harness reads `AGENTS.md` and
-  the restricted view is gone.
+  anything else, and keep the answer at the head of what it writes. A plugin offering a foreign
+  model may route through a wrapper of the local family.
+- **Give the reader a working root outside the repository**, or the foreign harness reads
+  `AGENTS.md` and the restricted view is gone.
 - **Inline the document rather than pointing at a path.** The whole report in the prompt, inside
   `<document>` tags, with `cat -n` line numbers so it can cite them.
 - **Attach raster renders of any vector figure to reader 2, and ask about them specifically.**
@@ -458,8 +460,6 @@ the number audit, and re-render every figure whose data moved.
 - **Tell reader 2 the report has already been reviewed**, or it invents concerns to fill every
   heading, and **tell it to cover the whole document**, or it reads the first fifty lines
   exhaustively and stops.
-- **Resuming a session keeps the attached figures.** The flags that set the working root and the
-  sandbox are usually accepted only on the initial call.
 
 ### The staleness sweep, once the edits have settled
 
