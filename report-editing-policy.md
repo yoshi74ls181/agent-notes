@@ -400,9 +400,24 @@ order carry the argument, is anything in the wrong place, what did you need earl
 it, and what could go. Line-level defects are volunteered; structural ones have to be asked for.
 
 **Ask readers 1 and 2 for their findings in small numbered batches, and put that in the brief** —
-one topic per message, a few hundred words each, numbered so a gap is visible. Output limits
-truncate the tail, which is where the structural findings sit. When re-requesting, say which items
-are already in hand, or the reader re-summarises instead of continuing.
+one topic per message, numbered continuously so a gap is visible. Output limits truncate the tail,
+which is where the structural findings sit.
+
+**Two items per message, not five.** A batch of five arrives cut inside the fourth, and the cut
+lands at about the same length every time, so asking the same reader for "the rest" the same way
+loses the same tail again. Say so in the brief, in as many words: *a short message that arrives
+whole beats a complete one I only get 80% of, so cut the batch and send the remainder next.*
+
+**Prompt for every batch. A reader that has sent one goes idle and stays there.** It is waiting
+for a request it has no way to know is wanted, and a batch never arrives unasked — budget one
+message per batch and expect to send them all. Do not wait for the next one to appear; it will
+not.
+
+**When re-requesting, give the high-water mark and not a description.** "I have items 1 through 7
+complete and nothing after" continues; "send the rest" and "carry on where you left off"
+re-summarise, and a reader asked twice for a tail may resend the whole batch instead. Say which
+items are in hand every time, and name the fragment you are missing by quoting its last few words
+— a reader cannot see where its own output was cut.
 
 **Expect readers 1 and 2 to disagree.** Resolve it in the text rather than by picking a side; where
 that is impossible, the referee wins on accuracy and the student wins on placement.
@@ -418,15 +433,28 @@ Readers 2 and 3 are the ones this applies to, and the pass is easily faked.
   through a wrapper of the local family. The give-away is a reader describing tools of its own
   rather than the foreign runtime.
 - **The foreign harness reads `AGENTS.md` by default, which destroys the restricted view**, and no
-  instruction prevents it.
-- **So inline the document rather than pointing at a path.** Put the whole report in the prompt
-  inside `<document>` tags with `cat -n` line numbers so it can cite them. Do not move the file to
-  a scratch directory: the sandbox is pinned to the repository root, so an outside path *hangs*.
-  Inlining is also what actually enforces "the report and nothing else".
+  instruction prevents it. **What does prevent it is giving the reader a working root outside the
+  repository** — run it with its own `--cd`/`-C` set to a scratch directory and the git-repo check
+  skipped, and it finds no `AGENTS.md` to read. What hangs is pointing a *repository-rooted*
+  sandbox at a path outside itself; moving the reader's root is a different thing and works.
+- **Inline the document anyway rather than pointing at a path.** Put the whole report in the prompt
+  inside `<document>` tags with `cat -n` line numbers so it can cite them. Inlining is what makes
+  "the report and nothing else" true of the content rather than only of the filesystem, and it
+  survives a reader that decides to go looking.
+- **Ask the reader to name its own model and runtime, and keep the answer.** One line at the top of
+  the brief, answered before anything else, is the cheap version of the verification above.
 - **Attach the figures to reader 2, and ask about them specifically.** Send raster renders of any
   figure the report embeds as vector art. Reader 3 gets the text alone.
 - **Set the reasoning effort explicitly**, since it defaults from the CLI's own config, and **tell
   reader 2 the report has already been reviewed**, or it invents concerns to fill every heading.
+- **Give reader 2 a line budget per batch, or it reads the first fifty lines exhaustively and
+  stops.** Left to itself it treated seven stops in the opening two pages as a batch. Tell it how
+  many lines the batch covers and that reaching the end matters more than completeness inside any
+  one section; its later batches are then worth more than its first.
+- **Resuming the reader keeps the attached figures**, so a session is worth continuing rather than
+  restarting per heading. Check the resume subcommand's own flags: the ones that set the working
+  root and the sandbox are usually accepted only on the initial call, and the session's own root
+  is inherited.
 
 ### The staleness sweep, once the edits have settled
 
