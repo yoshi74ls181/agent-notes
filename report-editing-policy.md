@@ -30,6 +30,13 @@ that turns that source into a shareable HTML file is
 [`markdown-report-pipeline.md`](markdown-report-pipeline.md). Plotting conventions and the file
 set of a study directory are a project's own to fix, and this note assumes only that they exist.
 
+**The rules below are the ones that shape a first draft**: where a fact belongs, what form the
+source takes, what must not be dropped, and which numbers have to be right. Sentence-level
+defects are deliberately absent — an announcing paragraph header, a subjective tail on a
+quantitative sentence, a fragment with no main verb, a second em dash doing a full stop's job, a
+result stated twice. The three-reader pass finds those, and reader 3's rewrite fixes them in one
+pass, which is cheaper than legislating each one and checking it by hand.
+
 ## 0. Which document carries what
 
 | | reader | carries |
@@ -133,6 +140,10 @@ Delete every account of how the work went — "an earlier version of this script
 took a check to notice", "the simulation overruled it" — and first person of any kind. Say what is
 true, not how it came to be believed.
 
+**A caption carries neither the figure's edit history nor a branch of its plotting code that did
+not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
+ratio — does belong there.
+
 **A superseded target is project history, and it hides in the numbers.** When a study is
 retargeted, the old design point returns as prose: a value attributed to the design this one grew
 out of, a component this study started from, a comparison against something the reader has never
@@ -168,7 +179,7 @@ Cut history, never scope. These stay, always:
 * **The position of a maximum is bounded by the grid that found it, not by the precision of the
   values on it.** A peak found on a coarse grid is located between its neighbouring samples and no
   more precisely. Either coarsen the claim to the grid, or take the extra digits from a closed form
-  evaluated at the same point (§18), which turns the scan into a check rather than the evidence.
+  evaluated at the same point (§13), which turns the scan into a check rather than the evidence.
 
 A report with no limitations section is less trustworthy, not cleaner.
 
@@ -195,17 +206,7 @@ result rather than a scale.
 
 Applying this usually means *moving* material rather than cutting it.
 
-## 6. No document voice
-
-Delete every sentence about the report — what is worth computing, what is worth stating carefully,
-why the study did not stop somewhere, what the reader should recall from above. If a thing is worth
-stating, state it.
-
-Headings may carry argument where the reversal is the science. Navigation is not document voice: a
-long report may open with a short "how to read this" and may state a convention it applies
-throughout. What is banned is the report commenting on its own emphasis or history.
-
-## 7. Sections are numbered, and cross-references name their target
+## 6. Sections are numbered, and cross-references name their target
 
 **Number every section and subsection, to whatever depth the report goes.** `## 4.` and
 `### 4.2` in the main text; `## C.`, `### C.2` and `#### C.2.1` in the appendices. Front matter
@@ -216,102 +217,29 @@ is edited, which is what makes it the thing to cite.
 Never "the previous section" or "as discussed above" — sections move and those references invert
 silently. Name the section by its number, or name the object.
 
-## 8. Every comparison states its correction
+## 7. Every comparison states its correction
 
 Where two numbers were measured under conditions that differ, quote the raw value, the corrected
 value, the correction and where the correction came from.
 
-## 9. State the sign convention when the sign is the finding
+## 8. State the sign convention when the sign is the finding
 
 Write which way a comparison goes in words as well as in the number. A table column names the
 direction and the baseline, not the quality: `vs baseline, as measured`, never `penalty`.
 
-## 10. Predictions are labelled, and never fits
+## 9. Predictions are labelled, and never fits
 
 A reference line says in its legend what it is and that it is not a fit. A closed form quoted in
 the text says what it predicts *before* the measurement is given. In figures, theory is recessive
 dashed grey and never a series colour.
 
-## 11. Show untrusted data, marked
+## 10. Show untrusted data, marked
 
 Never drop a point that failed a validity check. Plot it as an open marker and say in the caption
 why its value is not meaningful; in tables, parenthesise the number and give the honest alternative
 alongside.
 
-## 12. No subjective tail on a quantitative sentence
-
-> **[quantitative statement], and [subjective evaluation of it].**
-
-Cut the tail; the sentence is finished without it. This is the commonest defect in these reports.
-
-**Admiring the agreement is the commonest instance.** When a measurement lands on a closed form,
-say that it does and give the numbers. State the spread and delete the adjective. Cut
-"astonishingly well", "beautifully", "better than it has any right to be", and exclamations about
-numbers. The same restraint applies to disagreement: quantify it rather than dramatising it.
-
-**What is not a subjective tail.** Clauses that carry information stay: **a stated condition** that
-makes the headline true; **a mechanism or cause**; **theoretical necessity with its scope** — "as it
-must" is a fact about the claim's status, but say what it is forced over or cut it; **an
-engineering judgement with a referent**; and **saying which of two things a number is**. The test:
-
-> **Would a reader who disagreed with it have to check a different number, or only have a
-> different temperament?**
-
-A number, keep it. A temperament, cut it.
-
-**Vague quantifiers are the same defect in miniature** — "a comfortable factor", "not a small
-perturbation", "a big win". Each is a number the writer had and did not print. Print it, or cut the
-restatement where the surrounding text already gives it.
-
-**Finding them.** Grep `cleanest|sharpest|strongest|pleasing|elegant|striking|remarkable|worth
-(having|stating|noting)|none of them small|happily|comfortable|very slightly`, then read every
-sentence containing both a number and the word "and".
-
-## 13. No sentence fragment with a comma-led modifier
-
-> **[noun or gerund phrase], [comma-led modifier].**
-
-There is no main clause. Give it a verb, and the sentence gets shorter as well as grammatical.
-
-**Section headings and figure-caption leads are held to the same rule.** A heading naming a thing
-and its state becomes a heading with a verb in it.
-
-**What is not this defect.** A colon-led list; a figure-caption *sub*-label; a table cell; an
-introductory phrase followed by a real main clause. A comma-led modifier is fine once the sentence
-has a verb.
-
-**Finding them.** Flag any sentence with no finite verb. For the ones that hide a verb inside the
-modifier, flag any sentence whose text before the first comma has no finite verb and whose text
-after it opens with a subordinator (`because`, `since`, `which`, `where`, `so`, `though`, `given`)
-or a preposition.
-
-## 14. The em dash does not extend a sentence
-
-> **[clause] — [aside] — [continuation that should have been a new sentence].**
-
-One dash for one aside in a short sentence. Two dashes in one sentence is the reliable signal: the
-second is doing a full stop's job.
-
-**Use a colon, a full stop or a subordinate clause instead**, in that order of preference — a colon
-when the second half explains the first, a full stop when it is a separate fact, `because` or `so`
-when the relation is worth naming.
-
-**What is not this defect.** A single dash setting off a genuine aside in a short sentence, or one
-introducing a list or a closing summary. The test is whether the sentence reads easier as two.
-
-## 15. A paragraph header states the finding, not that there is one
-
-A lead-in that announces a topic — "**What it gets.**", "**The intent.**", "**Where the line
-falls.**" — makes the reader open the paragraph to find out whether they needed it. So does the
-shape that says what something is *not*.
-
-**Put the finding in the header, with its number if it has one.** The reader who does not need the
-paragraph can then skip it honestly.
-
-**Finding them.** Grep every line beginning `**` and read the list on its own. A list of findings
-reads as a summary of the report; a list of announcements reads as a table of contents.
-
-## 16. One name, one meaning
+## 11. One name, one meaning
 
 A symbol, a word or a phrase means exactly one thing in a document. Four shapes:
 
@@ -336,7 +264,11 @@ quantities each denotes. Where a system holds several instances of a component, 
 never safe: name the instance. Where a script computes a number in more than one place, check the
 places agree before quoting either.
 
-## 17. Arithmetic the reader will attempt must close
+## 12. Arithmetic the reader will attempt must close
+
+**A vague quantifier is a number the writer had and did not print** — "a comfortable factor", "not
+a small perturbation", "a big win". Print it, or cut the restatement where the surrounding text
+already gives the number.
 
 Print two operands near a result and a reader will do the sum. **A sum that does not close is a
 missing sentence, not a rounding problem**: it usually conceals a definition or a design decision
@@ -349,7 +281,7 @@ arithmetic the other way.
 
 **Check it after editing, not only after writing.**
 
-## 18. Evaluate the closed form, and apply the method to the device
+## 13. Evaluate the closed form, and apply the method to the device
 
 **A closed form that is printed and never evaluated.** Put numbers in it. It usually predicts, for
 free, results the report is asserting from a parameter scan, and a prediction confirmed by a scan
@@ -362,16 +294,6 @@ Three honest endings, and the report must pick one: **apply it** and quote the p
 the measurement; **say it was not applied**, so the quantity is an input rather than a prediction;
 or **delete it** and leave the record in `LOGBOOK.md`. Presenting the validation as though it
 licensed the result is not available.
-
-## 19. Say each result once
-
-Count the statements of each finding. **Keep one statement of each distinct piece of evidence.** A
-table and the argument it supports are two pieces; the same number in two sections is one. When a
-sentence begins "as noted above", delete it rather than write it.
-
-**A caption carries neither the figure's edit history nor a branch of its plotting code that did
-not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
-ratio — does belong there.
 
 ## When restructuring an existing report
 
@@ -401,7 +323,7 @@ reading is the one thing only reader 2 can supply.
 
 **An agent with the whole repository** — the report, the logbook, the result logs, the scripts and
 this policy. Check the science, and check every number against the evidence. Finds sign errors,
-quantities described as the wrong thing, claims that outrun their support, and the §18 analysis
+quantities described as the wrong thing, claims that outrun their support, and the §13 analysis
 that was never pointed at the device.
 
 #### Reader 2, the second-year graduate student
@@ -410,7 +332,7 @@ that was never pointed at the device.
 to back naming every place it stopped, re-read or guessed and to quote the sentence; to ask for
 every non-standard term to be explained rather than inferring it; and to say what a first-time
 reader with limited patience would give up on and how the report should be reordered so they do
-not. Finds §16 collisions, §17 arithmetic, symbols used before they are defined, terms the author
+not. Finds §11 collisions, §12 arithmetic, symbols used before they are defined, terms the author
 has stopped hearing, and whether the headline can be interpreted at all.
 
 Two things this reader needs and the others do not:
@@ -436,7 +358,7 @@ batches; if you must join anything, join it with a plain byte copy (`cat`). Have
 confirm in one short message which item numbers its file holds, and read the file yourself.
 
 **Have each reader head its own document** with which model answered, what it was given, and that
-its line numbers are the report as it read it. **Cite the section number (§7) as well as the
+its line numbers are the report as it read it. **Cite the section number (§6) as well as the
 quoted sentence.** Line numbers go stale the moment the document is edited; section numbers
 mostly do not, and a finding that carries both stays findable after the first round of fixes.
 
@@ -458,11 +380,9 @@ is impossible, the referee wins on accuracy and the student wins on placement.
 
 **A foreign-family agent given the report and this policy** — the text alone, with no figures. It
 is the one reader outside the repository that gets the policy, so that the rewrite comes back
-already obeying the rules rather than in a register that then has to be brought into line:
-findings in the headers, no document voice, no subjective tail on a quantitative sentence, and
-the section numbering of §7 intact so that the other readers' findings still land. It reports no
-findings; it returns the whole report rewritten in the style of a well-written PhD dissertation
-addressed to an incoming graduate student. **Accept the rewrite as the base document.** Diff it
+already obeying the rules rather than in a register that then has to be brought into line. It
+reports no findings; it returns the whole report rewritten in the style of a well-written PhD
+dissertation addressed to an incoming graduate student. **Accept the rewrite as the base document.** Diff it
 against the source to find and correct any errors the editor might have introduced.
 
 #### Readers 2 and 3, which come from outside the local model family

@@ -40,7 +40,7 @@ Assign slots in fixed order and never cycle. Colour follows the entity: if a fil
 series, the survivors keep their colours.
 
 **Theory and reference curves are recessive dashed grey (`#9a9992`), never a series colour.** The
-principle is §10 of [`report-editing-policy.md`](report-editing-policy.md).
+principle is §9 of [`report-editing-policy.md`](report-editing-policy.md).
 
 **One y-axis per panel.** Never a dual-axis chart. Two measures of different scale go in two
 panels.
@@ -77,7 +77,7 @@ in one region and coincide in another, say which.
 
 ## Mark data you do not trust, rather than dropping it
 
-The plotting half of §11 of [`report-editing-policy.md`](report-editing-policy.md), which states
+The plotting half of §10 of [`report-editing-policy.md`](report-editing-policy.md), which states
 the rule for prose and tables as well.
 
 Where a point fails a validity check, deleting it reads as "the curve ends here" and plotting it
