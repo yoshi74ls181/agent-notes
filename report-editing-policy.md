@@ -383,129 +383,83 @@ ratio — does belong there.
 
 ### The three-reader pass
 
-Three readers, none of them the author, because the author cannot see a naming collision or an
-unclosed sum in their own document. **Run the first two at once** — they need nothing from each
-other and they find disjoint sets. **Run the third only after both sets of findings are in the
-document**, since its job is to rewrite what the first two have already corrected.
+Three readers, none of them the author. **Run the first two at once**; **run the third only after
+both sets of findings are in the document.** Readers 2 and 3 come from a different model family
+than reader 1.
 
-Readers two and three are deliberately from a different model family than reader one. Two readers
-of the same family share blind spots, and the pass that catches the convention a project has
-stopped seeing is the one run from outside it.
-
-**Reader 1, the referee: a Claude Code agent with the whole repository.** The report, the logbook,
-the result logs, the scripts and this policy. Check the science, and check every number against
-`results/`. Finds sign errors, quantities described as the wrong thing, claims that outrun their
+**Reader 1, the referee: an agent with the whole repository** — the report, the logbook, the
+result logs, the scripts and this policy. Check the science, and check every number against the
+evidence. Finds sign errors, quantities described as the wrong thing, claims that outrun their
 support, and the §18 analysis that was never pointed at the device.
 
-**Reader 2, the second-year graduate student: a Codex agent given the report and its figures and
-nothing else.** It has the field's background and none of the project's. Ask it to go front to
-back naming every place it stopped, re-read or guessed and to quote the sentence; to ask for every
-non-standard term to be explained rather than inferring it; and to say what a first-time reader
-with limited patience would give up on and how the report should be reordered so they do not.
-Finds §16 collisions, §17 arithmetic, symbols used before they are defined, terms the author has
-stopped hearing, and whether the headline can be interpreted at all.
+**Reader 2, the second-year graduate student: a foreign-family agent given the report and its
+figures and nothing else.** Ask it to go front to back naming every place it stopped, re-read or
+guessed and to quote the sentence; to ask for every non-standard term to be explained rather than
+inferring it; and to say what a first-time reader with limited patience would give up on and how
+the report should be reordered so they do not. Finds §16 collisions, §17 arithmetic, symbols used
+before they are defined, terms the author has stopped hearing, and whether the headline can be
+interpreted at all.
 
-**Reader 3, the editor: a Codex agent given the report and nothing else.** It does not report
-findings. It returns the whole report rewritten in the style of a well-written PhD dissertation
-addressed to an incoming graduate student. Diff the rewrite against the source and take it
-paragraph by paragraph: an editor holding no evidence can improve a sentence and break a number,
-so every number, hedge and stated limit in what you accept goes back through the staleness sweep.
+**Reader 3, the editor: a foreign-family agent given the report and nothing else.** It reports no
+findings; it returns the whole report rewritten in the style of a well-written PhD dissertation
+addressed to an incoming graduate student. Diff the rewrite against the source paragraph by
+paragraph, and put every number, hedge and stated limit you accept back through the staleness
+sweep.
 
 **Do not merge readers 1 and 2.** The referee must have the policy and the project; the student
-must have neither, or it stops noticing what it was convened to notice.
+must have neither.
 
 **Ask readers 1 and 2 about the structure, not only the sentences,** in as many words: does the
 order carry the argument, is anything in the wrong place, what did you need earlier than you got
-it, and what could go. Line-level defects are volunteered; structural ones have to be asked for.
+it, and what could go.
 
-**Both readers' findings go to a file, not into messages.** A message is subject to an output
-limit and a long finding list hits it; the cut lands at about the same length every time, so
-re-requesting the tail the same way loses the same tail again. A file has no such limit. Reader 1
-writes its own, having the repository; reader 2's is piped from the runner, below.
-Ask for **`<owner>-<subproject>-referee-report.md`**, beside the report it reviews and named to
-match it, written with the editor tool rather than a shell heredoc. Have the reader send only a
-short confirmation listing the item numbers the file contains, and read the file yourself. Keep
-the structural findings in their own section of it, or they end up at the tail of a long document
-and get skimmed exactly as they would have been truncated.
+**Both readers' findings go to a file, in one invocation each, not into messages.** Reader 1
+writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file,
+which needs no write access of its own. Name them `<owner>-<subproject>-referee-report.md` and
+`<owner>-<subproject>-student-feedback.md`, beside the report they review. Write with an editor
+tool, never a shell heredoc, which mangles backslashes. Do not hand-assemble either file from
+batches; if you must join anything, join it with a plain byte copy (`cat`). Have each reader
+confirm in one short message which item numbers its file holds, and read the file yourself.
 
-**That file is working material, not a deliverable: ignore it in version control.** A `*-referee-report.md`
-line in `.gitignore` is the whole of it. A finding's home is `report.md` or `LOGBOOK.md` once it
-has been acted on, so the file exists for the duration of the pass and is deleted after — and
-committing it would put a third copy of every finding in the repository, which §0 forbids. Expect
-a broad `git add` to pick it up anyway if it is merely untracked; that is what the ignore line is
-for.
+**Have each reader head its own document** with which model answered, what it was given, and that
+its line numbers are the report as it read it. Cite by quoted sentence.
 
-Per finding: the line number, the quoted sentence, what is wrong, the evidence by file and line,
-what it should say, and **CONFIRMED** against **PLAUSIBLE** — whether the reader checked the
-evidence or only suspects it. Numbered continuously, so a gap is visible.
+**Per finding:** the line number, the quoted sentence, what is wrong, the evidence by file and
+line, what it should say, and **CONFIRMED** against **PLAUSIBLE**. Numbered continuously, and
+structural findings in a section of their own.
 
-**Reader 2 writes to a file too, and it does not need write access to do it.** Its restricted
-view is about what it can *read*, and the two are separate: point the runner's own
-last-message-to-file flag at `<owner>-<subproject>-student-feedback.md` and the reader's output
-lands there verbatim, without the reader ever seeing the repository. That file is ignored on the
-same terms as the referee's.
+**Gitignore both files** — `*-referee-report.md` and `*-student-feedback.md`. They are working
+material, deleted once the findings are in the report.
 
-**Which removes the reason to batch it.** Batching exists because messages truncate; a file has
-no limit, so ask for everything in one invocation and let it write the whole document. Keep the
-batch discipline only for what you genuinely need conversationally — a disagreement to resolve,
-or a follow-up question — and pipe the archival copy to the file in one shot.
+**Use messages only for what is genuinely conversational**, such as a disagreement to resolve or
+a follow-up question. There: two items per message, prompt for every one, and when re-requesting
+give the item number you already hold and quote the last words you received.
 
-**Never hand-assemble the file from batches if you can avoid it.** Every re-typing is a chance to
-paraphrase a reader whose exact words are the evidence, and concatenating through a shell heredoc
-mangles the backslashes in whatever LaTeX the reader wrote. If you must join batches, join them
-with a plain byte copy (`cat`).
+**Expect readers 1 and 2 to disagree.** Resolve it in the text rather than by picking a side;
+where that is impossible, the referee wins on accuracy and the student wins on placement.
 
-**Have it head its own document** with which model answered, what it was given, and **that its
-line numbers refer to the report as it stood when it read it**: the document moves under the
-reader while it works, and a stale line number reads as a live one months later. Citations are
-then best followed by quoted sentence.
-
-**Prompt for every batch. A reader that has sent one goes idle and stays there.** It is waiting
-for a request it has no way to know is wanted, and a batch never arrives unasked — budget one
-message per batch and expect to send them all.
-
-**When re-requesting, give the high-water mark and not a description.** "I have items 1 through 7
-complete and nothing after" continues; "send the rest" and "carry on where you left off"
-re-summarise, and a reader asked twice for a tail may resend the whole batch instead. Name the
-fragment you are missing by quoting its last few words — a reader cannot see where its own output
-was cut.
-
-**Expect readers 1 and 2 to disagree.** Resolve it in the text rather than by picking a side; where
-that is impossible, the referee wins on accuracy and the student wins on placement.
-
-**A fix is an edit, so re-run the checks after it.** After any substantial edit, diff the prose for
-repeated sentences, re-run the number audit, and re-render every figure whose data moved.
+**A fix is an edit, so re-run the checks after it.** Diff the prose for repeated sentences, re-run
+the number audit, and re-render every figure whose data moved.
 
 #### Handing a report to a reader outside the local model family
 
-Readers 2 and 3 are the ones this applies to, and the pass is easily faked.
-
-- **Verify which model actually read the document.** A plugin offering a foreign model may route
-  through a wrapper of the local family. The give-away is a reader describing tools of its own
-  rather than the foreign runtime.
-- **The foreign harness reads `AGENTS.md` by default, which destroys the restricted view**, and no
-  instruction prevents it. **What does prevent it is giving the reader a working root outside the
-  repository** — run it with its own `--cd`/`-C` set to a scratch directory and the git-repo check
-  skipped, and it finds no `AGENTS.md` to read. What hangs is pointing a *repository-rooted*
-  sandbox at a path outside itself; moving the reader's root is a different thing and works.
-- **Inline the document anyway rather than pointing at a path.** Put the whole report in the prompt
-  inside `<document>` tags with `cat -n` line numbers so it can cite them. Inlining is what makes
-  "the report and nothing else" true of the content rather than only of the filesystem, and it
-  survives a reader that decides to go looking.
-- **Ask the reader to name its own model and runtime, and keep the answer.** One line at the top of
-  the brief, answered before anything else, is the cheap version of the verification above.
-- **Attach the figures to reader 2, and ask about them specifically.** Send raster renders of any
-  figure the report embeds as vector art. Reader 3 gets the text alone.
-- **Set the reasoning effort explicitly**, since it defaults from the CLI's own config, and **tell
-  reader 2 the report has already been reviewed**, or it invents concerns to fill every heading.
-- **Give reader 2 a line budget per batch, or it reads the first fifty lines exhaustively and
-  stops.** Left to itself it treated seven stops in the opening two pages as a batch. Tell it how
-  many lines the batch covers and that reaching the end matters more than completeness inside any
-  one section; its later batches are then worth more than its first.
-- **Resuming the reader keeps the attached figures**, so a session is worth continuing rather than
-  restarting per heading. Check the resume subcommand's own flags: the ones that set the working
-  root and the sandbox are usually accepted only on the initial call, and the session's own root
-  is inherited.
+- **Verify which model read the document.** Ask it to name its own model and runtime before
+  anything else, and keep the answer. A plugin offering a foreign model may route through a
+  wrapper of the local family; the give-away is a reader describing tools of its own rather than
+  the foreign runtime.
+- **Give the reader a working root outside the repository** — its own `--cd`/`-C` to a scratch
+  directory, with the git-repo check skipped. Otherwise the foreign harness reads `AGENTS.md` and
+  the restricted view is gone.
+- **Inline the document rather than pointing at a path.** The whole report in the prompt, inside
+  `<document>` tags, with `cat -n` line numbers so it can cite them.
+- **Attach raster renders of any vector figure to reader 2, and ask about them specifically.**
+  Reader 3 gets the text alone.
+- **Set the reasoning effort explicitly**, since it defaults from the runner's own config.
+- **Tell reader 2 the report has already been reviewed**, or it invents concerns to fill every
+  heading, and **tell it to cover the whole document**, or it reads the first fifty lines
+  exhaustively and stops.
+- **Resuming a session keeps the attached figures.** The flags that set the working root and the
+  sandbox are usually accepted only on the initial call.
 
 ### The staleness sweep, once the edits have settled
 
