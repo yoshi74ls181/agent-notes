@@ -415,7 +415,7 @@ it, and what could go.
 
 **Both readers' findings go to a file, in one invocation each, not into messages.** Reader 1
 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file,
-which needs no write access of its own. Name them `<owner>-<subproject>-referee-report.md` and
+which needs no write access of its own. Name them `<owner>-<subproject>-referee-feedback.md` and
 `<owner>-<subproject>-student-feedback.md`, beside the report they review. Write with an editor
 tool, never a shell heredoc, which mangles backslashes. Do not hand-assemble either file from
 batches; if you must join anything, join it with a plain byte copy (`cat`). Have each reader
@@ -428,7 +428,7 @@ its line numbers are the report as it read it. Cite by quoted sentence.
 line, what it should say, and **CONFIRMED** against **PLAUSIBLE**. Numbered continuously, and
 structural findings in a section of their own.
 
-**Gitignore both files** — `*-referee-report.md` and `*-student-feedback.md`. They are working
+**Gitignore both files** — `*-referee-feedback.md` and `*-student-feedback.md`. They are working
 material, deleted once the findings are in the report.
 
 **Use messages only for what is genuinely conversational**, such as a disagreement to resolve or
