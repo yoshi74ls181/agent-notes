@@ -421,10 +421,18 @@ it, and what could go. Line-level defects are volunteered; structural ones have 
 **Have reader 1 write its findings to a file, not send them as messages.** A message is subject
 to an output limit and a long finding list hits it; the cut lands at about the same length every
 time, so re-requesting the tail the same way loses the same tail again. A file has no such limit.
-Ask for `referee-report.md` at the repository root, written with the editor tool rather than a
-shell heredoc, and have the reader send only a short confirmation listing the item numbers it
-contains. Read the file yourself. Keep the structural findings in their own section of it, or they
-end up at the tail of a long document and get skimmed exactly as they would have been truncated.
+Ask for **`<owner>-<subproject>-referee-report.md`**, beside the report it reviews and named to
+match it, written with the editor tool rather than a shell heredoc. Have the reader send only a
+short confirmation listing the item numbers the file contains, and read the file yourself. Keep
+the structural findings in their own section of it, or they end up at the tail of a long document
+and get skimmed exactly as they would have been truncated.
+
+**That file is working material, not a deliverable: ignore it in version control.** A `*-referee-report.md`
+line in `.gitignore` is the whole of it. A finding's home is `report.md` or `LOGBOOK.md` once it
+has been acted on, so the file exists for the duration of the pass and is deleted after — and
+committing it would put a third copy of every finding in the repository, which §0 forbids. Expect
+a broad `git add` to pick it up anyway if it is merely untracked; that is what the ignore line is
+for.
 
 Per finding: the line number, the quoted sentence, what is wrong, the evidence by file and line,
 what it should say, and **CONFIRMED** against **PLAUSIBLE** — whether the reader checked the
