@@ -402,9 +402,8 @@ interpreted at all.
 
 **Reader 3, the editor: a foreign-family agent given the report and nothing else.** It reports no
 findings; it returns the whole report rewritten in the style of a well-written PhD dissertation
-addressed to an incoming graduate student. Diff the rewrite against the source paragraph by
-paragraph, and put every number, hedge and stated limit you accept back through the staleness
-sweep.
+addressed to an incoming graduate student. **Accept the rewrite as the base document.** Diff it
+against the source to find and correct any errors the editor might have introduced.
 
 **Do not merge readers 1 and 2.** The referee must have the policy and the project; the student
 must have neither.
