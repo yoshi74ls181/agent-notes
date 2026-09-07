@@ -1,34 +1,25 @@
 # agent-notes
 
-Reusable notes and scripts for research and technical writing. Use the parts that fit your project; these notes do not impose a repository layout, writing style, or review workflow.
+Notes and tooling that are not specific to any one research project, kept in one place so
+several repositories can share them. Add this repository as a submodule and use what you need.
 
-| Note | Purpose |
+| | |
 |---|---|
-| [Report editing](report-editing-policy.md) | Clear claims, evidence, limitations, and review |
-| [Subproject structure](subproject-structure.md) | Document roles and a minimal directory layout |
-| [Markdown report pipeline](markdown-report-pipeline.md) | Build a Markdown report into HTML |
-| [Codex CLI](codex-cli.md) | Run a non-interactive review and capture its output |
-| [Figure conventions](figure-conventions.md) | Accessible, reproducible scientific figures |
-| [Circuit figures](circuit-figures.md) | CircuiTikZ sources, export, and layout checks |
-| [QuLTRA](qultra.md) | Validation checks for circuit quantisation |
+| [`report-editing-policy.md`](report-editing-policy.md) | What goes in a report and what does not: which document carries what, the source form, and the rules a draft is edited against |
+| [`subproject-structure.md`](subproject-structure.md) | How a study directory is laid out: which file is the source for which, the shape of its `AGENTS.md`, and how a new one picks it up |
+| [`markdown-report-pipeline.md`](markdown-report-pipeline.md) | Authoring a report in markdown and building it to a single self-contained HTML file that looks like a GitHub README: the conventions, the Unicode-to-MathJax conversion, and the traps |
+| [`codex-cli.md`](codex-cli.md) | Driving the Codex CLI non-interactively, to get a reader from outside the local model family: the flags, writing the reply to a file, restricting what it can see, and the traps |
+| [`figure-conventions.md`](figure-conventions.md) | The rules for every plot: choosing a colour encoding, validated palettes, showing data you do not trust, opaque backgrounds, and the GR font traps |
+| [`circuit-figures.md`](circuit-figures.md) | Drawing a circuit schematic in CircuiTikZ as a `standalone` LaTeX document: sizing it for its output, the conventions, and the collisions only a render will show |
+| [`qultra.md`](qultra.md) | Using QuLTRA to quantise a circuit with lumped and distributed elements together: the four traps, one of which fails silently and poisons every participation ratio at once |
+| `scripts/md_to_html.js` | The builder: GitHub's `/markdown` API for the prose, MathJax for the maths, `github-markdown-css` for the style. `node scripts/md_to_html.js <report.md>` |
+| `scripts/tex_unicode.js` | The Unicode-to-LaTeX conversion the builder applies, and the guard that refuses a character it does not know |
 
-## Build a report
-
-Install Node.js with built-in `fetch` support (18 or later), then run:
-
-```sh
-npm install
+```bash
+npm install                          # once: mathjax-full, github-markdown-css
 node scripts/md_to_html.js report.md
 ```
 
-The builder writes `report.html` beside the source. It uses GitHub's Markdown API, local MathJax, and an embedded stylesheet. **Building requires a network connection and sends the report text to GitHub.** Supported local images are embedded; see the [pipeline note](markdown-report-pipeline.md) for source conventions and limitations.
-
-You can also vendor this repository as a submodule. The builder searches upward from its own directory for dependencies, or accepts a `node_modules` path as its second argument.
-
-## Keep shared material small
-
-- Keep project results, run logs, paths, and local constraints in the project that owns them.
-- Add a shared note only when the guidance applies across projects. State tool-specific scope and link to sources for version-sensitive behavior.
-- Give each topic one home and link to it. Prefer a short rule and a useful example to an incident narrative.
-- Document only tools that exist here; label host-project examples as optional.
-- Keep script comments focused on contracts and non-obvious behavior. Check affected behavior when changing code.
+The builder searches upward from itself for `node_modules`, so a host repository that installs
+at its own root does not need a second install here. **The build needs the network**: it
+converts the markdown through GitHub, one request per report.

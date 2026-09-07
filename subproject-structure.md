@@ -1,38 +1,96 @@
-# Subproject structure
+# How a subproject is laid out
 
-Choose a layout that makes sources, results, and instructions easy to find. The following is an optional starting point; names and locations belong to the host project.
+The structural half of the documentation policy: which files a study directory has, which one is
+the source for which, and how a new directory picks all of it up. For *what belongs in each
+document* — the division between orientation, findings and constraints — see
+[`report-editing-policy.md`](report-editing-policy.md) §0, which this note does not restate.
 
-```text
-study/
-  README.md       # purpose, entry points, setup, and commands
-  AGENTS.md       # local editing constraints, if needed
-  report.md       # findings and limitations, if needed
-  LOGBOOK.md      # decisions, experiments, and corrections, if needed
-  src/           # reusable code
-  scripts/       # runnable analyses and builds
-  results/       # outputs with enough provenance to reproduce them
+> **This policy is opt-in, and a roster is the opt-in.** A directory follows it because it is
+> named in the project's roster file — not because of anything about its contents. The checker
+> reads that roster and ignores every other directory, so a study that keeps a hand-written
+> `README.md` is unaffected and is not failing anything.
+>
+> A roster is the criterion rather than, say, the presence of a marked `AGENTS.md`, because a
+> directory that is *supposed* to follow the policy and has no `AGENTS.md` at all is the single
+> most useful thing to catch. Inferring adoption from the files present makes that case invisible:
+> forgetting the file would silently mean opting out.
+
+## The files
+
+| Path | What it is |
+|---|---|
+| `<owner>-<topic>/AGENTS.md` | **The single source for the directory.** Agent-facing, loaded into every session in the subtree, and the origin of `README.md`. |
+| `<owner>-<topic>/CLAUDE.md` | A one-line shim holding `@AGENTS.md`, matching the repo root. Claude Code loads the shim and the import pulls in the real file; other agent tools read `AGENTS.md` directly. |
+| `<owner>-<topic>/README.md` | **Generated** from the marked region of `AGENTS.md` by `scripts/sync_readme.py`. Never edited by hand. |
+| `<owner>-<topic>/LOGBOOK.md` | The project record: every measured number in script order, plus the history and the corrections. |
+| `<owner>-<topic>-report.md` | The write-up, **at the repo root**, built to `<owner>-<topic>-report.html` by the report builder ([`markdown-report-pipeline.md`](markdown-report-pipeline.md)). Indexed from the root `README.md`. |
+| `<owner>-<topic>/src/`, `scripts/`, `results/` | Code, one study per script, and the data and figures they write. |
+
+A directory may add documents — a `manuscript/`, a `refs/` — and may leave any of the above out if
+it has nothing to put there. What it may not do is keep two documents with the same job.
+
+## The shape of `AGENTS.md`
+
+```markdown
+<!-- readme:title: A human-readable title for the generated README -->
+# AGENTS.md
+
+Guidance for Claude Code working in `<owner>-<topic>/`. The structural policy is in
+this note; the repo-wide git rules are in [`../AGENTS.md`](../AGENTS.md). Neither is
+repeated here.
+
+<!-- readme:begin -->
+## What it concluded      <- one paragraph, no measured numbers, then pointers
+## Start here             <- which document answers which question
+## Layout                 <- the src/ tree, and where results land
+## Findings and limits     <- pointers only: the findings live elsewhere
+<!-- readme:end -->
+
+## Running things          <- the invocation pattern and what a filename cannot tell you
+## Traps that have cost time here
+## Constraints on what you may write
+## Editing the deliverables
 ```
 
-Create only what the study needs. Keep each fact in a clear home and link to it elsewhere. The [report editing note](report-editing-policy.md) explains the document roles.
+Everything between the markers is copied verbatim into `README.md`, so it must read as human
+orientation. Everything outside them never reaches a human reader and is where the traps, the
+contracts and the prohibitions go. The split is not about importance — it is about audience.
 
-## Local instructions
+Both files sit in the same directory, so relative links inside the marked region resolve
+identically in each and need no rewriting.
 
-Keep `AGENTS.md` short and specific to editing the directory:
+## Starting one
 
-- Link to the overview and relevant shared notes.
-- Give commands that are not obvious from the build configuration.
-- State constraints, known failure modes, and required checks.
-- Identify generated files and their sources.
+```bash
+python scripts/new_subproject.py <owner>-<topic> "A human-readable title"
+```
 
-Avoid repeating parent instructions, results, or the directory inventory. Add tool-specific instruction files only when that tool needs them; prefer a supported import of the common guidance to a second copy.
+That writes a conforming skeleton — `AGENTS.md` with the markers and the section headings, the
+`CLAUDE.md` shim, a `LOGBOOK.md` stub, the `src/`, `scripts/` and `results/` directories, and a
+generated `README.md` — then leaves the prose to you. It adds the directory to the roster, and it
+refuses to overwrite an existing directory.
 
-## Generated documentation
+## Keeping one
 
-A hand-written `README.md` is a useful default. Generate it only when shared content would otherwise need to be maintained twice. If a project generates documentation, it should:
+```bash
+python scripts/check_subproject.py     # structure
+python scripts/sync_readme.py --check  # README matches its source
+```
 
-1. Identify the source and mark generated files clearly.
-2. Provide a reproducible generation command and a check for stale output.
-3. Preserve relative links when copying content.
-4. Define which directories participate, rather than inferring adoption from files that may be missing.
+Put both in the project's gate list. The first checks that an opted-in directory has the file
+set, that `CLAUDE.md` is the shim and nothing more, that the markers are present and ordered, and
+that `README.md` carries the generated banner rather than hand-written prose. The second checks
+that `README.md` is what its `AGENTS.md` currently implies.
 
-Scaffolding, README synchronisation, and roster checks are host-project responsibilities; this repository does not provide those tools.
+Neither looks at a directory that is not on the roster, and naming one explicitly is how you find
+out what it would have to change to join.
+
+## The roster
+
+One directory per line in a plain text file, with blank lines and `#`-comments ignored. Keep it in
+the project rather than here: which studies have adopted the policy is a fact about that project,
+and every project that vendors this note has a different list.
+
+Adding a line is a claim that the directory should look as described above; the checker then tells
+you where it does not, including if the files are missing entirely. Removing a line stops all of
+it, so nothing else should key off study names.

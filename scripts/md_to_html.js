@@ -1,12 +1,60 @@
 #!/usr/bin/env node
 /*
- * Build Markdown into HTML with embedded CSS, local images, and MathML.
- * Usage: node scripts/md_to_html.js <report.md> [path/to/node_modules]
- * Sends report text to GitHub's Markdown API. See markdown-report-pipeline.md.
+ * Build a self-contained HTML report from a markdown source.
+ *
+ *     node scripts/md_to_html.js <report.md> [/path/to/node_modules]
+ *
+ * GITHUB CONVERTS THE MARKDOWN AND GITHUB'S OWN STYLESHEET STYLES IT.  The prose goes to
+ * GitHub's `POST /markdown` endpoint, so the HTML is exactly what GitHub would render, and
+ * `github-markdown-css` -- the stylesheet GitHub's own rendered markdown uses -- is inlined
+ * over it inside an `<article class="markdown-body">`.  The result looks like a README.
+ *
+ * WHAT THE API CANNOT DO, and therefore what this file still does:
+ *
+ *   1. MATHS.  The endpoint does not render it.  In `gfm` mode it returns an inert
+ *      `<math-renderer>` custom element wrapping the raw TeX, which needs GitHub's own
+ *      client-side JavaScript; in `markdown` mode it returns the `$$...$$` as literal text.
+ *      Either way a standalone file would show raw TeX.  So every formula is pulled out
+ *      BEFORE the request, rendered to MathML locally by MathJax, and spliced back over an
+ *      opaque placeholder afterwards.
+ *   2. THE UNICODE-MATHS GUARD.  Reports are authored with Unicode maths -- `χ`, `κ_a`,
+ *      `10⁻¹⁵` -- because `check_report_source.py` requires it and forbids inline LaTeX.
+ *      `tex_unicode.js` rewrites that as the LaTeX MathJax needs and REFUSES a character it
+ *      has no mapping for, rather than letting it through to be set as a glyph.
+ *   3. PROSE SUBSCRIPTS AND SUPERSCRIPTS.  `E_J` and `h^2` in running prose become `<sub>`
+ *      and `<sup>`.  A house convention, so no converter does it.  These DO survive the
+ *      endpoint, which passes inline HTML through.
+ *   4. FIGURES.  `<figure>` and `<figcaption>` are STRIPPED by the endpoint's sanitiser, so
+ *      the house form -- an image alone, then an all-italic caption paragraph, with the alt
+ *      text an accessibility description rather than the caption -- cannot be assembled
+ *      before the request.  It is assembled afterwards, out of the two paragraphs the
+ *      endpoint returns.
+ *   5. THE SELF-CONTAINED FILE.  The endpoint returns a FRAGMENT with the figure paths
+ *      untouched, so the document, the inlined stylesheet and the base64 figures are all
+ *      assembled here.
+ *
+ * `mode=markdown`, NOT `mode=gfm`, and the difference matters.  `gfm` autolinks `#123` as an
+ * issue and `@name` as a user -- it rewrote `@someone` to a hovercard link to a real GitHub
+ * profile, capitalisation and all -- wraps every table in a `<markdown-accessiblity-table>`
+ * custom element, and stamps each formula with a `data-run-id` that is RANDOM PER REQUEST, so
+ * the build would not be reproducible.  `markdown` mode has none of that and still renders
+ * tables.
+ *
+ * THE BUILD NEEDS THE NETWORK.  A token in `$GITHUB_TOKEN` or `$GH_TOKEN`, or one from
+ * `gh auth token`, raises the rate limit from 60 requests an hour to 5000; the build works
+ * without one.  One request per report.
+ *
+ * The markdown is the authored source.  The HTML is generated and is overwritten on every
+ * build, so never edit it.
+ *
+ * The markdown conventions this recognises and the checks the build refuses to skip are
+ * documented in markdown-report-pipeline.md.  What is commented below is only what the code
+ * does that the note does not say.
  */
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const {execFileSync} = require('child_process');
 const {normalise, unmapped, codepoint, proseSubscript, proseSuperscript,
@@ -18,7 +66,9 @@ if (!mdPath) {
   process.exit(2);
 }
 
-// Try the explicit dependency path, then ancestor directories for vendored installs.
+// Look where the caller says first, then walk up from this script: that finds an install
+// beside the toolkit and, when the toolkit is a submodule of another repository, one at that
+// repository's root.
 const MODULES = (function () {
   const tries = [];
   if (modPath) tries.push(path.resolve(modPath));
@@ -41,7 +91,10 @@ if (!MODULES) {
   process.exit(3);
 }
 
-// bussproofs requires an output jax with getBBox(); this pipeline only serialises MathML.
+// mathjax-full has no single entry point worth using from Node, so the component files are
+// required by path.  Every TeX package except bussproofs, which throws `requires an output jax
+// with a getBBox() method` the moment it loads -- there is no output jax here, only the MathML
+// serialiser, and no report needs proof trees.
 const mjReq = (rel) => require(path.join(MODULES, 'mathjax-full', rel));
 const {mathjax} = mjReq('js/mathjax.js');
 const {TeX} = mjReq('js/input/tex.js');
@@ -61,12 +114,19 @@ const ROOT = path.dirname(path.resolve(mdPath));
 const src = fs.readFileSync(mdPath, 'utf8').replace(/\r\n?/g, '\n');
 const stats = {math: 0, display: 0, figures: 0, tables: 0, bytes: 0};
 
-// Math rendering
-// ASCII placeholders protect formulas from Markdown parsing and HTML sanitisation.
+// ---------------------------------------------------------------- maths
+/*
+ * Formulas are replaced by these before the request and put back after it.  The token has to
+ * survive a markdown renderer and an HTML sanitiser untouched, so it is bare uppercase ASCII
+ * with no character markdown gives a meaning to, and long enough not to occur in prose.
+ */
 const TOKEN = (i) => 'XMATHPLACEHOLDERX' + i + 'X';
 const rendered = [];
 
-// Decode non-ASCII numeric references for readable output; keep ASCII escapes intact.
+// The serialiser writes every non-ASCII character as a numeric reference.  That renders
+// correctly but triples the size of a Greek-heavy equation and makes the generated file
+// undiffable, so references above ASCII are folded back to the characters themselves.  The
+// named escapes for `<`, `>` and `&` are left alone, which is why only `&#x...;` is matched.
 function unentity(s) {
   return s.replace(/&#x([0-9A-Fa-f]+);/g, (m, hex) => {
     const cp = parseInt(hex, 16);
@@ -76,7 +136,9 @@ function unentity(s) {
 
 /** Render one formula to MathML now, and return the placeholder that stands in for it. */
 function math(tex, display) {
-  // Reject unknown Unicode before MathJax can treat structural symbols as plain glyphs.
+  // A character tex_unicode.js does not know reaches MathJax raw and is set as a glyph, and
+  // nothing in the output says so, so the build refuses it rather than shipping a formula
+  // that is quietly wrong.
   const strays = unmapped(tex);
   if (strays.length) {
     console.error('unmapped Unicode in: ' + tex);
@@ -107,12 +169,18 @@ function math(tex, display) {
   return TOKEN(i);
 }
 
-// Source preprocessing
-/** Extract math and prose scripts, skipping recognised code spans, links, and tags. */
+// ---------------------------------------------------------------- prose
+/**
+ * Walk the source, pull every formula out to a placeholder, and apply the prose scripts,
+ * stepping over everything whose contents are not prose: code spans, link destinations and
+ * raw HTML tags.  Emphasis, headings, lists and tables are deliberately NOT recognised --
+ * they are GitHub's.
+ */
 function prose(text) {
   let out = '';
   let i = 0;
-  // Track prose context; consumed scripts use SCRIPT_JUST_CONSUMED, other tokens use ''.
+  // The character before `i`, but only when it was plain prose -- '' after any consumed
+  // token.  proseSubscript() needs exactly that; see its contract in tex_unicode.js.
   let plainPrev = '';
   while (i < text.length) {
     const rest = text.slice(i);
@@ -171,7 +239,11 @@ function prose(text) {
       continue;
     }
 
-    // Preserve literal prose tildes instead of letting Markdown interpret strikethrough.
+    // GITHUB READS A SINGLE `~` AS STRIKETHROUGH, and physics prose uses it for "of order".
+    // Two of them in one paragraph -- `J₃~δf³/48 against J₁~δf/2` -- came back as
+    // `J₃<del>δf³/48 against J₁</del>δf/2`, which is a silent corruption of the text rather
+    // than a formatting difference.  Escaped, GitHub emits the character.  Anything that
+    // really wants strikethrough can write `<del>`.
     if (text[i] === '~') {
       out += '\\~';
       plainPrev = '~';
@@ -186,8 +258,8 @@ function prose(text) {
   return out;
 }
 
-// GitHub Markdown API
-/** Use optional authentication from the environment or GitHub CLI. */
+// ---------------------------------------------------------------- the request
+/** A token, if one can be had.  Optional: it only raises the rate limit. */
 function githubToken() {
   if (process.env.GITHUB_TOKEN) return process.env.GITHUB_TOKEN;
   if (process.env.GH_TOKEN) return process.env.GH_TOKEN;
@@ -225,14 +297,15 @@ async function convert(text) {
     console.error('FAIL GitHub /markdown returned ' + res.status + ' ' + res.statusText +
                   (body ? '\n  ' + body.slice(0, 300) : '') +
                   (res.status === 403 || res.status === 429
-                    ? '\n  Check GitHub API access and rate limits; authentication may raise the limit.'
+                    ? '\n  Rate limited.  Set $GITHUB_TOKEN, or run `gh auth login`, for ' +
+                      '5000 requests an hour instead of 60.'
                     : ''));
     process.exit(1);
   }
   return res.text();
 }
 
-// Image embedding
+// ---------------------------------------------------------------- figures
 function dataURI(rel) {
   const full = path.normalize(path.join(ROOT, decodeURIComponent(rel)));
   if (!fs.existsSync(full)) {
@@ -243,7 +316,9 @@ function dataURI(rel) {
   const mime = ext === '.svg' ? 'image/svg+xml'
              : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg'
              : ext === '.gif' ? 'image/gif' : 'image/png';
-  // Normalise SVG line endings before base64 encoding; raster images remain binary.
+  // An SVG is TEXT, so the checkout's line endings reach it and base64 of CRLF is not base64
+  // of LF.  Normalise, or the output depends on `core.autocrlf` rather than on its sources.
+  // Raster formats are binary and are left exactly as they are.
   const raw = fs.readFileSync(full);
   const bytes = ext === '.svg'
     ? Buffer.from(raw.toString('utf8').replace(/\r\n?/g, '\n'), 'utf8')
@@ -254,8 +329,15 @@ function dataURI(rel) {
   return 'data:' + mime + ';base64,' + b64;
 }
 
-// Reassemble standalone image paragraphs and italic captions after GitHub sanitisation.
-// Drop image links to local files that would not travel with the HTML export.
+/*
+ * Put the house figure back together, and inline every image.
+ *
+ * The endpoint returns an image as `<p><a ...><img ...></a></p>`: it wraps the image in a
+ * link to the file, which in a mailed single file points at a path the reader does not have,
+ * so the link is dropped and the image kept.  A following all-italic paragraph is the
+ * caption, and the pair becomes a `<figure>`; `<figure>` could not be sent in the source
+ * because the sanitiser strips it.
+ */
 const IMG_P = /<p>(?:<a\b[^>]*>)?\s*<img\b([^>]*)>\s*(?:<\/a>)?<\/p>/g;
 
 function figuresAndImages(html) {
@@ -276,7 +358,7 @@ function figuresAndImages(html) {
 }
 const capsConsumed = [];
 
-// HTML validation
+// ---------------------------------------------------------------- validate
 const VOID = new Set(['img', 'br', 'hr', 'meta', 'link', 'input', 'source', 'area',
                       'base', 'col', 'embed', 'param', 'track', 'wbr']);
 function balanced(html) {
@@ -295,16 +377,23 @@ function balanced(html) {
   return stack.length ? 'unclosed <' + stack.join('>, <') + '>' : null;
 }
 
-// Document assembly
+// ---------------------------------------------------------------- go
 const title = (/^#\s+(.*)$/m.exec(src) || [, 'Report'])[1]
   .replace(/\$[^$]*\$/g, '').replace(/[*`]/g, '').trim();
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-// Identify the editable source in the exported document.
+// The generated file is meant to be sent to people, so it says on its face -- not only in an
+// HTML comment -- that the markdown is the original.
 const mdName = path.basename(mdPath);
-const exportNote = '*Generated from `' + mdName + '`; edit the Markdown source and rebuild.*';
+const exportNote = '*This is a shareable, self-contained export of `' + mdName + '` — every ' +
+  'figure is embedded and every formula is pre-rendered, so it needs no network and no fonts ' +
+  'beyond the ones already on the machine. `' + mdName + '` is the authored source; this file ' +
+  'is generated from it and is overwritten on every build, so corrections belong in the ' +
+  'markdown.*';
 
-// Page layout around the embedded github-markdown-css content styles.
+// github-markdown-css styles the CONTENTS of `.markdown-body` and takes no view on the page
+// around it.  These are the wrapper rules its own readme prescribes, and the only styling
+// this repository still owns.
 const WRAPPER_CSS = `
 .markdown-body {
   box-sizing: border-box;
