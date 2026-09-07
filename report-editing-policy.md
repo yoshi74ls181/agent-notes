@@ -314,6 +314,14 @@ header.** A pass whose reader 1 was not independent, and which declares it, is w
 pass with no number audit — that audit is the one thing readers 2 and 3 cannot supply, because
 neither of them can see `results/`.
 
+**Ask it to record what it checked and found correct, not only what is wrong.** The brief is
+otherwise entirely negative and the per-finding format has no slot for a passing check, so a
+reader that verifies something and finds it sound reports nothing and the editor has to re-audit it
+to learn the difference between "checked and correct" and "not reached". Where the brief names a
+change to scrutinise, ask for the check and its result either way. On one pass this is how the
+figure whose reference lines had just been derived from the records was confirmed clean, with the
+byte-identical re-render quoted as the evidence.
+
 ### Reader 2, the second-year graduate student
 
 **A foreign-family agent given only the report and its figures.** Read front to back and quote
@@ -413,6 +421,14 @@ the number audit, and re-render every figure whose data moved.
    and **a number describing a case that was not run** — what a device *would* have carried at a
    depth nobody simulated. Both read as data. If the report needs one, the script must print it;
    if no script prints it, the report cannot quote it.
+
+   **Mechanise it.** Extract every numeric literal from the report, grep each against `results/`
+   and `scripts/`, and list the ones that appear in neither. Run it *before* the three-reader pass
+   rather than after: it needs no judgement, and a referee's attention is better spent on what
+   survives it. On one audited report the sweep found four prose-only numbers that two readers
+   between them had missed, one of which described a case no script could run. Expect false
+   positives and check them rather than suppressing them — a value formatted at runtime with
+   `%.2f` and a rounded physical constant both fail the grep and are both correct.
 3. **Every figure and link resolves,** and every figure on disk is either used or deliberately not.
 4. **Every reference line, annotation and legend label a figure hardcodes, against the table it
    claims to match.** A constant baked into a plotting script is prose: it goes stale like prose,
