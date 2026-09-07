@@ -236,11 +236,14 @@ worth stating plainly; **a factor the reader has to derive**, so print the expre
 only its two ends; and **a word that describes the wrong operation**, which sends the reader's
 arithmetic the other way.
 
-**A percentage or a factor carries its denominator.** Two ways it goes wrong even when the
+**A percentage or a factor carries its denominator.** Three ways it goes wrong even when the
 division is right. The base changes between the summary and the body, so one "99.6%" is a
-fraction of the discrete spurs in one place and of the whole excess in the other. And a ratio of
+fraction of the discrete spurs in one place and of the whole excess in the other. A ratio of
 two logarithmic readings gets reported as a factor: 1.601 dB over 0.085 dB is not "a factor of
-19" in anything physical, since the gains behind them differ by 1.42.
+19" in anything physical, since the gains behind them differ by 1.42. And a *relative* excess
+loses the word "relative": 1.12 percent of a probability is not 1.12 percentage points of it, and
+a header that drops it invites the reader to compare the number against two columns whose
+difference is 0.45 points.
 
 **Quote the numbers of one column at one precision, and let the printed operands reproduce the
 printed result.** Rounding a column's headline value to a word while quoting its neighbours to the
@@ -254,11 +257,9 @@ nor its logs said which.
 
 **A numerical correction states the conditions it was computed under.** A table of thermal
 populations gives its temperature, its assumed level spectrum, how many levels were kept and which
-probability convention is meant. A *relative* excess names its denominator, since 1.12 percent of a
-probability is not 1.12 percentage points of it, and a header that drops the word "relative" invites
-the reader to compare it against two columns whose difference is 0.45 points. This bites hardest
-where the report has already said that the spectrum an exact treatment would need is unavailable:
-an approximate correction quoted without its model reads as the exact one.
+probability convention is meant. This bites hardest where the report has already said that the
+spectrum an exact treatment would need is unavailable: an approximate correction quoted without its
+model reads as the exact one, and a reader who tries to reproduce it cannot.
 
 **Check it after editing, not only after writing.**
 
