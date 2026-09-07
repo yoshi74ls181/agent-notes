@@ -217,6 +217,24 @@ fraction of the discrete spurs in one place and of the whole excess in the other
 two logarithmic readings gets reported as a factor: 1.601 dB over 0.085 dB is not "a factor of
 19" in anything physical, since the gains behind them differ by 1.42.
 
+**Quote the numbers of one column at one precision, and let the printed operands reproduce the
+printed result.** Rounding a column's headline value to a word while quoting its neighbours to the
+digit makes one look like a scale and the others like computations, when all three came from the
+same place: "eighty times more" sat between "21 at 100 mK" and "64 at 1 K" while the evidence said
+81. And where the report shows its working — *this* is *that* times *the other* — the operands as
+printed must give the result as printed, or the sentence says which of them is rounded. One chain
+read "3.2 × 10⁻³ per gate. This is 3.2 times the zero-temperature 9.8 × 10⁻⁴", whose product is
+3.1 × 10⁻³; the two factors were evaluated at different qubit frequencies and neither the report
+nor its logs said which.
+
+**A numerical correction states the conditions it was computed under.** A table of thermal
+populations gives its temperature, its assumed level spectrum, how many levels were kept and which
+probability convention is meant. A *relative* excess names its denominator, since 1.12 percent of a
+probability is not 1.12 percentage points of it, and a header that drops the word "relative" invites
+the reader to compare it against two columns whose difference is 0.45 points. This bites hardest
+where the report has already said that the spectrum an exact treatment would need is unavailable:
+an approximate correction quoted without its model reads as the exact one.
+
 **Check it after editing, not only after writing.**
 
 ## 7. Evaluate the closed form, and apply the method to the device
