@@ -130,4 +130,5 @@ cross-check, not proof of identity.
   file exists and is non-empty before accepting a review.
 - **Ask for whole-document coverage.** A reader may exhaust its response on the opening pages.
 - **Read configuration warnings.** Managed settings can override requested values.
-- **Quote passages and record the input version.** Line numbers go stale as findings are applied.
+- **Cite section numbers and quote passages; record the input version.** Include line numbers
+  for the reviewed version, but expect them to change as findings are applied.
