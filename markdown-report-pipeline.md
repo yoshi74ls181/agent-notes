@@ -16,53 +16,35 @@ never edit it. This note covers the toolchain, not what belongs in a report.
 
 ## GitHub converts the markdown; GitHub's stylesheet styles it
 
-The prose goes to GitHub's [`POST /markdown`](https://docs.github.com/en/rest/markdown)
-endpoint, so the HTML is exactly what GitHub would render, and
-[`github-markdown-css`](https://github.com/sindresorhus/github-markdown-css) — the stylesheet
-GitHub's own rendered markdown uses — is inlined over it inside an
-`<article class="markdown-body">`. The result reads like a README, in light or dark according
-to the reader's system setting.
+GitHub's [`POST /markdown`](https://docs.github.com/en/rest/markdown) endpoint renders the prose.
+The builder inlines [`github-markdown-css`](https://github.com/sindresorhus/github-markdown-css)
+inside an `<article class="markdown-body">`, with light or dark styling from the reader's
+system setting.
 
-**THE BUILD NEEDS THE NETWORK.** One request per report. A token in `$GITHUB_TOKEN` or
-`$GH_TOKEN`, or one the builder gets from `gh auth token`, raises the rate limit from 60
-requests an hour to 5000; the build works without one. **The report's full text is sent to
-GitHub** — which for a repository already hosted there is not a new party, but it is worth
-knowing before building a report that lives somewhere else.
+**The build needs the network and sends the report text to GitHub**, one request per report.
+Authentication is optional: the builder checks `GITHUB_TOKEN`, `GH_TOKEN`, then `gh auth token`.
+Authenticated requests generally have higher rate limits.
 
 ### `mode=markdown`, not `mode=gfm`
 
-Three reasons, and each of them bit:
+The builder uses `markdown` mode to avoid these `gfm` behaviors:
 
-* `gfm` autolinks `#123` as an issue and `@name` as a user. It rewrote `@someone` into a
-  hovercard link to a real GitHub profile, **capitalisation and all**.
-* `gfm` wraps every table in a `<markdown-accessiblity-table>` custom element, which is inert
-  in a standalone file.
-* `gfm` stamps each formula with a `data-run-id` that is **random per request**, so the same
-  markdown would build to a different file every time and every rebuild would show all the
-  committed artifacts as modified.
+* Issue and user autolinks for `#123` and `@name`.
+* Table wrappers using the `<markdown-accessiblity-table>` custom element.
+* Random `data-run-id` attributes on formulas, which create unnecessary rebuild diffs.
 
 `markdown` mode has none of that and still renders tables.
 
 ## What the endpoint cannot do, and so what the builder still does
 
-1. **MATHS.** The endpoint does not render it. In `gfm` mode it returns an inert
-   `<math-renderer>` custom element wrapping the raw TeX, which needs GitHub's own client-side
-   JavaScript; in `markdown` mode it returns the `$$...$$` as literal text. Either way a
-   standalone file would show raw TeX. So every formula is pulled out **before** the request,
-   rendered to MathML locally by MathJax, and spliced back over an opaque placeholder
-   afterwards. The placeholder is bare uppercase ASCII so that neither the markdown renderer
-   nor the HTML sanitiser can touch it, and the build fails if one survives into the output.
-2. **The Unicode-maths guard**, below.
-3. **Prose subscripts and superscripts.** `E_J` and `h^2` in running prose become `<sub>` and
-   `<sup>`. These *do* survive the endpoint, which passes inline HTML through.
-4. **Figures.** `<figure>` and `<figcaption>` are **stripped by the endpoint's sanitiser**, so
-   the house form cannot be assembled before the request. It is assembled afterwards out of
-   the two paragraphs the endpoint returns. The endpoint also wraps every image in a link to
-   its own path, which in a mailed single file points at a file the reader does not have, so
-   the link is dropped and the image kept.
-5. **The self-contained file.** The endpoint returns a *fragment* with the figure paths
-   untouched, so the document, the inlined stylesheet and the base64 figures are assembled
-   here.
+1. **Maths:** extract formulas before Markdown parsing, render them locally to MathML, then
+   restore them over ASCII placeholders. The API's raw TeX or inert `<math-renderer>` output
+   would require client-side processing.
+2. **Unicode:** normalise symbols and reject unmapped characters, as described below.
+3. **Prose scripts:** convert `E_J` and `h^2` to inline `<sub>` and `<sup>` HTML.
+4. **Figures:** reconstruct image paragraphs and italic captions as `<figure>` elements after
+   sanitisation, which strips `<figure>` and `<figcaption>`. Remove links to the image's local path.
+5. **Packaging:** assemble the document, embedded stylesheet, and base64 images.
 
 ## Why the HTML is one file
 
@@ -73,24 +55,20 @@ The HTML has to be movable and mailable: no CDN, no JavaScript, no web fonts. So
   serialiser, and
 * inlines the stylesheet.
 
-Nothing of MathJax reaches the output, and neither does anything of GitHub's front end. The
-file carries plain MathML, which is native in current Chrome, Firefox and Safari, so it
-typesets with no script and no web font.
+The output carries plain MathML, with no MathJax or GitHub front-end code. Use a browser with
+native MathML support.
 
-Two MathJax specifics that are not obvious from its documentation:
+Two implementation details:
 
-* the `bussproofs` TeX package throws `requires an output jax with a getBBox() method` as soon
-  as it loads, because there is no output jax here — only the MathML serialiser. The builder
-  loads every package except that one.
-* the serialiser writes every non-ASCII character as a numeric reference, `&#x3B8;`. That
-  renders correctly but triples the size of a Greek-heavy equation and makes the generated file
-  undiffable, so the builder folds references above ASCII back to the characters themselves.
+* Exclude `bussproofs`: it requires an output jax with `getBBox()`, while this build uses only
+  the MathML serialiser.
+* Decode non-ASCII numeric references such as `&#x3B8;` for smaller, readable output; preserve
+  ASCII escapes.
 
-**The build is deterministic**, and worth keeping so: the same markdown gives a byte-identical
-file, which is what makes a committed artifact reviewable. Text files are normalised to LF
-before they are inlined — SVG figures especially, because base64 of CRLF is not base64 of LF
-and the output would otherwise depend on the checkout rather than on its sources. A host
-repository should also pin the artifacts themselves:
+**Keep rebuilds reproducible.** Normalise text files to LF before embedding them, especially
+SVGs: base64 differs between LF and CRLF. Pin dependencies in the host project and use these
+artifact line-ending rules. Output also depends on GitHub's renderer, so service updates can
+change the generated HTML.
 
 ```
 */figs/*.svg    text eol=lf
@@ -99,16 +77,12 @@ repository should also pin the artifacts themselves:
 
 ## Unicode in, MathJax out: the conversion, the guard and the check
 
-The source is written in Unicode because the markdown has to read in a plain viewer. That is a
-content rule; what follows is the machinery that makes it safe, which an author does not have to
-remember because the build enforces it.
+Unicode keeps the source readable in a plain viewer. The conversion layer translates notation
+that MathJax would otherwise treat as a glyph.
 
-**The renderer does not have to understand any of it.** MathJax reads a Unicode character as a
-*glyph* and never as an instruction, so handed `θ²` it would set the two on the baseline as an
-operator instead of raising the theta. Not every engine behaves this way — KaTeX reads such a
-character as an instruction — so a source written for one engine is mis-set by the other,
-silently. The build does not ask you to care: `scripts/tex_unicode.js` converts every character
-in the table below back to its macro before MathJax sees it.
+For example, Unicode superscripts need TeX structure to render correctly in MathJax.
+`scripts/tex_unicode.js` applies the following mappings before compilation; do not assume
+another renderer's Unicode behavior transfers to MathJax.
 
 | written in the source | reaches MathJax as | why the conversion is needed |
 |---|---|---|
@@ -123,16 +97,11 @@ in the table below back to its macro before MathJax sees it.
 | `∇`, `∀`, `∃`, `∅`, `ℏ` | `\nabla` … | assorted class and variant differences |
 
 Lowercase Greek, relations (`≈ ≤ ≥ ≠ ∝ ≡ ≃ ∼ ≪ ≫ ∈`), `↔ ⇒ ⇐ ↦`, `−`, `⋯`, `±`, `√`, `ℓ`, `⊗`
-and `†` need no conversion: their markup is identical to their macros', so the module leaves
-them alone. Every member of that set was admitted by rendering the character and its macro
-under MathJax and comparing the MathML, which is evidence about MathJax specifically — so it
-holds only as long as MathJax is the renderer.
+and `†` pass through. Their MathML was compared with the corresponding macros under MathJax.
+Recheck that equivalence if changing the renderer.
 
-**You do not have to remember any of this, because the build checks it.** A character in none of
-the three sets — the scripts, the mapped ones, the measured-identical ones — reaches MathJax raw
-and is set as a glyph, and *nothing in the output says so*: a mis-set superscript still looks
-roughly like a superscript. So `md_to_html.js` refuses to build, naming the character and its
-code point:
+**The build rejects unknown Unicode**, reporting the character and code point. Otherwise a
+formula could compile while rendering the character with the wrong structure:
 
 ```
 unmapped Unicode in: ℵ_0 = θ² + a⊥b
@@ -140,10 +109,8 @@ unmapped Unicode in: ℵ_0 = θ² + a⊥b
   ⊥  U+22A5  -- not in SUP, SUB, MACRO or SAFE
 ```
 
-The fix is to add it to `scripts/tex_unicode.js`: to `MACRO` if a macro is meant, or to `SAFE`
-**only** after rendering the character and the macro and finding the MathML identical. Do not
-add to `SAFE` by inspection — a difference of one attribute with no visible effect is still a
-difference, and mapping the character costs nothing.
+Add missing characters to `scripts/tex_unicode.js`: use `MACRO` for a TeX mapping, or `SAFE`
+only after rendering both forms and comparing their MathML, including attributes.
 
 **Two things are dropped as a deliberate trade**, accepting a small change in the typesetting
 to get a plainly readable source:
@@ -155,18 +122,15 @@ to get a plainly readable source:
 
 At display size those differences are barely visible.
 
-**Comparing a rewrite is a markup comparison, not a text one.** `κ_{\mathrm{tot}}` and `κ_tot`
-have identical text content and different markup, because the second subscripts only the first
-letter and drops the rest onto the baseline. Anything that checks a rewrite left the maths alone
-has to compare the MathML, render it under the engine that will build the document, and
-normalise through `scripts/tex_unicode.js` rather than reimplementing the tables.
+**Compare markup, not text.** `κ_{\mathrm{tot}}` and `κ_tot` have the same text content but
+different subscript structure. Validate rewrites with the build's MathJax renderer and
+`scripts/tex_unicode.js` rather than reimplementing the conversion tables.
 
 ## The source form is a policy, not a build setting
 
-Markdown that carries **no raw HTML and no inline LaTeX** reads in any viewer. That is a rule
-about what you write rather than about the toolchain, so it belongs with your project's content
-rules. The builder supports more than that policy allows — it renders `$...$` and passes inline
-HTML through. Prefer the policy.
+The no-HTML, no-inline-LaTeX rule belongs to [`report-editing-policy.md`](report-editing-policy.md).
+The builder is deliberately more permissive: it accepts `$...$` and inline HTML. Use the
+project's source checks to enforce the policy.
 
 ## Markdown conventions the builder understands
 
@@ -199,31 +163,19 @@ broken report if
   MathJax — the one failure in this list that would otherwise be silent, since the formula
   compiles and merely renders wrongly.
 
-It prints the element counts on success — math, display math, figures, tables — so a silent
-regression shows up as a number that moved. Compare against the previous build when changing
-the builder: the counts should not drift for an unchanged document.
+On success, compare the math, display-math, figure, and table counts against the previous build.
+For unchanged input, a count change needs explanation.
 
 ## Traps
 
-**Do not hand-edit the generated HTML.** It is regenerated from the markdown; edits are lost.
-The generated file says so both in a comment and on its face.
+**Prose tildes are literal.** The builder escapes `~` to prevent accidental strikethrough.
+Write `<del>` when strikethrough is intended.
 
-**A single `~` is STRIKETHROUGH to GitHub.** Physics prose uses it for "of order", and two of
-them in one paragraph — `J₃~δf³/48 against J₁~δf/2` — came back as
-`J₃<del>δf³/48 against J₁</del>δf/2`. That is a corruption of the text and not a formatting
-difference, and nothing in the output announces it. The builder escapes every prose tilde, so
-the character survives; anything that really wants strikethrough has to write `<del>`.
+**A figure caption is the italic paragraph after the image.** Keep the whole caption italic:
+a bold lead-in opens with `***`, but the paragraph still closes with a lone `*`.
 
-**The figure paths in the markdown are relative to the markdown file.**
-
-**A figure caption is the italic paragraph after the image**, and the builder tells it from an
-ordinary paragraph by its *closing* delimiter: a caption ends with a lone `*`, whereas a
-paragraph that merely happens to end bold ends with `**`. Testing the opening delimiter does not
-work, because a caption with a bold lead-in opens with `***`.
-
-**A caption broken across a blank line is not a caption.** Each half is then an incomplete
-emphasis run, so neither is recognised, the image loses its `<figure>` and a literal `*` reaches
-the reader. Keep a caption in one paragraph.
+**Keep captions in one paragraph.** A blank line splits the emphasis run, preventing caption
+recognition and leaving literal asterisks in the output.
 
 **Formulas are pulled out before any markdown rule runs.** Otherwise `$L_J$` gets eaten at the
 underscore. If a formula renders as mangled prose, that ordering is the first thing to check.

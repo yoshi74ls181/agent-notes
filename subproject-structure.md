@@ -1,19 +1,15 @@
 # How a subproject is laid out
 
-The structural half of the documentation policy: which files a study directory has, which one is
-the source for which, and how a new directory picks all of it up. For *what belongs in each
-document* — the division between orientation, findings and constraints — see
-[`report-editing-policy.md`](report-editing-policy.md) §0, which this note does not restate.
+The file layout and adoption process for a study directory. For document audiences and content,
+see [`report-editing-policy.md`](report-editing-policy.md) §0.
 
-> **This policy is opt-in, and a roster is the opt-in.** A directory follows it because it is
-> named in the project's roster file — not because of anything about its contents. The checker
-> reads that roster and ignores every other directory, so a study that keeps a hand-written
-> `README.md` is unaffected and is not failing anything.
->
-> A roster is the criterion rather than, say, the presence of a marked `AGENTS.md`, because a
-> directory that is *supposed* to follow the policy and has no `AGENTS.md` at all is the single
-> most useful thing to catch. Inferring adoption from the files present makes that case invisible:
-> forgetting the file would silently mean opting out.
+The scaffolding, synchronisation, and checker commands below are host-project tools; they are
+not included in this repository.
+
+> **This policy is opt-in through the project's roster.** Checkers ignore unlisted directories,
+> including studies with hand-written READMEs. Use an explicit roster rather than inferring
+> adoption from existing files, so a missing required `AGENTS.md` is caught rather than treated
+> as opting out.
 
 ## The files
 
@@ -52,9 +48,8 @@ repeated here.
 ## Editing the deliverables
 ```
 
-Everything between the markers is copied verbatim into `README.md`, so it must read as human
-orientation. Everything outside them never reaches a human reader and is where the traps, the
-contracts and the prohibitions go. The split is not about importance — it is about audience.
+The marked region is copied verbatim into `README.md` and must read as human orientation.
+Keep agent-facing traps, contracts, and prohibitions outside the markers.
 
 Both files sit in the same directory, so relative links inside the marked region resolve
 identically in each and need no rewriting.
@@ -87,10 +82,8 @@ out what it would have to change to join.
 
 ## The roster
 
-One directory per line in a plain text file, with blank lines and `#`-comments ignored. Keep it in
-the project rather than here: which studies have adopted the policy is a fact about that project,
-and every project that vendors this note has a different list.
+Keep the roster in the host project: one directory per line, ignoring blank lines and
+`#`-comments.
 
-Adding a line is a claim that the directory should look as described above; the checker then tells
-you where it does not, including if the files are missing entirely. Removing a line stops all of
-it, so nothing else should key off study names.
+Adding a directory opts it into the checks, including missing-file checks. Removing it opts
+it out. Other tooling should use the roster rather than hard-coded study names.

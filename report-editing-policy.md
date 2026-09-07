@@ -1,11 +1,11 @@
 # Editing policy for reports
 
-A report is **reader-facing**: someone who has never seen the project reads it front to back and
-follows the science, learning nothing about the order in which it was found.
+A report is **reader-facing**: a newcomer should follow the science in logical order without
+learning the project's discovery history.
 
-**Assume a working experimentalist in the report's own field.** The field's standard vocabulary
-goes unexplained. Anything outside its common training keeps its correct name — so a reader can
-look it up — and gets one operational sentence saying what was actually computed.
+**Assume a working experimentalist in the report's field.** Leave standard vocabulary
+unexplained. For unfamiliar concepts, retain the correct name and add one operational sentence
+stating what was computed.
 
 **Do not assume the reader has read the source paper.** Its private symbols carry no meaning
 outside it.
@@ -23,12 +23,9 @@ outside it.
   leans on** — the peaks, zeros and limits its results sit on.
 - **Name a sibling study rather than pointing at it.** "The sibling study" means nothing.
 
-A number quoted with an undefined symbol is not a checkable number: this is a correctness rule.
-
-This note covers *what goes in the report*, including what form the source may take. The build
-that turns that source into a shareable HTML file is
-[`markdown-report-pipeline.md`](markdown-report-pipeline.md). Plotting conventions and the file
-set of a study directory are a project's own to fix, and this note assumes only that they exist.
+This note covers report content and source form. The build is documented in
+[`markdown-report-pipeline.md`](markdown-report-pipeline.md); figure conventions and study
+layout have separate notes.
 
 ## 0. Which document carries what
 
@@ -48,18 +45,15 @@ line on what the study concluded.
 not break to `AGENTS.md`; what each measured field means to `LOGBOOK.md`; anything that outlives
 the study to the project's shared notes.
 
-**A line belongs in `AGENTS.md` only if:** *would someone about to edit do the wrong thing without
-it?* A fact rather than a constraint on action goes in another document, with `AGENTS.md` linking
-to it. That file loads into every session in its subtree, so prefer a pointer to a précis. Much
-past 150 lines it has started restating its neighbours.
+**A line belongs in `AGENTS.md` only if an editor would act wrongly without it.** Link to facts
+elsewhere; keep constraints here. The file loads into every session in its subtree, so prefer
+pointers and review for duplication when it grows much past 150 lines.
 
-**`LOGBOOK.md` is the designated home for project history** — every superseded claim, dead end,
-correction and abandoned approach the rules below take out of the report. It may be chronological.
-The report may not.
+**`LOGBOOK.md` owns project history:** superseded claims, dead ends, corrections, and abandoned
+approaches. It may be chronological; the report may not.
 
-**A report is not obliged to be complete, and must not be widened to make it so.** Its scope is
-whatever story it tells, which may be one extension rather than the whole subproject. A finding
-with no place in that story belongs in `LOGBOOK.md` alone.
+**Do not widen a report merely to make it complete.** Its scope may be one extension rather
+than the whole subproject. Findings outside that story belong in `LOGBOOK.md`.
 
 **`report.md` and `LOGBOOK.md` may cover the same material** in different orders; do not collapse
 them. `README.md` and `AGENTS.md` may not restate a result those two own. `report.html` is
@@ -69,21 +63,10 @@ regenerated on every build, so any edit to it is lost.
 
 The source carries **neither raw HTML nor inline LaTeX**.
 
-**Do not hard-wrap. One paragraph is one line.** Let the editor soft-wrap it to whatever width
-the window has. A source hard-wrapped to a fixed column is unreadable in any editor narrower
-than that column, which is the case the wrapping was supposed to help, and it re-wraps to a
-different width for every reader who has a different one.
+**Do not hard-wrap. One paragraph is one line.** Let the editor soft-wrap for the reader's window.
 
-Three further reasons, and the last is the one that bites:
-
-- **A diff of hard-wrapped prose is unreadable.** Change a word in the first sentence and every
-  line of the paragraph reflows, so the diff shows the whole paragraph and hides which word
-  moved. Unwrapped, the diff is the paragraph that changed and nothing else.
-- **Search and edit both work on whole sentences.** A grep for a phrase fails when a line break
-  falls inside it, and an exact-string edit needs the break reproduced.
-- **Wrapping can change what markdown means.** A wrap that puts `|S21|` at the start of a line
-  invents a table row; one that lands on `- ` or `1. ` invents a list. A hard-wrapper has to know
-  the markup to avoid this, and none of ours did — this is not a hypothetical.
+Hard wrapping reflows unrelated text in diffs and splits searchable phrases. It can also change
+Markdown structure: a break before `|S21|`, `- `, or `1. ` may introduce a table row or list.
 
 **What stays on its own line regardless**: headings, table rows, the `![alt](path)` figure lines
 with their alt text intact, and display blocks. Those are already one logical unit per line.
@@ -100,9 +83,8 @@ them as `<sub>`. Two consequences:
   subscript; backticked spans are never touched. `proseSubscript` in `scripts/tex_unicode.js` is
   the rule.
 
-**Display equations stay as `$$...$$`,** and **a load-bearing formula gets `$$` even if it would
-fit on one line.** The test is what the formula does, not how long it is: if the reader has to stop
-and look at it, display it; an aside, a definition restated or a unit conversion stays inline.
+**Display equations stay as `$$...$$`.** Display a load-bearing formula even when it fits on
+one line. Asides, restated definitions, and unit conversions may stay inline.
 
 **Use Unicode for the symbols inside the `$$` too.** Three things stay macros:
 
@@ -114,10 +96,8 @@ and look at it, display it; an aside, a definition restated or a unit conversion
 Nothing is converted inside text and upright-roman arguments. **None of this applies to the
 prose**, which never goes near MathJax: Unicode maths is simply correct there.
 
-**Verify a rewrite, do not assume it.** Compare the rendered MathML before and after the change
-rather than the rendered text, and note that the build refuses any character it cannot hand to
-MathJax. The conversion table is in
-[`markdown-report-pipeline.md`](markdown-report-pipeline.md).
+**Verify notation rewrites by comparing rendered MathML.** The build rejects unknown Unicode;
+see the conversion table in [`markdown-report-pipeline.md`](markdown-report-pipeline.md).
 
 **What no-HTML costs, and accept it:** semantic colouring becomes bold, multi-column layouts
 become sequential sections, badges fold into their heading text, and sub- and superscripts become
@@ -129,15 +109,11 @@ and exits non-zero.
 
 ## 2. No project history in the report
 
-Delete every account of how the work went — "an earlier version of this script", "originally", "it
-took a check to notice", "the simulation overruled it" — and first person of any kind. Say what is
-true, not how it came to be believed.
+Delete discovery narratives such as "an earlier version" or "originally", and first person.
+State what is true; keep how it came to be believed in the logbook.
 
-**A superseded target is project history, and it hides in the numbers.** When a study is
-retargeted, the old design point returns as prose: a value attributed to the design this one grew
-out of, a component this study started from, a comparison against something the reader has never
-been shown. Worse, it returns as whole paragraphs of the old point's numbers standing beside the
-new.
+**Superseded design targets are history too.** After retargeting, sweep prose, tables, and
+formulas for values and comparisons carried over from the old design point.
 
 **The report presents one device.** Every comparison against a previous one is history, however
 quantitative, and every number from it is wrong. A retarget is a sweep of the whole document; the
@@ -193,13 +169,10 @@ alternative, a bound, or an explicitly unreachable ideal. Put the anchor in the 
 **one significant figure**; more digits, or a place in the summary box, make it read as a computed
 result rather than a scale.
 
-Applying this usually means *moving* material rather than cutting it.
-
 ## 6. No document voice
 
-Delete every sentence about the report — what is worth computing, what is worth stating carefully,
-why the study did not stop somewhere, what the reader should recall from above. If a thing is worth
-stating, state it.
+Delete commentary on the report's own emphasis or process. State the result directly instead
+of announcing that it is worth computing, stating, or recalling.
 
 Headings may carry argument where the reversal is the science. Navigation is not document voice: a
 long report may open with a short "how to read this" and may state a convention it applies
@@ -236,12 +209,10 @@ alongside.
 
 > **[quantitative statement], and [subjective evaluation of it].**
 
-Cut the tail; the sentence is finished without it. This is the commonest defect in these reports.
+Cut the subjective tail; the quantitative statement is sufficient.
 
-**Admiring the agreement is the commonest instance.** When a measurement lands on a closed form,
-say that it does and give the numbers. State the spread and delete the adjective. Cut
-"astonishingly well", "beautifully", "better than it has any right to be", and exclamations about
-numbers. The same restraint applies to disagreement: quantify it rather than dramatising it.
+**Quantify agreement and disagreement.** Give the values and spread. Cut admiration,
+exclamations, and adjectives such as "astonishingly" or "beautifully".
 
 **What is not a subjective tail.** Clauses that carry information stay: **a stated condition** that
 makes the headline true; **a mechanism or cause**; **theoretical necessity with its scope** — "as it
@@ -253,9 +224,8 @@ engineering judgement with a referent**; and **saying which of two things a numb
 
 A number, keep it. A temperament, cut it.
 
-**Vague quantifiers are the same defect in miniature** — "a comfortable factor", "not a small
-perturbation", "a big win". Each is a number the writer had and did not print. Print it, or cut the
-restatement where the surrounding text already gives it.
+**Replace vague quantifiers with numbers:** "a comfortable factor", "not a small perturbation",
+and "a big win". If the surrounding text already gives the number, cut the restatement.
 
 **Finding them.** Grep `cleanest|sharpest|strongest|pleasing|elegant|striking|remarkable|worth
 (having|stating|noting)|none of them small|happily|comfortable|very slightly`, then read every
@@ -265,7 +235,7 @@ sentence containing both a number and the word "and".
 
 > **[noun or gerund phrase], [comma-led modifier].**
 
-There is no main clause. Give it a verb, and the sentence gets shorter as well as grammatical.
+Add a finite verb to make the fragment a main clause.
 
 **Section headings and figure-caption leads are held to the same rule.** A heading naming a thing
 and its state becomes a heading with a verb in it.
@@ -295,9 +265,8 @@ introducing a list or a closing summary. The test is whether the sentence reads 
 
 ## 15. A paragraph header states the finding, not that there is one
 
-A lead-in that announces a topic — "**What it gets.**", "**The intent.**", "**Where the line
-falls.**" — makes the reader open the paragraph to find out whether they needed it. So does the
-shape that says what something is *not*.
+A topic announcement such as "**What it gets.**" hides the finding, as does a lead-in that only
+says what something is not.
 
 **Put the finding in the header, with its number if it has one.** The reader who does not need the
 paragraph can then skip it honestly.
@@ -309,21 +278,17 @@ reads as a summary of the report; a list of announcements reads as a table of co
 
 A symbol, a word or a phrase means exactly one thing in a document. Four shapes:
 
-**A symbol reused for an unrelated quantity.** **The fix is never to gloss it, it is to rename**,
-and often the better rename removes the symbol entirely, since a constant that appears twice does
-not need a name.
+**Rename symbols reused for unrelated quantities.** A gloss does not remove the collision.
+Remove the symbol entirely when the quantity does not need a name.
 
-**Two objects with the same generic name** — two devices both called "the device", two source
-papers both "the paper". A reader who combines a number from one with a number from the other gets
-a contradiction and cannot tell whether the report is wrong or they are. Name each on first use and
-say explicitly that the one is *not* the other.
+**Name objects distinctly.** Two devices called "the device", or two sources called "the paper",
+invite readers to combine incompatible numbers. Name each on first use and distinguish them.
 
-**A word standing for several numbers** — a quantity meaning one thing in a table, another on a
-figure axis and a third to the reader. Name the referent every time; never use the bare word.
+**Name the referent when a word could stand for several numbers**, such as different quantities
+in a table and on a figure axis.
 
-**One quantity measured several ways, quoted without saying which** — several values, each correct
-for its own method or condition, quoted as though they were one. **Say which variant produced the
-number, every time, or use one variant throughout.** Grepping finds nothing wrong with this one.
+**Identify the measurement variant behind every quoted number**, or use one variant throughout.
+Values from different methods or conditions are not interchangeable.
 
 **Finding them.** Extract every symbol and every capitalised or quoted term and list the distinct
 quantities each denotes. Where a system holds several instances of a component, the bare noun is
@@ -332,9 +297,8 @@ places agree before quoting either.
 
 ## 17. Arithmetic the reader will attempt must close
 
-Print two operands near a result and a reader will do the sum. **A sum that does not close is a
-missing sentence, not a rounding problem**: it usually conceals a definition or a design decision
-that was never stated, and a phrase like "with nothing fitted" invites exactly that check.
+**Arithmetic must close.** If nearby operands do not produce the stated result, explain the
+missing definition or design decision rather than dismissing the discrepancy as rounding.
 
 Three related shapes: **"so" between two independently computed numbers**, which hides an agreement
 worth stating plainly; **a factor the reader has to derive**, so print the expression rather than
@@ -345,9 +309,8 @@ arithmetic the other way.
 
 ## 18. Evaluate the closed form, and apply the method to the device
 
-**A closed form that is printed and never evaluated.** Put numbers in it. It usually predicts, for
-free, results the report is asserting from a parameter scan, and a prediction confirmed by a scan
-is a stronger claim than a scan alone.
+**Evaluate printed closed forms.** They may predict results otherwise asserted from a parameter
+scan, turning the scan into an independent check.
 
 **A method validated on something other than the device** — a prescription validated on a test case
 and never applied to the device the report designs, whose corresponding number is fitted instead.
@@ -387,18 +350,14 @@ Three readers, none of them the author. **Run the first two at once**; **run the
 both sets of findings are in the document.** Readers 2 and 3 come from a different model family
 than reader 1.
 
-**Reader 1, the referee: an agent with the whole repository** — the report, the logbook, the
-result logs, the scripts and this policy. Check the science, and check every number against the
-evidence. Finds sign errors, quantities described as the wrong thing, claims that outrun their
-support, and the §18 analysis that was never pointed at the device.
+**Reader 1, the referee: an agent with the whole repository**, including the report, logbook,
+result logs, scripts, and this policy. Check every number against evidence, the science, signs,
+scope, and whether §18's method was applied to the device.
 
-**Reader 2, the second-year graduate student: a foreign-family agent given the report and its
-figures and nothing else.** Ask it to go front to back naming every place it stopped, re-read or
-guessed and to quote the sentence; to ask for every non-standard term to be explained rather than
-inferring it; and to say what a first-time reader with limited patience would give up on and how
-the report should be reordered so they do not. Finds §16 collisions, §17 arithmetic, symbols used
-before they are defined, terms the author has stopped hearing, and whether the headline can be
-interpreted at all.
+**Reader 2, the second-year graduate student: a foreign-family agent given only the report and
+its figures.** Read front to back and quote every passage requiring a reread or guess. Identify
+unexplained nonstandard terms, §16 name collisions, §17 arithmetic, and definitions introduced
+late. Say where a first-time reader would give up and what order would help.
 
 **Reader 3, the editor: a foreign-family agent given the report and nothing else.** It reports no
 findings; it returns the whole report rewritten in the style of a well-written PhD dissertation
@@ -409,9 +368,8 @@ sweep.
 **Do not merge readers 1 and 2.** The referee must have the policy and the project; the student
 must have neither.
 
-**Ask readers 1 and 2 about the structure, not only the sentences,** in as many words: does the
-order carry the argument, is anything in the wrong place, what did you need earlier than you got
-it, and what could go.
+**Ask readers 1 and 2 about structure explicitly:** what belongs earlier, what is misplaced,
+whether the order carries the argument, and what could be removed.
 
 **Both readers' findings go to a file, in one invocation each, not into messages.** Reader 1
 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file,
@@ -443,9 +401,8 @@ the number audit, and re-render every figure whose data moved.
 
 #### Handing a report to a reader outside the local model family
 
-**The mechanics of running one are in [`codex-cli.md`](codex-cli.md)** — the flags, how to get
-the reply into a file, how to restrict what the reader can see, and the traps. Read it before
-convening readers 2 and 3. What that note does not decide, this one does:
+Use [`codex-cli.md`](codex-cli.md) for runner commands, output capture, and review context.
+Read it before convening readers 2 and 3. The review-specific requirements are:
 
 - **Verify which model read the document.** Ask it to name its own model and runtime before
   anything else, and keep the answer at the head of what it writes. A plugin offering a foreign
