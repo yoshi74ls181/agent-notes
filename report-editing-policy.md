@@ -115,6 +115,12 @@ in a table and on a figure axis.
 **Identify the measurement variant behind every quoted number**, or use one variant throughout.
 Values from different methods or conditions are not interchangeable.
 
+**A dimensionless ratio names what it is referred to.** One report gave the same device a mode-to-qubit
+ratio of 1.34 in one section and 1.31 in another. Both were right — one referred to the geometric
+mean of the qubit pair, the other to the frequency the couplings were measured at — and nothing
+said so. The same split gave two values of the quantity the ratio normalises, one of which no
+result file printed.
+
 **Finding them.** Extract every symbol and every capitalised or quoted term and list the distinct
 quantities each denotes. Where a system holds several instances of a component, the bare noun is
 never safe: name the instance. Where a script computes a number in more than one place, check the
@@ -178,6 +184,19 @@ is edited, which is what makes it the thing to cite.
 
 Never "the previous section" or "as discussed above" — sections move and those references invert
 silently. Name the section by its number, or name the object.
+
+**A pointer whose target is the section containing it is a defect, not a redundancy.** Check every
+`§n` against the heading above the sentence that carries it. Numbering an existing document fails
+this way in particular, because the natural slip is to write the number of the section you are
+standing in; one such pointer survived a commit whose entire purpose was to make every pointer
+name the section it meant.
+
+**A row index, a column position or a marker on a figure is a cross-reference too**, and it goes
+stale the same way without anything in the prose changing. Prefer naming the row by its scheme,
+the column by its heading and the marker by what it marks. Where an index is unavoidable,
+re-derive every one after inserting or deleting a row. One report indexed the same table correctly
+in one section and off by one in another, because a row had been inserted between the two edits;
+the document contained its own counter-example and no rule caught it.
 
 ## 6. Arithmetic the reader will attempt must close
 
