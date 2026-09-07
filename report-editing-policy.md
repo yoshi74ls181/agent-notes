@@ -418,9 +418,10 @@ must have neither, or it stops noticing what it was convened to notice.
 order carry the argument, is anything in the wrong place, what did you need earlier than you got
 it, and what could go. Line-level defects are volunteered; structural ones have to be asked for.
 
-**Have reader 1 write its findings to a file, not send them as messages.** A message is subject
-to an output limit and a long finding list hits it; the cut lands at about the same length every
-time, so re-requesting the tail the same way loses the same tail again. A file has no such limit.
+**Both readers' findings go to a file, not into messages.** A message is subject to an output
+limit and a long finding list hits it; the cut lands at about the same length every time, so
+re-requesting the tail the same way loses the same tail again. A file has no such limit. Reader 1
+writes its own, having the repository; reader 2's is piped from the runner, below.
 Ask for **`<owner>-<subproject>-referee-report.md`**, beside the report it reviews and named to
 match it, written with the editor tool rather than a shell heredoc. Have the reader send only a
 short confirmation listing the item numbers the file contains, and read the file yourself. Keep
@@ -438,16 +439,26 @@ Per finding: the line number, the quoted sentence, what is wrong, the evidence b
 what it should say, and **CONFIRMED** against **PLAUSIBLE** — whether the reader checked the
 evidence or only suspects it. Numbered continuously, so a gap is visible.
 
-**Reader 2 cannot write to a file, since restricting its view is the point**, so it stays on
-messages and needs the batch discipline: **two items per message, not five**, one topic each, and
-*a short message that arrives whole beats a complete one you only get 80% of.*
+**Reader 2 writes to a file too, and it does not need write access to do it.** Its restricted
+view is about what it can *read*, and the two are separate: point the runner's own
+last-message-to-file flag at `<owner>-<subproject>-student-feedback.md` and the reader's output
+lands there verbatim, without the reader ever seeing the repository. That file is ignored on the
+same terms as the referee's.
 
-**Assemble its batches into `<owner>-<subproject>-student-feedback.md` yourself**, ignored on the
-same terms as the referee's file. Concatenate the batches with a plain byte copy — `cat`, not a
-shell heredoc, which mangles the backslashes in whatever LaTeX the reader wrote. Head it with
-which model answered, that the view was restricted and how, and **that its line numbers refer to
-the report as it stood before the pass**: the document moves under the reader while it works, and
-a stale line number reads as a live one months later. Cite by quoted sentence.
+**Which removes the reason to batch it.** Batching exists because messages truncate; a file has
+no limit, so ask for everything in one invocation and let it write the whole document. Keep the
+batch discipline only for what you genuinely need conversationally — a disagreement to resolve,
+or a follow-up question — and pipe the archival copy to the file in one shot.
+
+**Never hand-assemble the file from batches if you can avoid it.** Every re-typing is a chance to
+paraphrase a reader whose exact words are the evidence, and concatenating through a shell heredoc
+mangles the backslashes in whatever LaTeX the reader wrote. If you must join batches, join them
+with a plain byte copy (`cat`).
+
+**Have it head its own document** with which model answered, what it was given, and **that its
+line numbers refer to the report as it stood when it read it**: the document moves under the
+reader while it works, and a stale line number reads as a live one months later. Citations are
+then best followed by quoted sentence.
 
 **Prompt for every batch. A reader that has sent one goes idle and stays there.** It is waiting
 for a request it has no way to know is wanted, and a batch never arrives unasked — budget one
