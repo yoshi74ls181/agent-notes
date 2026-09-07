@@ -1,15 +1,12 @@
 # Markdown-authored reports, self-contained HTML output
 
-Write the report in markdown. One build step turns it into a single self-contained HTML file.
+Write the report in markdown. One build step turns it into a single self-contained HTML file
+that looks like a GitHub README.
 
 ```
-npm install --prefix <toolkit root>      # once: pulls mathjax-full
+npm install --prefix <toolkit root>      # once: mathjax-full, github-markdown-css
 node scripts/md_to_html.js <report.md>
 ```
-
-The builder looks for `mathjax-full` beside itself and then upward, so an install at the
-toolkit root works, and so does one at the root of a repository that vendors the toolkit. If it
-lives somewhere else, give the `node_modules` directory as a second argument.
 
 Run the builder from wherever the markdown is; figure paths are resolved relative to the
 markdown file.
@@ -17,17 +14,68 @@ markdown file.
 `report.md` is the **authored source**. `report.html` is generated and will be overwritten, so
 never edit it. This note covers the toolchain, not what belongs in a report.
 
+## GitHub converts the markdown; GitHub's stylesheet styles it
+
+The prose goes to GitHub's [`POST /markdown`](https://docs.github.com/en/rest/markdown)
+endpoint, so the HTML is exactly what GitHub would render, and
+[`github-markdown-css`](https://github.com/sindresorhus/github-markdown-css) — the stylesheet
+GitHub's own rendered markdown uses — is inlined over it inside an
+`<article class="markdown-body">`. The result reads like a README, in light or dark according
+to the reader's system setting.
+
+**THE BUILD NEEDS THE NETWORK.** One request per report. A token in `$GITHUB_TOKEN` or
+`$GH_TOKEN`, or one the builder gets from `gh auth token`, raises the rate limit from 60
+requests an hour to 5000; the build works without one. **The report's full text is sent to
+GitHub** — which for a repository already hosted there is not a new party, but it is worth
+knowing before building a report that lives somewhere else.
+
+### `mode=markdown`, not `mode=gfm`
+
+Three reasons, and each of them bit:
+
+* `gfm` autolinks `#123` as an issue and `@name` as a user. It rewrote `@someone` into a
+  hovercard link to a real GitHub profile, **capitalisation and all**.
+* `gfm` wraps every table in a `<markdown-accessiblity-table>` custom element, which is inert
+  in a standalone file.
+* `gfm` stamps each formula with a `data-run-id` that is **random per request**, so the same
+  markdown would build to a different file every time and every rebuild would show all the
+  committed artifacts as modified.
+
+`markdown` mode has none of that and still renders tables.
+
+## What the endpoint cannot do, and so what the builder still does
+
+1. **MATHS.** The endpoint does not render it. In `gfm` mode it returns an inert
+   `<math-renderer>` custom element wrapping the raw TeX, which needs GitHub's own client-side
+   JavaScript; in `markdown` mode it returns the `$$...$$` as literal text. Either way a
+   standalone file would show raw TeX. So every formula is pulled out **before** the request,
+   rendered to MathML locally by MathJax, and spliced back over an opaque placeholder
+   afterwards. The placeholder is bare uppercase ASCII so that neither the markdown renderer
+   nor the HTML sanitiser can touch it, and the build fails if one survives into the output.
+2. **The Unicode-maths guard**, below.
+3. **Prose subscripts and superscripts.** `E_J` and `h^2` in running prose become `<sub>` and
+   `<sup>`. These *do* survive the endpoint, which passes inline HTML through.
+4. **Figures.** `<figure>` and `<figcaption>` are **stripped by the endpoint's sanitiser**, so
+   the house form cannot be assembled before the request. It is assembled afterwards out of
+   the two paragraphs the endpoint returns. The endpoint also wraps every image in a link to
+   its own path, which in a mailed single file points at a file the reader does not have, so
+   the link is dropped and the image kept.
+5. **The self-contained file.** The endpoint returns a *fragment* with the figure paths
+   untouched, so the document, the inlined stylesheet and the base64 figures are assembled
+   here.
+
 ## Why the HTML is one file
 
 The HTML has to be movable and mailable: no CDN, no JavaScript, no web fonts. So the builder
 
-* inlines every figure as a base64 `data:` URI, and
+* inlines every figure as a base64 `data:` URI,
 * pre-renders every formula to **MathML**, by MathJax's TeX input processor feeding its MathML
-  serialiser.
+  serialiser, and
+* inlines the stylesheet.
 
-Nothing of MathJax reaches the output. The file carries plain MathML, which is native in
-current Chrome, Firefox and Safari, so it typesets with no script and no web font.
-`mathjax-full` is the only dependency and only at build time.
+Nothing of MathJax reaches the output, and neither does anything of GitHub's front end. The
+file carries plain MathML, which is native in current Chrome, Firefox and Safari, so it
+typesets with no script and no web font.
 
 Two MathJax specifics that are not obvious from its documentation:
 
@@ -37,6 +85,17 @@ Two MathJax specifics that are not obvious from its documentation:
 * the serialiser writes every non-ASCII character as a numeric reference, `&#x3B8;`. That
   renders correctly but triples the size of a Greek-heavy equation and makes the generated file
   undiffable, so the builder folds references above ASCII back to the characters themselves.
+
+**The build is deterministic**, and worth keeping so: the same markdown gives a byte-identical
+file, which is what makes a committed artifact reviewable. Text files are normalised to LF
+before they are inlined — SVG figures especially, because base64 of CRLF is not base64 of LF
+and the output would otherwise depend on the checkout rather than on its sources. A host
+repository should also pin the artifacts themselves:
+
+```
+*/figs/*.svg    text eol=lf
+*-report.html   text eol=lf
+```
 
 ## Unicode in, MathJax out: the conversion, the guard and the check
 
@@ -65,7 +124,9 @@ in the table below back to its macro before MathJax sees it.
 
 Lowercase Greek, relations (`≈ ≤ ≥ ≠ ∝ ≡ ≃ ∼ ≪ ≫ ∈`), `↔ ⇒ ⇐ ↦`, `−`, `⋯`, `±`, `√`, `ℓ`, `⊗`
 and `†` need no conversion: their markup is identical to their macros', so the module leaves
-them alone.
+them alone. Every member of that set was admitted by rendering the character and its macro
+under MathJax and comparing the MathML, which is evidence about MathJax specifically — so it
+holds only as long as MathJax is the renderer.
 
 **You do not have to remember any of this, because the build checks it.** A character in none of
 the three sets — the scripts, the mapped ones, the measured-identical ones — reaches MathJax raw
@@ -104,36 +165,25 @@ normalise through `scripts/tex_unicode.js` rather than reimplementing the tables
 
 Markdown that carries **no raw HTML and no inline LaTeX** reads in any viewer. That is a rule
 about what you write rather than about the toolchain, so it belongs with your project's content
-rules. The builder supports more than that policy allows — it will render `$...$` and pass raw
-HTML through, including `$...$` inside it — because an unavoidable layout should not be
-impossible. Prefer the policy.
+rules. The builder supports more than that policy allows — it renders `$...$` and passes inline
+HTML through. Prefer the policy.
 
 ## Markdown conventions the builder understands
 
-Ordinary markdown, plus a few conventions that produce the report furniture:
+Whatever GitHub understands, plus two house conventions:
 
 | write this | get that |
 |---|---|
 | `$$x$$` | a display equation, as MathML. Inline `$x$` also works, but prefer Unicode |
-| `![alt](fig.png)` alone in a paragraph | a `<figure>` with the figure inlined |
-| an all-italic paragraph straight after an image | its `<figcaption>` |
-| `> **Note.** ...` | a recessive callout |
-| `> ### Heading` then prose | the prominent verdict box |
-| `\| a \| b \|` | a table; cells that look numeric get tabular figures and right-align |
-| an italic paragraph right after the `#` title | the standfirst |
-| `---` | a horizontal rule |
+| `![alt](fig.png)` alone, then an all-italic paragraph | a `<figure>` with the figure inlined and that paragraph as its `<figcaption>`. The alt text stays an accessibility description and is *not* used as the caption |
 
 An underscore after a **single** letter is set as a subscript, and a caret as a superscript, so
 `E_J` and `h^2` need no markup. `snake_case` in filenames and identifiers is left alone, and so
 is anything in backticks — which is where a single-letter code name has to go, since bare
 `g_form` in prose is indistinguishable from a subscript.
 
-Raw HTML *is* passed through, and `$...$` inside it is still rendered, so an unavoidable layout
-can fall back to it. That is a capability, not a licence.
-
-Styling lives in `scripts/report.css` beside the builder and is inlined into the output, so
-restyling every report is a one-file change. A document that needs different styling can put its
-own `scripts/report.css` next to its markdown and that wins.
+Everything else is GitHub's markdown: headings, lists, tables, code fences, block quotes,
+horizontal rules, emphasis.
 
 ## Validation is part of the build, not a separate script
 
@@ -142,42 +192,46 @@ broken report if
 
 * the generated HTML has unbalanced or crossed tags,
 * a figure path does not resolve to a real file,
-* any formula fails to compile, or
+* any formula fails to compile,
+* a formula placeholder survives into the output, meaning GitHub rewrote or removed it and the
+  maths could not be spliced back, or
 * a formula contains a Unicode character `scripts/tex_unicode.js` does not know how to hand to
   MathJax — the one failure in this list that would otherwise be silent, since the formula
   compiles and merely renders wrongly.
 
 It prints the element counts on success — math, display math, figures, tables — so a silent
-regression in the parser shows up as a number that moved. Compare against the previous build
-when changing the builder: the counts should not drift for an unchanged document.
+regression shows up as a number that moved. Compare against the previous build when changing
+the builder: the counts should not drift for an unchanged document.
 
 ## Traps
 
 **Do not hand-edit the generated HTML.** It is regenerated from the markdown; edits are lost.
 The generated file says so both in a comment and on its face.
 
-**The figure paths in the markdown are relative to the markdown file**, and they stay as
-`data-src` attributes in the output alongside the base64 payload, so a later build can find the
-original again.
+**A single `~` is STRIKETHROUGH to GitHub.** Physics prose uses it for "of order", and two of
+them in one paragraph — `J₃~δf³/48 against J₁~δf/2` — came back as
+`J₃<del>δf³/48 against J₁</del>δf/2`. That is a corruption of the text and not a formatting
+difference, and nothing in the output announces it. The builder escapes every prose tilde, so
+the character survives; anything that really wants strikethrough has to write `<del>`.
 
-**Inline math is split out before any markdown rule runs.** Otherwise `$L_J$` gets eaten by the
-emphasis rule at the underscore. If a formula renders as mangled prose, that ordering is the
-first thing to check.
+**The figure paths in the markdown are relative to the markdown file.**
 
 **A figure caption is the italic paragraph after the image**, and the builder tells it from an
 ordinary paragraph by its *closing* delimiter: a caption ends with a lone `*`, whereas a
 paragraph that merely happens to end bold ends with `**`. Testing the opening delimiter does not
 work, because a caption with a bold lead-in opens with `***`.
 
-**Text files are normalised to LF before they are inlined**, both the stylesheet and any SVG
-figure, because base64 of CRLF is not base64 of LF and the output would otherwise depend on the
-checkout rather than on its sources.
+**A caption broken across a blank line is not a caption.** Each half is then an incomplete
+emphasis run, so neither is recognised, the image loses its `<figure>` and a literal `*` reaches
+the reader. Keep a caption in one paragraph.
+
+**Formulas are pulled out before any markdown rule runs.** Otherwise `$L_J$` gets eaten at the
+underscore. If a formula renders as mangled prose, that ordering is the first thing to check.
 
 ## Vendoring this toolkit
 
-The pipeline is self-contained: `scripts/md_to_html.js`, `scripts/tex_unicode.js`,
-`scripts/report.css` and this note. To use it from another repository, add this repository as a
-submodule and run the builder by path.
+The pipeline is `scripts/md_to_html.js`, `scripts/tex_unicode.js` and this note. To use it from
+another repository, add this repository as a submodule and run the builder by path.
 
 ```bash
 git submodule add <this repo> <dir>
@@ -186,4 +240,4 @@ node <dir>/scripts/md_to_html.js report.md
 ```
 
 An `npm install` at the host repository's root works too, since the builder searches upward for
-`node_modules`.
+`node_modules`. Pin the host repository's SVG line endings as above.

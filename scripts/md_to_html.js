@@ -4,19 +4,59 @@
  *
  *     node scripts/md_to_html.js <report.md> [/path/to/node_modules]
  *
- * The markdown is the authored source.  The HTML is generated and is overwritten on every
- * build, so never edit it.  Figures are inlined as base64 and formulas are pre-rendered to
- * MathML, so the output needs no network, no JavaScript and no web fonts; `mathjax-full` is
- * the only dependency and only at build time.
+ * GITHUB CONVERTS THE MARKDOWN AND GITHUB'S OWN STYLESHEET STYLES IT.  The prose goes to
+ * GitHub's `POST /markdown` endpoint, so the HTML is exactly what GitHub would render, and
+ * `github-markdown-css` -- the stylesheet GitHub's own rendered markdown uses -- is inlined
+ * over it inside an `<article class="markdown-body">`.  The result looks like a README.
  *
- * The markdown conventions this recognises, the Unicode-to-LaTeX conversion, and the checks
- * the build refuses to skip are documented in markdown-report-pipeline.md.  What is
- * commented below is only what the code does that the note does not say.
+ * WHAT THE API CANNOT DO, and therefore what this file still does:
+ *
+ *   1. MATHS.  The endpoint does not render it.  In `gfm` mode it returns an inert
+ *      `<math-renderer>` custom element wrapping the raw TeX, which needs GitHub's own
+ *      client-side JavaScript; in `markdown` mode it returns the `$$...$$` as literal text.
+ *      Either way a standalone file would show raw TeX.  So every formula is pulled out
+ *      BEFORE the request, rendered to MathML locally by MathJax, and spliced back over an
+ *      opaque placeholder afterwards.
+ *   2. THE UNICODE-MATHS GUARD.  Reports are authored with Unicode maths -- `χ`, `κ_a`,
+ *      `10⁻¹⁵` -- because `check_report_source.py` requires it and forbids inline LaTeX.
+ *      `tex_unicode.js` rewrites that as the LaTeX MathJax needs and REFUSES a character it
+ *      has no mapping for, rather than letting it through to be set as a glyph.
+ *   3. PROSE SUBSCRIPTS AND SUPERSCRIPTS.  `E_J` and `h^2` in running prose become `<sub>`
+ *      and `<sup>`.  A house convention, so no converter does it.  These DO survive the
+ *      endpoint, which passes inline HTML through.
+ *   4. FIGURES.  `<figure>` and `<figcaption>` are STRIPPED by the endpoint's sanitiser, so
+ *      the house form -- an image alone, then an all-italic caption paragraph, with the alt
+ *      text an accessibility description rather than the caption -- cannot be assembled
+ *      before the request.  It is assembled afterwards, out of the two paragraphs the
+ *      endpoint returns.
+ *   5. THE SELF-CONTAINED FILE.  The endpoint returns a FRAGMENT with the figure paths
+ *      untouched, so the document, the inlined stylesheet and the base64 figures are all
+ *      assembled here.
+ *
+ * `mode=markdown`, NOT `mode=gfm`, and the difference matters.  `gfm` autolinks `#123` as an
+ * issue and `@name` as a user -- it rewrote `@someone` to a hovercard link to a real GitHub
+ * profile, capitalisation and all -- wraps every table in a `<markdown-accessiblity-table>`
+ * custom element, and stamps each formula with a `data-run-id` that is RANDOM PER REQUEST, so
+ * the build would not be reproducible.  `markdown` mode has none of that and still renders
+ * tables.
+ *
+ * THE BUILD NEEDS THE NETWORK.  A token in `$GITHUB_TOKEN` or `$GH_TOKEN`, or one from
+ * `gh auth token`, raises the rate limit from 60 requests an hour to 5000; the build works
+ * without one.  One request per report.
+ *
+ * The markdown is the authored source.  The HTML is generated and is overwritten on every
+ * build, so never edit it.
+ *
+ * The markdown conventions this recognises and the checks the build refuses to skip are
+ * documented in markdown-report-pipeline.md.  What is commented below is only what the code
+ * does that the note does not say.
  */
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const {execFileSync} = require('child_process');
 const {normalise, unmapped, codepoint, proseSubscript, proseSuperscript,
        SCRIPT_JUST_CONSUMED} = require('./tex_unicode.js');
 
@@ -26,32 +66,36 @@ if (!mdPath) {
   process.exit(2);
 }
 
-// mathjax-full has no single entry point worth using from Node, so the component files are
-// required by path.  Look where the caller says first, then walk up from this script: that
-// finds an install beside the toolkit and, when the toolkit is vendored into another
-// repository, one at that repository's root.
-const MJ_DIR = (function () {
+// Look where the caller says first, then walk up from this script: that finds an install
+// beside the toolkit and, when the toolkit is a submodule of another repository, one at that
+// repository's root.
+const MODULES = (function () {
   const tries = [];
-  if (modPath) {
-    tries.push(path.resolve(modPath, 'mathjax-full'), path.resolve(modPath));
-  }
+  if (modPath) tries.push(path.resolve(modPath));
   for (let d = __dirname; ; d = path.dirname(d)) {
-    tries.push(path.join(d, 'node_modules', 'mathjax-full'));
+    tries.push(path.join(d, 'node_modules'));
     if (path.dirname(d) === d) break;
   }
   for (const t of tries) {
-    if (fs.existsSync(path.join(t, 'js', 'mathjax.js'))) return t;
+    if (fs.existsSync(path.join(t, 'mathjax-full', 'js', 'mathjax.js')) &&
+        fs.existsSync(path.join(t, 'github-markdown-css', 'github-markdown.css'))) return t;
   }
   return null;
 })();
-if (!MJ_DIR) {
-  console.error('cannot find mathjax-full.  Either install it beside this script\n' +
-    '  npm install --prefix <toolkit root> mathjax-full\n' +
-    'or pass the node_modules directory that holds it\n' +
+if (!MODULES) {
+  console.error('cannot find mathjax-full and github-markdown-css.  Install them beside this\n' +
+    'script or at the root of the repository that vendors it\n' +
+    '  npm install --prefix <dir> mathjax-full github-markdown-css\n' +
+    'or pass the node_modules directory that holds them\n' +
     '  node scripts/md_to_html.js report.md <dir>/node_modules');
   process.exit(3);
 }
-const mjReq = (rel) => require(path.join(MJ_DIR, rel));
+
+// mathjax-full has no single entry point worth using from Node, so the component files are
+// required by path.  Every TeX package except bussproofs, which throws `requires an output jax
+// with a getBBox() method` the moment it loads -- there is no output jax here, only the MathML
+// serialiser, and no report needs proof trees.
+const mjReq = (rel) => require(path.join(MODULES, 'mathjax-full', rel));
 const {mathjax} = mjReq('js/mathjax.js');
 const {TeX} = mjReq('js/input/tex.js');
 const {liteAdaptor} = mjReq('js/adaptors/liteAdaptor.js');
@@ -60,109 +104,24 @@ const {SerializedMmlVisitor} = mjReq('js/core/MmlTree/SerializedMmlVisitor.js');
 const {AllPackages} = mjReq('js/input/tex/AllPackages.js');
 const {STATE} = mjReq('js/core/MathItem.js');
 mjReq('js/util/entities/all.js');
-
-// Every TeX package except bussproofs, which throws `requires an output jax with a
-// getBBox() method` the moment it loads -- there is no output jax here, only the MathML
-// serialiser, and no report needs proof trees.
-const mjAdaptor = liteAdaptor();
-RegisterHTMLHandler(mjAdaptor);
+RegisterHTMLHandler(liteAdaptor());
 const mjDoc = mathjax.document('', {
   InputJax: new TeX({packages: AllPackages.filter((p) => p !== 'bussproofs')}),
 });
 const mjVisitor = new SerializedMmlVisitor();
 
-
 const ROOT = path.dirname(path.resolve(mdPath));
-const src = fs.readFileSync(mdPath, 'utf8');
+const src = fs.readFileSync(mdPath, 'utf8').replace(/\r\n?/g, '\n');
 const stats = {math: 0, display: 0, figures: 0, tables: 0, bytes: 0};
 
-// The default stylesheet sits beside this script.  A document that needs different styling
-// can drop its own scripts/report.css next to its markdown and that wins.
-const CSS_LOCAL = path.join(ROOT, 'scripts', 'report.css');
-const CSS_PATH = fs.existsSync(CSS_LOCAL) ? CSS_LOCAL : path.join(__dirname, 'report.css');
-// Normalise the stylesheet's line endings before inlining it.  Otherwise the generated HTML
-// inherits whatever the checkout has -- git hands text files over with CRLF on Windows under
-// `* text=auto` -- and the build becomes platform-dependent.
-const CSS = fs.readFileSync(CSS_PATH, 'utf8').replace(/\r\n?/g, '\n');
-
-// ---------------------------------------------------------------- inline
-const esc = (s) => s.replace(/&(?![a-zA-Z#][a-zA-Z0-9]*;)/g, '&amp;')
-                    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-/** Split on inline math first, so $...$ contents are never touched by markdown rules. */
-function inline(text) {
-  let out = '';
-  let i = 0;
-  // The character before `i`, but only when it was plain prose -- '' after any consumed token.
-  // proseSubscript() needs exactly that; see its contract in tex_unicode.js.
-  let plainPrev = '';
-  while (i < text.length) {
-    // raw HTML passthrough: <tag ...> or </tag>
-    const raw = /^<\/?[a-zA-Z][^<>]*>/.exec(text.slice(i));
-    if (raw) { out += raw[0]; i += raw[0].length; plainPrev = ''; continue; }
-    if (text[i] === '$') {
-      const end = text.indexOf('$', i + 1);
-      if (end > i) {
-        out += mathml(text.slice(i + 1, end), false);
-        i = end + 1;
-        plainPrev = ''; continue;
-      }
-    }
-    if (text[i] === '`') {
-      const end = text.indexOf('`', i + 1);
-      if (end > i) {
-        out += '<code>' + esc(text.slice(i + 1, end)) + '</code>';
-        i = end + 1;
-        plainPrev = ''; continue;
-      }
-    }
-    // link
-    const link = /^\[([^\]]*)\]\(([^)\s]+)\)/.exec(text.slice(i));
-    if (link) {
-      out += '<a href="' + link[2] + '">' + inline(link[1]) + '</a>';
-      i += link[0].length;
-      plainPrev = ''; continue;
-    }
-    if (text.startsWith('**', i)) {
-      const end = text.indexOf('**', i + 2);
-      if (end > i) {
-        out += '<b>' + inline(text.slice(i + 2, end)) + '</b>';
-        i = end + 2;
-        plainPrev = ''; continue;
-      }
-    }
-    if (text[i] === '*') {
-      const end = text.indexOf('*', i + 1);
-      if (end > i) {
-        out += '<em>' + inline(text.slice(i + 1, end)) + '</em>';
-        i = end + 1;
-        plainPrev = ''; continue;
-      }
-    }
-    if (text[i] === '\\' && i + 1 < text.length && '*_`$'.includes(text[i + 1])) {
-      out += esc(text[i + 1]); i += 2; plainPrev = ''; continue;
-    }
-    // last, so that everything above -- code, math, links, emphasis -- has had its say first
-    const sub = proseSubscript(text.slice(i), plainPrev);
-    if (sub) {
-      out += esc(sub.base) + '<sub>' + esc(sub.sub) + '</sub>';
-      i += sub.length;
-      plainPrev = SCRIPT_JUST_CONSUMED;
-      continue;
-    }
-    const sup = proseSuperscript(text.slice(i), plainPrev);
-    if (sup) {
-      out += '<sup>' + esc(sup.sup) + '</sup>';
-      i += sup.length;
-      plainPrev = SCRIPT_JUST_CONSUMED;
-      continue;
-    }
-    out += esc(text[i]);
-    plainPrev = text[i];
-    i++;
-  }
-  return out;
-}
+// ---------------------------------------------------------------- maths
+/*
+ * Formulas are replaced by these before the request and put back after it.  The token has to
+ * survive a markdown renderer and an HTML sanitiser untouched, so it is bare uppercase ASCII
+ * with no character markdown gives a meaning to, and long enough not to occur in prose.
+ */
+const TOKEN = (i) => 'XMATHPLACEHOLDERX' + i + 'X';
+const rendered = [];
 
 // The serialiser writes every non-ASCII character as a numeric reference.  That renders
 // correctly but triples the size of a Greek-heavy equation and makes the generated file
@@ -175,7 +134,8 @@ function unentity(s) {
   });
 }
 
-function mathml(tex, display) {
+/** Render one formula to MathML now, and return the placeholder that stands in for it. */
+function math(tex, display) {
   // A character tex_unicode.js does not know reaches MathJax raw and is set as a glyph, and
   // nothing in the output says so, so the build refuses it rather than shipping a formula
   // that is quietly wrong.
@@ -191,34 +151,171 @@ function mathml(tex, display) {
                   '\n  rendering the character and the macro and finding the MathML identical.');
     process.exit(1);
   }
-  const src = normalise(tex);
-  let r;
+  const norm = normalise(tex);
+  let mml;
   try {
-    const node = mjDoc.convert(src, {display: !!display, end: STATE.CONVERT});
-    r = unentity(mjVisitor.visitTree(node, mjDoc));
+    const node = mjDoc.convert(norm, {display: !!display, end: STATE.CONVERT});
+    mml = unentity(mjVisitor.visitTree(node, mjDoc));
   } catch (e) {
     console.error('LaTeX error in: ' + tex +
-                  (src === tex ? '' : '\n  normalised to: ' + src) +
+                  (norm === tex ? '' : '\n  normalised to: ' + norm) +
                   '\n  ' + String(e.message).split('\n')[0]);
     process.exit(1);
   }
   stats.math++;
   if (display) stats.display++;
-  const cls = display ? 'md' : 'm';
-  const tag = display ? 'div' : 'span';
-  return '<' + tag + ' class="' + cls + '">' + r + '</' + tag + '>';
+  const i = rendered.length;
+  rendered.push(display ? '<div class="display-math">' + mml + '</div>' : mml);
+  return TOKEN(i);
+}
+
+// ---------------------------------------------------------------- prose
+/**
+ * Walk the source, pull every formula out to a placeholder, and apply the prose scripts,
+ * stepping over everything whose contents are not prose: code spans, link destinations and
+ * raw HTML tags.  Emphasis, headings, lists and tables are deliberately NOT recognised --
+ * they are GitHub's.
+ */
+function prose(text) {
+  let out = '';
+  let i = 0;
+  // The character before `i`, but only when it was plain prose -- '' after any consumed
+  // token.  proseSubscript() needs exactly that; see its contract in tex_unicode.js.
+  let plainPrev = '';
+  while (i < text.length) {
+    const rest = text.slice(i);
+
+    const tick = /^(`+)/.exec(rest);
+    if (tick) {
+      const end = text.indexOf(tick[1], i + tick[1].length);
+      if (end > 0) {
+        out += text.slice(i, end + tick[1].length);
+        i = end + tick[1].length;
+        plainPrev = '';
+        continue;
+      }
+    }
+
+    if (text[i] === '$') {
+      const display = text.startsWith('$$', i);
+      const delim = display ? '$$' : '$';
+      const end = text.indexOf(delim, i + delim.length);
+      if (end > 0) {
+        out += math(text.slice(i + delim.length, end), display);
+        i = end + delim.length;
+        plainPrev = '';
+        continue;
+      }
+    }
+
+    const link = /^(!?\[)([^\]]*)(\]\()([^)\s]+)(\))/.exec(rest);
+    if (link) {
+      out += link[1] + prose(link[2]) + link[3] + link[4] + link[5];
+      i += link[0].length;
+      plainPrev = '';
+      continue;
+    }
+
+    const raw = /^<\/?[a-zA-Z][^<>]*>/.exec(rest);
+    if (raw) {
+      out += raw[0];
+      i += raw[0].length;
+      plainPrev = '';
+      continue;
+    }
+
+    const sub = proseSubscript(rest, plainPrev);
+    if (sub) {
+      out += sub.base + '<sub>' + sub.sub + '</sub>';
+      i += sub.length;
+      plainPrev = SCRIPT_JUST_CONSUMED;
+      continue;
+    }
+    const sup = proseSuperscript(rest, plainPrev);
+    if (sup) {
+      out += '<sup>' + sup.sup + '</sup>';
+      i += sup.length;
+      plainPrev = SCRIPT_JUST_CONSUMED;
+      continue;
+    }
+
+    // GITHUB READS A SINGLE `~` AS STRIKETHROUGH, and physics prose uses it for "of order".
+    // Two of them in one paragraph -- `J₃~δf³/48 against J₁~δf/2` -- came back as
+    // `J₃<del>δf³/48 against J₁</del>δf/2`, which is a silent corruption of the text rather
+    // than a formatting difference.  Escaped, GitHub emits the character.  Anything that
+    // really wants strikethrough can write `<del>`.
+    if (text[i] === '~') {
+      out += '\\~';
+      plainPrev = '~';
+      i++;
+      continue;
+    }
+
+    out += text[i];
+    plainPrev = text[i];
+    i++;
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- the request
+/** A token, if one can be had.  Optional: it only raises the rate limit. */
+function githubToken() {
+  if (process.env.GITHUB_TOKEN) return process.env.GITHUB_TOKEN;
+  if (process.env.GH_TOKEN) return process.env.GH_TOKEN;
+  try {
+    const t = execFileSync('gh', ['auth', 'token'], {encoding: 'utf8'}).trim();
+    if (t) return t;
+  } catch (e) { /* gh absent or not logged in; anonymous is fine */ }
+  return null;
+}
+
+async function convert(text) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'md_to_html.js',
+  };
+  const token = githubToken();
+  if (token) headers.Authorization = 'Bearer ' + token;
+  let res;
+  try {
+    res = await fetch('https://api.github.com/markdown', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({text, mode: 'markdown'}),
+    });
+  } catch (e) {
+    console.error('FAIL cannot reach api.github.com: ' + e.message +
+                  '\n  This build converts the markdown through GitHub, so it needs the ' +
+                  'network.');
+    process.exit(1);
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error('FAIL GitHub /markdown returned ' + res.status + ' ' + res.statusText +
+                  (body ? '\n  ' + body.slice(0, 300) : '') +
+                  (res.status === 403 || res.status === 429
+                    ? '\n  Rate limited.  Set $GITHUB_TOKEN, or run `gh auth login`, for ' +
+                      '5000 requests an hour instead of 60.'
+                    : ''));
+    process.exit(1);
+  }
+  return res.text();
 }
 
 // ---------------------------------------------------------------- figures
 function dataURI(rel) {
-  const full = path.normalize(path.join(ROOT, rel));
+  const full = path.normalize(path.join(ROOT, decodeURIComponent(rel)));
   if (!fs.existsSync(full)) {
     console.error('MISSING figure: ' + rel);
     process.exit(1);
   }
   const ext = path.extname(full).toLowerCase();
   const mime = ext === '.svg' ? 'image/svg+xml'
-             : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/png';
+             : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg'
+             : ext === '.gif' ? 'image/gif' : 'image/png';
   // An SVG is TEXT, so the checkout's line endings reach it and base64 of CRLF is not base64
   // of LF.  Normalise, or the output depends on `core.autocrlf` rather than on its sources.
   // Raster formats are binary and are left exactly as they are.
@@ -232,175 +329,40 @@ function dataURI(rel) {
   return 'data:' + mime + ';base64,' + b64;
 }
 
-// ---------------------------------------------------------------- blocks
-const IMG_ONLY = /^!\[([^\]]*)\]\(([^)\s]+)\)$/;
-
-/**
- * If `s` is exactly one `*...*` emphasis run spanning the whole string, return its inside;
- * otherwise null.  Used to spot standfirsts, figure captions and footnotes.
+/*
+ * Put the house figure back together, and inline every image.
+ *
+ * The endpoint returns an image as `<p><a ...><img ...></a></p>`: it wraps the image in a
+ * link to the file, which in a mailed single file points at a path the reader does not have,
+ * so the link is dropped and the image kept.  A following all-italic paragraph is the
+ * caption, and the pair becomes a `<figure>`; `<figure>` could not be sent in the source
+ * because the sanitiser strips it.
  */
-function soleEmphasis(s) {
-  if (s.length < 3 || !s.startsWith('*')) return null;
-  // The discriminator is the CLOSING delimiter, not the opening one.  A caption with a bold
-  // lead-in, `***Bold lead.** the rest*`, opens with `***` and cannot be told from bold by
-  // its first characters, but it ends with a lone `*`; a paragraph that merely happens to
-  // end bold ends with `**`.
-  if (!s.endsWith('*') || s.endsWith('**')) return null;
-  return s.slice(1, -1);
+const IMG_P = /<p>(?:<a\b[^>]*>)?\s*<img\b([^>]*)>\s*(?:<\/a>)?<\/p>/g;
+
+function figuresAndImages(html) {
+  return html.replace(IMG_P, (whole, attrs, offset, all) => {
+    const srcM = /\ssrc="([^"]*)"/.exec(attrs);
+    if (!srcM) return whole;
+    const img = '<img' + attrs.replace(/\ssrc="[^"]*"/, '') +
+                ' src="' + dataURI(srcM[1]) + '">';
+    // an all-italic paragraph immediately after is this figure's caption
+    const after = all.slice(offset + whole.length);
+    const cap = /^\s*<p><em>([\s\S]*?)<\/em><\/p>/.exec(after);
+    if (cap) {
+      capsConsumed.push(cap[0]);
+      return '<figure>\n' + img + '\n<figcaption>' + cap[1] + '</figcaption>\n</figure>';
+    }
+    return '<p>' + img + '</p>';
+  });
 }
-
-/** Split into blocks on blank lines, but keep fenced code and tables intact. */
-function split(text) {
-  const lines = text.replace(/\r\n/g, '\n').split('\n');
-  const blocks = [];
-  let cur = [];
-  let fence = false;
-  const flush = () => { if (cur.join('').trim()) blocks.push(cur.join('\n')); cur = []; };
-  for (const ln of lines) {
-    if (/^```/.test(ln)) {
-      if (!fence) { flush(); cur.push(ln); fence = true; }
-      else { cur.push(ln); fence = false; flush(); }
-      continue;
-    }
-    if (fence) { cur.push(ln); continue; }
-    if (ln.trim() === '') { flush(); continue; }
-    cur.push(ln);
-  }
-  flush();
-  return blocks;
-}
-
-function tableHTML(block) {
-  const rows = block.split('\n').filter((l) => l.trim().startsWith('|'));
-  const cells = (l) => l.trim().replace(/^\|/, '').replace(/\|$/, '')
-                        .split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, '|'));
-  const isSep = (l) => /^\|[\s:|-]+\|?$/.test(l.trim()) && l.includes('-');
-  const sep = rows.findIndex(isSep);
-  if (sep < 0) return null;
-  const head = rows.slice(0, sep).map(cells);
-  const body = rows.slice(sep + 1).map(cells);
-  // A cell is "numeric" if it is a number, possibly signed/decorated -- those get
-  // tabular figures and right alignment, which is what makes the ledgers readable.
-  const num = (c) => c === '' || c === '—' || c === '--' ||
-    /^[*_`]*[+\-−(]?\s*[\d.]+\s*(?:[a-zA-Zµ%×x°]|dB|GHz|MHz|pH|pF|uA|rad|dBm)*\s*[)]?[*_`]*$/
-      .test(c.replace(/&[a-z]+;/g, ''));
-  let h = '<table>\n';
-  if (head.length) {
-    h += '<thead>' + head.map((r) =>
-      '<tr>' + r.map((c) => '<th>' + inline(c) + '</th>').join('') + '</tr>').join('\n') +
-      '</thead>\n';
-  }
-  h += '<tbody>\n' + body.map((r) =>
-    '<tr>' + r.map((c, j) =>
-      '<td' + (j > 0 && num(c) ? ' class="num"' : '') + '>' + inline(c) + '</td>')
-      .join('') + '</tr>').join('\n') + '\n</tbody>\n</table>';
-  stats.tables++;
-  return h;
-}
-
-function listHTML(block) {
-  const lines = block.split('\n');
-  const ordered = /^\s*\d+\.\s/.test(lines[0]);
-  const items = [];
-  for (const ln of lines) {
-    const m = /^\s*(?:[-*+]|\d+\.)\s+(.*)$/.exec(ln);
-    if (m) items.push(m[1]);
-    else if (items.length) items[items.length - 1] += ' ' + ln.trim();
-  }
-  const tag = ordered ? 'ol' : 'ul';
-  return '<' + tag + '>\n' + items.map((t) => '<li>' + inline(t) + '</li>').join('\n') +
-         '\n</' + tag + '>';
-}
-
-function render(blocks) {
-  const out = [];
-  let seenH1 = false;
-  for (let i = 0; i < blocks.length; i++) {
-    let b = blocks[i].trim();
-
-    if (/^<!--/.test(b)) continue;                        // comments are not output
-
-    if (/^```/.test(b)) {
-      const body = b.replace(/^```[^\n]*\n?/, '').replace(/\n?```$/, '');
-      out.push('<pre><code>' + esc(body) + '</code></pre>');
-      continue;
-    }
-
-    if (/^\$\$/.test(b) && /\$\$$/.test(b)) {
-      out.push(mathml(b.replace(/^\$\$\s*/, '').replace(/\s*\$\$$/, ''), true));
-      continue;
-    }
-
-    if (b.split('\n').every((l) => l.trim().startsWith('>'))) {
-      const inner = b.split('\n').map((l) => l.replace(/^>\s?/, '')).join('\n');
-      const kind = /^\s*#{1,6}\s/.test(inner) ? 'verdict' : 'note';
-      out.push('<div class="' + kind + '">\n' + render(split(inner)).join('\n') + '\n</div>');
-      continue;
-    }
-
-    const h = /^(#{1,6})\s+(.*)$/.exec(b);
-    if (h) {
-      const lvl = h[1].length;
-      out.push('<h' + lvl + '>' + inline(h[2]) + '</h' + lvl + '>');
-      if (lvl === 1) seenH1 = true;
-      continue;
-    }
-
-    if (b.split('\n').filter((l) => l.trim()).every((l) => l.trim().startsWith('|'))) {
-      const t = tableHTML(b);
-      if (t) { out.push(t); continue; }
-    }
-
-    if (/^\s*(?:[-*+]|\d+\.)\s+/.test(b)) { out.push(listHTML(b)); continue; }
-
-    // a figure: an image alone, optionally followed by an all-italic caption paragraph
-    const oneLine = b.replace(/\n/g, ' ').trim();
-    const img = IMG_ONLY.exec(oneLine);
-    if (img) {
-      let fig = '<figure>\n<img data-src="' + img[2] + '" alt="' + img[1] +
-                '" src="' + dataURI(img[2]) + '">';
-      const nxt = (blocks[i + 1] || '').trim().replace(/\n/g, ' ');
-      const cap = soleEmphasis(nxt);
-      if (cap && !IMG_ONLY.test(nxt)) {
-        fig += '\n<figcaption>' + inline(cap) + '</figcaption>';
-        i++;
-      }
-      out.push(fig + '\n</figure>');
-      continue;
-    }
-
-    if (/^---+$/.test(b)) { out.push('<hr>'); continue; }
-
-    // A raw HTML block passes through verbatim, EXCEPT that $...$ inside it is still
-    // rendered.  Without that, any layout that markdown cannot express -- a two-column
-    // grid, a headed card -- could not contain a formula, which in practice is most of
-    // them.  So raw HTML buys layout without giving up math.
-    if (/^<(?:div|table|figure|p|ul|ol|pre|hr|h[1-6])\b/.test(b)) {
-      out.push(b.replace(/\$([^$]+)\$/g, (_, tex) => mathml(tex, false)));
-      continue;
-    }
-
-    // standfirst: the italic paragraph immediately after the H1 or an H2 -- the CSS
-    // selector is `h1+p.sub, h2+p.sub`, so both positions are meaningful
-    const it = soleEmphasis(oneLine);
-    const prevIsHead = out.length && /^<h[12]>/.test(out[out.length - 1]);
-    if (it && prevIsHead && seenH1) {
-      out.push('<p class="sub">' + inline(it) + '</p>');
-      continue;
-    }
-    // a lone italic paragraph elsewhere: a footnote or an aside
-    if (it) { out.push('<p class="kv">' + inline(it) + '</p>'); continue; }
-
-    out.push('<p>' + inline(oneLine) + '</p>');
-  }
-  return out;
-}
+const capsConsumed = [];
 
 // ---------------------------------------------------------------- validate
 const VOID = new Set(['img', 'br', 'hr', 'meta', 'link', 'input', 'source', 'area',
                       'base', 'col', 'embed', 'param', 'track', 'wbr']);
 function balanced(html) {
-  const re = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?(\/?)>/g;
+  const re = /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*?(\/?)>/g;
   const stack = [];
   let m;
   while ((m = re.exec(html)) !== null) {
@@ -418,31 +380,82 @@ function balanced(html) {
 // ---------------------------------------------------------------- go
 const title = (/^#\s+(.*)$/m.exec(src) || [, 'Report'])[1]
   .replace(/\$[^$]*\$/g, '').replace(/[*`]/g, '').trim();
-const body = render(split(src)).join('\n\n');
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 // The generated file is meant to be sent to people, so it says on its face -- not only in an
 // HTML comment -- that the markdown is the original.
-function exportNote(mdName) {
-  return '<p class="export">This is a shareable, self-contained export of <code>' +
-    esc(mdName) + '</code> \u2014 every figure is embedded and every formula is pre-rendered, ' +
-    'so it needs no network and no fonts beyond the ones already on the machine. ' +
-    '<code>' + esc(mdName) + '</code> is the authored source; this file is generated from it ' +
-    'and is overwritten on every build, so corrections belong in the markdown.</p>';
+const mdName = path.basename(mdPath);
+const exportNote = '*This is a shareable, self-contained export of `' + mdName + '` — every ' +
+  'figure is embedded and every formula is pre-rendered, so it needs no network and no fonts ' +
+  'beyond the ones already on the machine. `' + mdName + '` is the authored source; this file ' +
+  'is generated from it and is overwritten on every build, so corrections belong in the ' +
+  'markdown.*';
+
+// github-markdown-css styles the CONTENTS of `.markdown-body` and takes no view on the page
+// around it.  These are the wrapper rules its own readme prescribes, and the only styling
+// this repository still owns.
+const WRAPPER_CSS = `
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
 }
+@media (max-width: 767px) {
+  .markdown-body { padding: 15px; }
+}
+.markdown-body .display-math {
+  display: block;
+  overflow-x: auto;
+  margin: 1em 0;
+  text-align: center;
+}
+`;
 
-const html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n' +
-  '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-  '<!-- Generated from ' + path.basename(mdPath) + ' by scripts/md_to_html.js.\n' +
-  '     Do not edit this file: edit the markdown and rebuild. -->\n' +
-  '<title>' + esc(title) + '</title>\n' + CSS + '\n</head>\n<body>\n<div class="wrap">\n\n' +
-  exportNote(path.basename(mdPath)) + '\n\n' +
-  body + '\n\n</div>\n</body>\n</html>\n';
+(async function main() {
+  const fragment = await convert(exportNote + '\n\n' + prose(src));
 
-const err = balanced(html);
-if (err) { console.error('FAIL structure: ' + err); process.exit(1); }
+  let body = figuresAndImages(fragment);
+  for (const c of capsConsumed) body = body.replace(c, '');
+  // put the formulas back
+  body = body.replace(/<p>\s*(XMATHPLACEHOLDERX\d+X)\s*<\/p>/g, (m, t) => byToken(t) || m)
+             .replace(/XMATHPLACEHOLDERX\d+X/g, (t) => byToken(t) || t);
+  stats.tables = (body.match(/<table\b/g) || []).length;
 
-const outPath = path.join(ROOT, path.basename(mdPath).replace(/\.md$/, '') + '.html');
-fs.writeFileSync(outPath, html, 'utf8');
-console.log(path.basename(outPath) + ': ' + stats.math + ' math (' + stats.display +
-  ' display), ' + stats.figures + ' figures, ' + stats.tables + ' tables, tags balanced');
-console.log('  ' + (stats.bytes / 1024).toFixed(0) + ' kB of image data, file is ' +
-  (fs.statSync(outPath).size / 1024).toFixed(0) + ' kB');
+  const left = /XMATHPLACEHOLDERX\d+X/.exec(body);
+  if (left) {
+    console.error('FAIL a formula placeholder survived into the output: ' + left[0] +
+                  '\n  GitHub rewrote or removed it, so the splice-back could not find it.');
+    process.exit(1);
+  }
+
+  const css = fs.readFileSync(
+    path.join(MODULES, 'github-markdown-css', 'github-markdown.css'), 'utf8')
+    .replace(/\r\n?/g, '\n');
+
+  const html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+    '<!-- Generated from ' + mdName + ' by scripts/md_to_html.js.\n' +
+    '     Markdown converted by GitHub\'s /markdown API; styled with github-markdown-css.\n' +
+    '     Do not edit this file: edit the markdown and rebuild. -->\n' +
+    '<title>' + esc(title) + '</title>\n<style>\n' + css + WRAPPER_CSS +
+    '</style>\n</head>\n<body>\n<article class="markdown-body">\n\n' +
+    body.trim() + '\n\n</article>\n</body>\n</html>\n';
+
+  const err = balanced(html);
+  if (err) { console.error('FAIL structure: ' + err); process.exit(1); }
+
+  const outPath = path.join(ROOT, mdName.replace(/\.md$/, '') + '.html');
+  fs.writeFileSync(outPath, html, 'utf8');
+  console.log(path.basename(outPath) + ': ' + stats.math + ' math (' + stats.display +
+    ' display), ' + stats.figures + ' figures, ' + stats.tables +
+    ' tables, tags balanced, converted by GitHub');
+  console.log('  ' + (stats.bytes / 1024).toFixed(0) + ' kB of image data, file is ' +
+    (fs.statSync(outPath).size / 1024).toFixed(0) + ' kB');
+})();
+
+function byToken(t) {
+  const m = /^XMATHPLACEHOLDERX(\d+)X$/.exec(t);
+  return m ? rendered[Number(m[1])] : null;
+}
