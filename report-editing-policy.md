@@ -69,6 +69,25 @@ regenerated on every build, so any edit to it is lost.
 
 The source carries **neither raw HTML nor inline LaTeX**.
 
+**Do not hard-wrap. One paragraph is one line.** Let the editor soft-wrap it to whatever width
+the window has. A source hard-wrapped to a fixed column is unreadable in any editor narrower
+than that column, which is the case the wrapping was supposed to help, and it re-wraps to a
+different width for every reader who has a different one.
+
+Three further reasons, and the last is the one that bites:
+
+- **A diff of hard-wrapped prose is unreadable.** Change a word in the first sentence and every
+  line of the paragraph reflows, so the diff shows the whole paragraph and hides which word
+  moved. Unwrapped, the diff is the paragraph that changed and nothing else.
+- **Search and edit both work on whole sentences.** A grep for a phrase fails when a line break
+  falls inside it, and an exact-string edit needs the break reproduced.
+- **Wrapping can change what markdown means.** A wrap that puts `|S21|` at the start of a line
+  invents a table row; one that lands on `- ` or `1. ` invents a list. A hard-wrapper has to know
+  the markup to avoid this, and none of ours did — this is not a hypothetical.
+
+**What stays on its own line regardless**: headings, table rows, the `![alt](path)` figure lines
+with their alt text intact, and display blocks. Those are already one logical unit per line.
+
 **Inline maths is Unicode.** Convert an expression only when no backslash and no brace is left,
 so that nothing is ever half-rewritten. A subscripted word stays as an underscore and its letters.
 
