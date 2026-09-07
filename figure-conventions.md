@@ -39,8 +39,9 @@ const CAT3 = ["#2a78d6", "#eb6834", "#1baf7a"]   # blue, orange, aqua
 Assign slots in fixed order and never cycle. Colour follows the entity: if a filter drops a
 series, the survivors keep their colours.
 
-**Theory and reference curves are recessive dashed grey (`#9a9992`), never a series colour.** The
-principle is §9 of [`report-editing-policy.md`](report-editing-policy.md).
+**Theory and reference curves are recessive dashed grey (`#9a9992`), never a series colour.** A
+reference line also says in its legend what it is and that it is not a fit, and a closed form
+quoted in the text says what it predicts *before* the measurement is given.
 
 **One y-axis per panel.** Never a dual-axis chart. Two measures of different scale go in two
 panels.
@@ -77,8 +78,8 @@ in one region and coincide in another, say which.
 
 ## Mark data you do not trust, rather than dropping it
 
-The plotting half of §10 of [`report-editing-policy.md`](report-editing-policy.md), which states
-the rule for prose and tables as well.
+Never drop a point that failed a validity check — in tables, parenthesise the number and give the
+honest alternative alongside; in a figure, mark it as below.
 
 Where a point fails a validity check, deleting it reads as "the curve ends here" and plotting it
 normally asserts a value you do not have. Draw it as an **open, unconnected marker** in the series

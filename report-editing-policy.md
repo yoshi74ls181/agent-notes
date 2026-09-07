@@ -3,39 +3,15 @@
 A report is **reader-facing**: someone who has never seen the project reads it front to back and
 follows the science, learning nothing about the order in which it was found.
 
-**Assume a working experimentalist in the report's own field.** The field's standard vocabulary
-goes unexplained. Anything outside its common training keeps its correct name — so a reader can
-look it up — and gets one operational sentence saying what was actually computed.
-
-**Do not assume the reader has read the source paper.** Its private symbols carry no meaning
-outside it.
-
-- **Minimise them.** Give a quantity its plain-English name. The one exception is the section
-  reproducing the paper's own formula.
-- **Define what survives, once, before it is used**, in a short table ahead of the first section
-  that needs it.
-- **The summary box uses no symbol at all.** It sits before that table. Write the quantity out;
-  every number must survive the translation. Do not gloss a symbol inline — remove it. Audit the
-  box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, and check
-  every number in it still appears in the body.
-- **Expand every acronym on first use,** including the ones that name the device.
-- **Name a special function on first use, and give the particular numerical facts the report
-  leans on** — the peaks, zeros and limits its results sit on.
-- **Name a sibling study rather than pointing at it.** "The sibling study" means nothing.
-
-A number quoted with an undefined symbol is not a checkable number: this is a correctness rule.
-
 This note covers *what goes in the report*, including what form the source may take. The build
 that turns that source into a shareable HTML file is
 [`markdown-report-pipeline.md`](markdown-report-pipeline.md). Plotting conventions and the file
 set of a study directory are a project's own to fix, and this note assumes only that they exist.
 
-**The rules below are the ones that shape a first draft**: where a fact belongs, what form the
-source takes, what must not be dropped, and which numbers have to be right. Sentence-level
-defects are deliberately absent — an announcing paragraph header, a subjective tail on a
-quantitative sentence, a fragment with no main verb, a second em dash doing a full stop's job, a
-result stated twice. The three-reader pass finds those, and reader 3's rewrite fixes them in one
-pass, which is cheaper than legislating each one and checking it by hand.
+**The rules are ordered by what an agent needs first when drafting**: where a fact belongs and
+who it is written for, then what must not be carried over from the work, then structure and
+naming, then the form of the source, then the numbers. §10 to §12 are the procedures for a report
+that already exists.
 
 ## 0. Which document carries what
 
@@ -72,7 +48,111 @@ with no place in that story belongs in `LOGBOOK.md` alone.
 them. `README.md` and `AGENTS.md` may not restate a result those two own. `report.html` is
 regenerated on every build, so any edit to it is lost.
 
-## 1. The source is portable markdown: Unicode maths, no HTML
+## 1. Write for a working experimentalist, and define what survives
+
+**Assume a working experimentalist in the report's own field.** The field's standard vocabulary
+goes unexplained. Anything outside its common training keeps its correct name — so a reader can
+look it up — and gets one operational sentence saying what was actually computed.
+
+**Do not assume the reader has read the source paper.** Its private symbols carry no meaning
+outside it.
+
+- **Minimise them.** Give a quantity its plain-English name. The one exception is the section
+  reproducing the paper's own formula.
+- **Define what survives, once, before it is used**, in a short table ahead of the first section
+  that needs it.
+- **The summary box uses no symbol at all.** It sits before that table. Write the quantity out;
+  every number must survive the translation. Do not gloss a symbol inline — remove it. Audit the
+  box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, and check
+  every number in it still appears in the body.
+- **Expand every acronym on first use,** including the ones that name the device.
+- **Name a special function on first use, and give the particular numerical facts the report
+  leans on** — the peaks, zeros and limits its results sit on.
+- **Name a sibling study rather than pointing at it.** "The sibling study" means nothing.
+
+A number quoted with an undefined symbol is not a checkable number: this is a correctness rule.
+
+## 2. No project history in the report
+
+Delete every account of how the work went — "an earlier version of this script", "originally", "it
+took a check to notice", "the simulation overruled it" — and first person of any kind. Say what is
+true, not how it came to be believed.
+
+**A caption carries neither the figure's edit history nor a branch of its plotting code that did
+not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
+ratio — does belong there.
+
+**A superseded target is project history, and it hides in the numbers.** When a study is
+retargeted, the old design point returns as prose: a value attributed to the design this one grew
+out of, a component this study started from, a comparison against something the reader has never
+been shown. Worse, it returns as whole paragraphs of the old point's numbers standing beside the
+new.
+
+**The report presents one device.** Every comparison against a previous one is history, however
+quantitative, and every number from it is wrong. A retarget is a sweep of the whole document; the
+staleness sweep of §12 is the procedure.
+
+**One flagged violation is a class, not an instance.** When a reader points at a sentence, grep the
+document for the *shape* before replying.
+
+## 3. Dead ends go to LOGBOOK.md, not the report
+
+**But keep every fact the numbers depend on.** Where a failed approach is the reason an observable
+is defined a particular way, state the definition and the measurement constraint behind it, not the
+failure.
+
+**A wrong alternative may appear as a conditional, never as an event.** Write what the wrong choice
+*would* do to the comparison, not that it was made and undone.
+
+## 4. Order by logic, not by discovery
+
+General case first, special case second. Introduce a controlling parameter *before* the cases it
+distinguishes, and let each case follow from where it sits. **Make the fork explicit**: a short
+hinge section stating the regimes and what each implies. **The summary box leads with the
+recommendation** — what should someone build, and what does it cost.
+
+**The summary has to stand alone.** Three constraints the body does not obey:
+
+* **No terminology the report itself invents.** The standard vocabulary of the field is fine, and
+  spelling it out in words costs the reader. A coined term is glossed in the same breath or left
+  to the body.
+* **No justifying the claims.** The finding, not the evidence for it.
+* **Numbers, yes — the conclusions are the numbers.** Avoid only the number whose *meaning* needs
+  the body.
+
+**A headline in absolute units needs one anchor.** Give the reader a comparison against a standard
+alternative, a bound, or an explicitly unreachable ideal. Put the anchor in the limitations at
+**one significant figure**; more digits, or a place in the summary box, make it read as a computed
+result rather than a scale.
+
+Applying this usually means *moving* material rather than cutting it.
+
+## 5. One name, one meaning
+
+A symbol, a word or a phrase means exactly one thing in a document. Four shapes:
+
+**A symbol reused for an unrelated quantity.** **The fix is never to gloss it, it is to rename**,
+and often the better rename removes the symbol entirely, since a constant that appears twice does
+not need a name.
+
+**Two objects with the same generic name** — two devices both called "the device", two source
+papers both "the paper". A reader who combines a number from one with a number from the other gets
+a contradiction and cannot tell whether the report is wrong or they are. Name each on first use and
+say explicitly that the one is *not* the other.
+
+**A word standing for several numbers** — a quantity meaning one thing in a table, another on a
+figure axis and a third to the reader. Name the referent every time; never use the bare word.
+
+**One quantity measured several ways, quoted without saying which** — several values, each correct
+for its own method or condition, quoted as though they were one. **Say which variant produced the
+number, every time, or use one variant throughout.** Grepping finds nothing wrong with this one.
+
+**Finding them.** Extract every symbol and every capitalised or quoted term and list the distinct
+quantities each denotes. Where a system holds several instances of a component, the bare noun is
+never safe: name the instance. Where a script computes a number in more than one place, check the
+places agree before quoting either.
+
+## 6. The source is portable markdown: Unicode maths, no HTML
 
 The source carries **neither raw HTML nor inline LaTeX**.
 
@@ -134,79 +214,7 @@ The builder is more permissive than this rule and will not catch a violation, so
 needs its own check that counts raw tags, inline maths and stray macros outside display blocks
 and exits non-zero.
 
-## 2. No project history in the report
-
-Delete every account of how the work went — "an earlier version of this script", "originally", "it
-took a check to notice", "the simulation overruled it" — and first person of any kind. Say what is
-true, not how it came to be believed.
-
-**A caption carries neither the figure's edit history nor a branch of its plotting code that did
-not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
-ratio — does belong there.
-
-**A superseded target is project history, and it hides in the numbers.** When a study is
-retargeted, the old design point returns as prose: a value attributed to the design this one grew
-out of, a component this study started from, a comparison against something the reader has never
-been shown. Worse, it returns as whole paragraphs of the old point's numbers standing beside the
-new.
-
-**The report presents one device.** Every comparison against a previous one is history, however
-quantitative, and every number from it is wrong. A retarget is a sweep of the whole document; the
-staleness sweep at the end of this file is the procedure.
-
-**One flagged violation is a class, not an instance.** When a reader points at a sentence, grep the
-document for the *shape* before replying.
-
-## 3. Dead ends go to LOGBOOK.md, not the report
-
-**But keep every fact the numbers depend on.** Where a failed approach is the reason an observable
-is defined a particular way, state the definition and the measurement constraint behind it, not the
-failure.
-
-**A wrong alternative may appear as a conditional, never as an event.** Write what the wrong choice
-*would* do to the comparison, not that it was made and undone.
-
-## 4. Keep every limit on the claims
-
-Cut history, never scope. These stay, always:
-
-* **"Not established"** paragraphs — what the work does not show, named explicitly.
-* Convergence and mode-set caveats — the numerical settings the result depends on.
-* **"What this cannot see"** — what the method structurally cannot address, as distinct from what
-  was not attempted.
-* Any number the measurement does not resolve, flagged as such. Where a scan quantises a quantity,
-  say the absolute value is not resolved rather than quoting digits the step does not support.
-* **The position of a maximum is bounded by the grid that found it, not by the precision of the
-  values on it.** A peak found on a coarse grid is located between its neighbouring samples and no
-  more precisely. Either coarsen the claim to the grid, or take the extra digits from a closed form
-  evaluated at the same point (§13), which turns the scan into a check rather than the evidence.
-
-A report with no limitations section is less trustworthy, not cleaner.
-
-## 5. Order by logic, not by discovery
-
-General case first, special case second. Introduce a controlling parameter *before* the cases it
-distinguishes, and let each case follow from where it sits. **Make the fork explicit**: a short
-hinge section stating the regimes and what each implies. **The summary box leads with the
-recommendation** — what should someone build, and what does it cost.
-
-**The summary has to stand alone.** Three constraints the body does not obey:
-
-* **No terminology the report itself invents.** The standard vocabulary of the field is fine, and
-  spelling it out in words costs the reader. A coined term is glossed in the same breath or left
-  to the body.
-* **No justifying the claims.** The finding, not the evidence for it.
-* **Numbers, yes — the conclusions are the numbers.** Avoid only the number whose *meaning* needs
-  the body.
-
-**A headline in absolute units needs one anchor.** Give the reader a comparison against a standard
-alternative, a bound, or an explicitly unreachable ideal. Put the anchor in the limitations at
-**one significant figure**; more digits, or a place in the summary box, make it read as a computed
-result rather than a scale.
-
-Applying this usually means *moving* material rather than cutting it.
-
-## 6. Sections are numbered, and cross-references name their target
+## 7. Sections are numbered, and cross-references name their target
 
 **Number every section and subsection, to whatever depth the report goes.** `## 4.` and
 `### 4.2` in the main text; `## C.`, `### C.2` and `#### C.2.1` in the appendices. Front matter
@@ -217,54 +225,7 @@ is edited, which is what makes it the thing to cite.
 Never "the previous section" or "as discussed above" — sections move and those references invert
 silently. Name the section by its number, or name the object.
 
-## 7. Every comparison states its correction
-
-Where two numbers were measured under conditions that differ, quote the raw value, the corrected
-value, the correction and where the correction came from.
-
-## 8. State the sign convention when the sign is the finding
-
-Write which way a comparison goes in words as well as in the number. A table column names the
-direction and the baseline, not the quality: `vs baseline, as measured`, never `penalty`.
-
-## 9. Predictions are labelled, and never fits
-
-A reference line says in its legend what it is and that it is not a fit. A closed form quoted in
-the text says what it predicts *before* the measurement is given. In figures, theory is recessive
-dashed grey and never a series colour.
-
-## 10. Show untrusted data, marked
-
-Never drop a point that failed a validity check. Plot it as an open marker and say in the caption
-why its value is not meaningful; in tables, parenthesise the number and give the honest alternative
-alongside.
-
-## 11. One name, one meaning
-
-A symbol, a word or a phrase means exactly one thing in a document. Four shapes:
-
-**A symbol reused for an unrelated quantity.** **The fix is never to gloss it, it is to rename**,
-and often the better rename removes the symbol entirely, since a constant that appears twice does
-not need a name.
-
-**Two objects with the same generic name** — two devices both called "the device", two source
-papers both "the paper". A reader who combines a number from one with a number from the other gets
-a contradiction and cannot tell whether the report is wrong or they are. Name each on first use and
-say explicitly that the one is *not* the other.
-
-**A word standing for several numbers** — a quantity meaning one thing in a table, another on a
-figure axis and a third to the reader. Name the referent every time; never use the bare word.
-
-**One quantity measured several ways, quoted without saying which** — several values, each correct
-for its own method or condition, quoted as though they were one. **Say which variant produced the
-number, every time, or use one variant throughout.** Grepping finds nothing wrong with this one.
-
-**Finding them.** Extract every symbol and every capitalised or quoted term and list the distinct
-quantities each denotes. Where a system holds several instances of a component, the bare noun is
-never safe: name the instance. Where a script computes a number in more than one place, check the
-places agree before quoting either.
-
-## 12. Arithmetic the reader will attempt must close
+## 8. Arithmetic the reader will attempt must close
 
 **A vague quantifier is a number the writer had and did not print** — "a comfortable factor", "not
 a small perturbation", "a big win". Print it, or cut the restatement where the surrounding text
@@ -281,7 +242,7 @@ arithmetic the other way.
 
 **Check it after editing, not only after writing.**
 
-## 13. Evaluate the closed form, and apply the method to the device
+## 9. Evaluate the closed form, and apply the method to the device
 
 **A closed form that is printed and never evaluated.** Put numbers in it. It usually predicts, for
 free, results the report is asserting from a parameter scan, and a prediction confirmed by a scan
@@ -295,7 +256,7 @@ the measurement; **say it was not applied**, so the quantity is an input rather 
 or **delete it** and leave the record in `LOGBOOK.md`. Presenting the validation as though it
 licensed the result is not available.
 
-## When restructuring an existing report
+## 10. When restructuring an existing report
 
 1. **Diff the visible word multiset before and after.** Content meant to move verbatim should show
    zero losses.
@@ -309,7 +270,7 @@ licensed the result is not available.
    proper noun it contained, then grep the survivor for each. Check the display equations and the
    figures, including any left on disk with nothing pointing at them.
 
-### The three-reader pass
+## 11. The three-reader pass
 
 Three readers, none of them the author. **Run the first two at once**; **run the third only after
 both sets of findings are in the document.** Readers 2 and 3 come from a different model family
@@ -319,20 +280,20 @@ than reader 1.
 must have neither. A student holding either stops being a first-time reader, and a first-time
 reading is the one thing only reader 2 can supply.
 
-#### Reader 1, the referee
+### Reader 1, the referee
 
 **An agent with the whole repository** — the report, the logbook, the result logs, the scripts and
 this policy. Check the science, and check every number against the evidence. Finds sign errors,
-quantities described as the wrong thing, claims that outrun their support, and the §13 analysis
+quantities described as the wrong thing, claims that outrun their support, and the §9 analysis
 that was never pointed at the device.
 
-#### Reader 2, the second-year graduate student
+### Reader 2, the second-year graduate student
 
 **A foreign-family agent given the report and its figures and nothing else.** Ask it to go front
 to back naming every place it stopped, re-read or guessed and to quote the sentence; to ask for
 every non-standard term to be explained rather than inferring it; and to say what a first-time
 reader with limited patience would give up on and how the report should be reordered so they do
-not. Finds §11 collisions, §12 arithmetic, symbols used before they are defined, terms the author
+not. Finds §5 collisions, §8 arithmetic, symbols used before they are defined, terms the author
 has stopped hearing, and whether the headline can be interpreted at all.
 
 Two things this reader needs and the others do not:
@@ -343,7 +304,7 @@ Two things this reader needs and the others do not:
   and **say that the reply must cover the whole document**, or it reads the first fifty lines
   exhaustively and stops.
 
-#### Readers 1 and 2, and what comes back from them
+### Readers 1 and 2, and what comes back from them
 
 **Ask both about the structure, not only the sentences,** in as many words: does the order carry
 the argument, is anything in the wrong place, what did you need earlier than you got it, and what
@@ -358,7 +319,7 @@ batches; if you must join anything, join it with a plain byte copy (`cat`). Have
 confirm in one short message which item numbers its file holds, and read the file yourself.
 
 **Have each reader head its own document** with which model answered, what it was given, and that
-its line numbers are the report as it read it. **Cite the section number (§6) as well as the
+its line numbers are the report as it read it. **Cite the section number (§7) as well as the
 quoted sentence.** Line numbers go stale the moment the document is edited; section numbers
 mostly do not, and a finding that carries both stays findable after the first round of fixes.
 
@@ -376,16 +337,17 @@ give the item number you already hold and quote the last words you received.
 **Expect the two to disagree.** Resolve it in the text rather than by picking a side; where that
 is impossible, the referee wins on accuracy and the student wins on placement.
 
-#### Reader 3, the editor
+### Reader 3, the editor
 
 **A foreign-family agent given the report and this policy** — the text alone, with no figures. It
 is the one reader outside the repository that gets the policy, so that the rewrite comes back
 already obeying the rules rather than in a register that then has to be brought into line. It
 reports no findings; it returns the whole report rewritten in the style of a well-written PhD
-dissertation addressed to an incoming graduate student. **Accept the rewrite as the base document.** Diff it
-against the source to find and correct any errors the editor might have introduced.
+dissertation addressed to an incoming graduate student. **Accept the rewrite as the base
+document.** Diff it against the source to find and correct any errors the editor might have
+introduced.
 
-#### Readers 2 and 3, which come from outside the local model family
+### Readers 2 and 3, which come from outside the local model family
 
 **The mechanics of running one are in [`codex-cli.md`](codex-cli.md)** — the flags, how to get
 the reply into a file, how to restrict what the reader can see, and the traps. Read it before
@@ -401,12 +363,12 @@ convening either. What that note does not decide, this one does:
   policy, in its own tags beside the report; reader 2 does not.
 - **Set the reasoning effort explicitly**, since it defaults from the runner's own config.
 
-#### Once a finding has been acted on
+### Once a finding has been acted on
 
 **A fix is an edit, so re-run the checks after it.** Diff the prose for repeated sentences, re-run
 the number audit, and re-render every figure whose data moved.
 
-### The staleness sweep, once the edits have settled
+## 12. The staleness sweep, once the edits have settled
 
 1. **Every number against the evidence, and against the *right* evidence.** Pull every log and data
    file under `results/` and check each decimal in the report appears in one of them, allowing for
