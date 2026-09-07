@@ -205,10 +205,16 @@ Headings may carry argument where the reversal is the science. Navigation is not
 long report may open with a short "how to read this" and may state a convention it applies
 throughout. What is banned is the report commenting on its own emphasis or history.
 
-## 7. Cross-references name their target
+## 7. Sections are numbered, and cross-references name their target
+
+**Number every section and subsection, to whatever depth the report goes.** `## 4.` and
+`### 4.2` in the main text; `## C.`, `### C.2` and `#### C.2.1` in the appendices. Front matter
+ahead of the first section is not a section and takes no number. A section number is the only
+handle on a passage that neither moves when the document is reordered nor reflows when a sentence
+is edited, which is what makes it the thing to cite.
 
 Never "the previous section" or "as discussed above" — sections move and those references invert
-silently. Name the section or the object.
+silently. Name the section by its number, or name the object.
 
 ## 8. Every comparison states its correction
 
@@ -429,11 +435,13 @@ batches; if you must join anything, join it with a plain byte copy (`cat`). Have
 confirm in one short message which item numbers its file holds, and read the file yourself.
 
 **Have each reader head its own document** with which model answered, what it was given, and that
-its line numbers are the report as it read it. Cite by quoted sentence.
+its line numbers are the report as it read it. **Cite the section number (§7) as well as the
+quoted sentence.** Line numbers go stale the moment the document is edited; section numbers
+mostly do not, and a finding that carries both stays findable after the first round of fixes.
 
-**Per finding:** the line number, the quoted sentence, what is wrong, the evidence by file and
-line, what it should say, and **CONFIRMED** against **PLAUSIBLE**. Numbered continuously, and
-structural findings in a section of their own.
+**Per finding:** the section or subsection number, the line number, the quoted sentence, what is
+wrong, the evidence by file and line, what it should say, and **CONFIRMED** against
+**PLAUSIBLE**. Numbered continuously, and structural findings in a section of their own.
 
 **Gitignore both files** — `*-referee-feedback.md` and `*-student-feedback.md`. They are working
 material, deleted once the findings are in the report.
@@ -449,7 +457,8 @@ is impossible, the referee wins on accuracy and the student wins on placement.
 
 **A foreign-family agent given the report and nothing else** — the text alone, with no figures.
 It reports no findings; it returns the whole report rewritten in the style of a well-written PhD
-dissertation addressed to an incoming graduate student. **Accept the rewrite as the base
+dissertation addressed to an incoming graduate student, keeping the section numbering of §7
+intact so that the other readers' findings still land. **Accept the rewrite as the base
 document.** Diff it against the source to find and correct any errors the editor might have
 introduced.
 

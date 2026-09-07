@@ -147,4 +147,5 @@ with the findings.
   refused and replaced with `on-request`, with a warning on stderr and no failure. Read the
   warnings.
 - **Line numbers in the reply go stale immediately**, because the document changes as findings are
-  applied. Have the reader state which version it read, and cite by quoted sentence.
+  applied. Have the reader state which version it read, and cite the section number and the
+  quoted sentence as well as the line.
