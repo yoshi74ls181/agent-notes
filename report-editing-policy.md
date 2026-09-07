@@ -10,7 +10,7 @@ set of a study directory are a project's own to fix, and this note assumes only 
 
 **The rules are ordered by what an agent needs first when drafting**: where a fact belongs and
 who it is written for, then what must not be carried over from the work, then structure and
-naming, then the form of the source, then the numbers. §10 to §12 are the procedures for a report
+naming, then the form of the source, then the numbers. §8 to §10 are the procedures for a report
 that already exists.
 
 ## 0. Which document carries what
@@ -19,7 +19,7 @@ that already exists.
 |---|---|---|---|
 | `AGENTS.md` | an agent about to change something | what is needed *before* opening anything: what the study is in a paragraph, which document answers which question, the constraints that stop a wrong edit, and the contracts an editor must not break. A number only when the number *is* the constraint | a fact rather than a constraint on action — link to the document that owns it. Any other finding. It loads into every session in its subtree, so prefer a pointer to a précis; much past 150 lines it has started restating its neighbours |
 | `README.md` | a human arriving at the directory | brief orientation only: what this is, who owns it, where to start, the code layout, how to run it. One line on what the study concluded | any other finding, and any result `report.md` or `LOGBOOK.md` owns |
-| `report.md` | a human who has never seen the project | the science, in logical order, and the limits on it | project history of any kind. Completeness: its scope is whatever story it tells, which may be one extension rather than the whole subproject, and it must not be widened to cover more. A chronological order |
+| `report.md` | a human who has never seen the project | the science, in logical order, and the limits on it. Where a dead end is the reason an observable is defined a particular way, the definition and the measurement constraint it left behind, without the failure. A wrong alternative only as a conditional — what it *would* have done to the comparison | project history of any kind, a dead end among it, and no wrong alternative as an event that happened. Completeness: its scope is whatever story it tells, which may be one extension rather than the whole subproject, and it must not be widened to cover more. A chronological order |
 | `LOGBOOK.md` | someone continuing the work | **the project record**: every measured number, in script order, what each measured field means, and the history — what was tried, what failed, what was corrected and why. Every superseded claim, dead end, correction and abandoned approach the rules below take out of the report, and any finding with no place in the report's story. May be chronological | — |
 | `scripts/*` | someone re-running or extending a measurement | the method, and the traps in it, next to the code that hits them | — |
 | the project's shared notes | someone starting the next study | anything that outlives this one | anything naming a study or a path that exists in one repository only |
@@ -55,11 +55,15 @@ outside it.
 
 A number quoted with an undefined symbol is not a checkable number: this is a correctness rule.
 
-## 2. No project history in the report
+## 2. Order by logic, not by discovery, and keep the history out
 
-Delete every account of how the work went — "an earlier version of this script", "originally", "it
-took a check to notice", "the simulation overruled it" — and first person of any kind. Say what is
-true, not how it came to be believed.
+The report says what is true, not how it came to be believed. That governs the sentences and the
+order of the sections alike, and it is one rule because the two fail together: a document that
+carries its own history tends to be arranged in the order the work happened.
+
+**Delete every account of how the work went** — "an earlier version of this script",
+"originally", "it took a check to notice", "the simulation overruled it" — and first person of any
+kind.
 
 **A caption carries neither the figure's edit history nor a branch of its plotting code that did
 not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
@@ -73,24 +77,13 @@ new.
 
 **The report presents one device.** Every comparison against a previous one is history, however
 quantitative, and every number from it is wrong. A retarget is a sweep of the whole document; the
-staleness sweep of §12 is the procedure.
+staleness sweep of §10 is the procedure.
 
 **One flagged violation is a class, not an instance.** When a reader points at a sentence, grep the
 document for the *shape* before replying.
 
-## 3. Dead ends go to LOGBOOK.md, not the report
-
-**But keep every fact the numbers depend on.** Where a failed approach is the reason an observable
-is defined a particular way, state the definition and the measurement constraint behind it, not the
-failure.
-
-**A wrong alternative may appear as a conditional, never as an event.** Write what the wrong choice
-*would* do to the comparison, not that it was made and undone.
-
-## 4. Order by logic, not by discovery
-
-General case first, special case second. Introduce a controlling parameter *before* the cases it
-distinguishes, and let each case follow from where it sits. **Make the fork explicit**: a short
+**General case first, special case second.** Introduce a controlling parameter *before* the cases
+it distinguishes, and let each case follow from where it sits. **Make the fork explicit**: a short
 hinge section stating the regimes and what each implies. **The summary box leads with the
 recommendation** — what should someone build, and what does it cost.
 
@@ -108,9 +101,8 @@ alternative, a bound, or an explicitly unreachable ideal. Put the anchor in the 
 **one significant figure**; more digits, or a place in the summary box, make it read as a computed
 result rather than a scale.
 
-Applying this usually means *moving* material rather than cutting it.
-
-## 5. One name, one meaning
+Applying either half usually means *moving* material rather than cutting it.
+## 3. One name, one meaning
 
 A symbol, a word or a phrase means exactly one thing in a document. Four shapes:
 
@@ -135,7 +127,7 @@ quantities each denotes. Where a system holds several instances of a component, 
 never safe: name the instance. Where a script computes a number in more than one place, check the
 places agree before quoting either.
 
-## 6. The source is portable markdown: Unicode maths, no HTML
+## 4. The source is portable markdown: Unicode maths, no HTML
 
 The source carries **neither raw HTML nor inline LaTeX**.
 
@@ -197,7 +189,7 @@ The builder is more permissive than this rule and will not catch a violation, so
 needs its own check that counts raw tags, inline maths and stray macros outside display blocks
 and exits non-zero.
 
-## 7. Sections are numbered, and cross-references name their target
+## 5. Sections are numbered, and cross-references name their target
 
 **Number every section and subsection, to whatever depth the report goes.** `## 4.` and
 `### 4.2` in the main text; `## C.`, `### C.2` and `#### C.2.1` in the appendices. Front matter
@@ -208,7 +200,7 @@ is edited, which is what makes it the thing to cite.
 Never "the previous section" or "as discussed above" — sections move and those references invert
 silently. Name the section by its number, or name the object.
 
-## 8. Arithmetic the reader will attempt must close
+## 6. Arithmetic the reader will attempt must close
 
 **A vague quantifier is a number the writer had and did not print** — "a comfortable factor", "not
 a small perturbation", "a big win". Print it, or cut the restatement where the surrounding text
@@ -225,7 +217,7 @@ arithmetic the other way.
 
 **Check it after editing, not only after writing.**
 
-## 9. Evaluate the closed form, and apply the method to the device
+## 7. Evaluate the closed form, and apply the method to the device
 
 **A closed form that is printed and never evaluated.** Put numbers in it. It usually predicts, for
 free, results the report is asserting from a parameter scan, and a prediction confirmed by a scan
@@ -239,7 +231,7 @@ the measurement; **say it was not applied**, so the quantity is an input rather 
 or **delete it** and leave the record in `LOGBOOK.md`. Presenting the validation as though it
 licensed the result is not available.
 
-## 10. When restructuring an existing report
+## 8. When restructuring an existing report
 
 1. **Diff the visible word multiset before and after.** Content meant to move verbatim should show
    zero losses.
@@ -253,7 +245,7 @@ licensed the result is not available.
    proper noun it contained, then grep the survivor for each. Check the display equations and the
    figures, including any left on disk with nothing pointing at them.
 
-## 11. The three-reader pass
+## 9. The three-reader pass
 
 Three readers, none of them the author. **Run the first two at once**; **run the third only after
 both sets of findings are in the document.** Readers 2 and 3 come from a different model family
@@ -267,7 +259,7 @@ reading is the one thing only reader 2 can supply.
 
 **An agent with the whole repository** — the report, the logbook, the result logs, the scripts and
 this policy. Check the science, and check every number against the evidence. Finds sign errors,
-quantities described as the wrong thing, claims that outrun their support, and the §9 analysis
+quantities described as the wrong thing, claims that outrun their support, and the §7 analysis
 that was never pointed at the device.
 
 ### Reader 2, the second-year graduate student
@@ -276,7 +268,7 @@ that was never pointed at the device.
 to back naming every place it stopped, re-read or guessed and to quote the sentence; to ask for
 every non-standard term to be explained rather than inferring it; and to say what a first-time
 reader with limited patience would give up on and how the report should be reordered so they do
-not. Finds §5 collisions, §8 arithmetic, symbols used before they are defined, terms the author
+not. Finds §3 collisions, §6 arithmetic, symbols used before they are defined, terms the author
 has stopped hearing, and whether the headline can be interpreted at all.
 
 Two things this reader needs and the others do not:
@@ -293,6 +285,22 @@ Two things this reader needs and the others do not:
 the argument, is anything in the wrong place, what did you need earlier than you got it, and what
 could go.
 
+**Ask both to propose additions and modifications to this policy, in a section of their own.** The
+pass is the only occasion on which anyone reads a report against these rules from a standing
+start, so it is the best evidence there is about whether the rules are the right ones. The two are
+asked different questions, because they hold different things:
+
+- **Reader 1 has the policy and cites a rule by number.** A rule that was ambiguous to apply; one
+  whose prescribed check does not catch what it claims to; one that no longer earns its length;
+  a defect it found that no rule covers.
+- **Reader 2 does not have the policy**, and is asked the naive form of the same question: what
+  should the report have told you that it did not, and what would have stopped you giving up. A
+  rule proposed from that answer comes from someone who met the document cold, which is the one
+  vantage the policy cannot otherwise get.
+
+Those proposals go to whoever owns the policy, not straight into it. It is shared across
+repositories, so a change made to suit one report can cost another.
+
 **Both readers' findings go to a file, in one invocation each, not into messages.** Reader 1
 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file,
 which needs no write access of its own. Name them `<owner>-<subproject>-referee-feedback.md` and
@@ -302,13 +310,14 @@ batches; if you must join anything, join it with a plain byte copy (`cat`). Have
 confirm in one short message which item numbers its file holds, and read the file yourself.
 
 **Have each reader head its own document** with which model answered, what it was given, and that
-its line numbers are the report as it read it. **Cite the section number (§7) as well as the
+its line numbers are the report as it read it. **Cite the section number (§5) as well as the
 quoted sentence.** Line numbers go stale the moment the document is edited; section numbers
 mostly do not, and a finding that carries both stays findable after the first round of fixes.
 
 **Per finding:** the section or subsection number, the line number, the quoted sentence, what is
 wrong, the evidence by file and line, what it should say, and **CONFIRMED** against
-**PLAUSIBLE**. Numbered continuously, and structural findings in a section of their own.
+**PLAUSIBLE**. Numbered continuously across the whole file, with structural findings in a section
+of their own and proposed changes to this policy in another.
 
 **Gitignore both files** — `*-referee-feedback.md` and `*-student-feedback.md`. They are working
 material, deleted once the findings are in the report.
@@ -351,7 +360,7 @@ convening either. What that note does not decide, this one does:
 **A fix is an edit, so re-run the checks after it.** Diff the prose for repeated sentences, re-run
 the number audit, and re-render every figure whose data moved.
 
-## 12. The staleness sweep, once the edits have settled
+## 10. The staleness sweep, once the edits have settled
 
 1. **Every number against the evidence, and against the *right* evidence.** Pull every log and data
    file under `results/` and check each decimal in the report appears in one of them, allowing for
