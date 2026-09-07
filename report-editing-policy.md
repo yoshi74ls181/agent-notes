@@ -442,6 +442,13 @@ evidence or only suspects it. Numbered continuously, so a gap is visible.
 messages and needs the batch discipline: **two items per message, not five**, one topic each, and
 *a short message that arrives whole beats a complete one you only get 80% of.*
 
+**Assemble its batches into `<owner>-<subproject>-student-feedback.md` yourself**, ignored on the
+same terms as the referee's file. Concatenate the batches with a plain byte copy — `cat`, not a
+shell heredoc, which mangles the backslashes in whatever LaTeX the reader wrote. Head it with
+which model answered, that the view was restricted and how, and **that its line numbers refer to
+the report as it stood before the pass**: the document moves under the reader while it works, and
+a stale line number reads as a live one months later. Cite by quoted sentence.
+
 **Prompt for every batch. A reader that has sent one goes idle and stays there.** It is waiting
 for a request it has no way to know is wanted, and a batch never arrives unasked — budget one
 message per batch and expect to send them all.
