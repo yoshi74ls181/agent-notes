@@ -285,21 +285,9 @@ Two things this reader needs and the others do not:
 the argument, is anything in the wrong place, what did you need earlier than you got it, and what
 could go.
 
-**Ask both to propose additions and modifications to this policy, in a section of their own.** The
-pass is the only occasion on which anyone reads a report against these rules from a standing
-start, so it is the best evidence there is about whether the rules are the right ones. The two are
-asked different questions, because they hold different things:
-
-- **Reader 1 has the policy and cites a rule by number.** A rule that was ambiguous to apply; one
-  whose prescribed check does not catch what it claims to; one that no longer earns its length;
-  a defect it found that no rule covers.
-- **Reader 2 does not have the policy**, and is asked the naive form of the same question: what
-  should the report have told you that it did not, and what would have stopped you giving up. A
-  rule proposed from that answer comes from someone who met the document cold, which is the one
-  vantage the policy cannot otherwise get.
-
-Those proposals go to whoever owns the policy, not straight into it. It is shared across
-repositories, so a change made to suit one report can cost another.
+**Ask reader 1 to propose additions and modifications to this policy, and reader 2 additions
+only**, in a section of their own. Reader 2 has not seen the policy and so cannot say what in it
+to change.
 
 **Both readers' findings go to a file, in one invocation each, not into messages.** Reader 1
 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file,
