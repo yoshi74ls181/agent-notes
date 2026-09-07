@@ -394,7 +394,8 @@ both sets of findings are in the document.** Readers 2 and 3 come from a differe
 than reader 1.
 
 **Do not merge readers 1 and 2.** The referee must have the policy and the project; the student
-must have neither.
+must have neither. A student holding either stops being a first-time reader, and a first-time
+reading is the one thing only reader 2 can supply.
 
 #### Reader 1, the referee
 
@@ -455,12 +456,14 @@ is impossible, the referee wins on accuracy and the student wins on placement.
 
 #### Reader 3, the editor
 
-**A foreign-family agent given the report and nothing else** — the text alone, with no figures.
-It reports no findings; it returns the whole report rewritten in the style of a well-written PhD
-dissertation addressed to an incoming graduate student, keeping the section numbering of §7
-intact so that the other readers' findings still land. **Accept the rewrite as the base
-document.** Diff it against the source to find and correct any errors the editor might have
-introduced.
+**A foreign-family agent given the report and this policy** — the text alone, with no figures. It
+is the one reader outside the repository that gets the policy, so that the rewrite comes back
+already obeying the rules rather than in a register that then has to be brought into line:
+findings in the headers, no document voice, no subjective tail on a quantitative sentence, and
+the section numbering of §7 intact so that the other readers' findings still land. It reports no
+findings; it returns the whole report rewritten in the style of a well-written PhD dissertation
+addressed to an incoming graduate student. **Accept the rewrite as the base document.** Diff it
+against the source to find and correct any errors the editor might have introduced.
 
 #### Readers 2 and 3, which come from outside the local model family
 
@@ -474,7 +477,8 @@ convening either. What that note does not decide, this one does:
 - **Give the reader a working root outside the repository**, or the foreign harness reads
   `AGENTS.md` and the restricted view is gone.
 - **Inline the document rather than pointing at a path.** The whole report in the prompt, inside
-  `<document>` tags, with `cat -n` line numbers so it can cite them.
+  `<document>` tags, with `cat -n` line numbers so it can cite them. Reader 3 also gets this
+  policy, in its own tags beside the report; reader 2 does not.
 - **Set the reasoning effort explicitly**, since it defaults from the runner's own config.
 
 #### Once a finding has been acted on
