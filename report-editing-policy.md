@@ -45,8 +45,11 @@ outside it.
   that needs it.
 - **The summary box uses no symbol at all.** It sits before that table. Write the quantity out;
   every number must survive the translation. Do not gloss a symbol inline — remove it. Audit the
-  box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, and check
-  every number in it still appears in the body.
+  box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, **then grep
+  for every non-ASCII character in it and read what comes back**, and check every number in it
+  still appears in the body. The underscore pattern alone is not the rule and is not enough — it
+  passes κ, ω, Σ, and any bare single letter standing for a quantity, which on one audited box
+  was five of the eleven symbols present.
 - **Expand every acronym on first use,** including the ones that name the device.
 - **Name a special function on first use, and give the particular numerical facts the report
   leans on** — the peaks, zeros and limits its results sit on.
@@ -189,6 +192,12 @@ worth stating plainly; **a factor the reader has to derive**, so print the expre
 only its two ends; and **a word that describes the wrong operation**, which sends the reader's
 arithmetic the other way.
 
+**A percentage or a factor carries its denominator.** Two ways it goes wrong even when the
+division is right. The base changes between the summary and the body, so one "99.6%" is a
+fraction of the discrete spurs in one place and of the whole excess in the other. And a ratio of
+two logarithmic readings gets reported as a factor: 1.601 dB over 0.085 dB is not "a factor of
+19" in anything physical, since the gains behind them differ by 1.42.
+
 **Check it after editing, not only after writing.**
 
 ## 7. Evaluate the closed form, and apply the method to the device
@@ -233,6 +242,15 @@ reading is the one thing only reader 2 can supply.
 **An agent with the whole repository**, including the report, logbook, result logs, scripts,
 and this policy. Check every number against evidence, the science, signs, scope, and whether
 §7's method was applied to the device.
+
+**Budget it, and give it a fallback.** This reader is auditing every number in a long document
+against a directory of logs, and an unbounded brief is how it fails: it audits until it runs out
+of room and writes nothing at all. Cap the investigation explicitly, in tool calls or in tables,
+and say that a finished file with twenty evidenced findings beats an unwritten one with forty.
+**If it still does not deliver, the editor does the audit itself and says so in the file's
+header.** A pass whose reader 1 was not independent, and which declares it, is worth more than a
+pass with no number audit — that audit is the one thing readers 2 and 3 cannot supply, because
+neither of them can see `results/`.
 
 ### Reader 2, the second-year graduate student
 
@@ -328,14 +346,25 @@ the number audit, and re-render every figure whose data moved.
    nothing in the report records which file that is. What can be automated is one layer down: an
    identity the printed numbers must satisfy, checked inside the script that prints them.
 2. **Every number has a script.** No number or figure quoted in the report may exist only in a
-   scratch calculation and in prose.
+   scratch calculation and in prose. This covers two kinds that do not look like measurements and
+   are the ones that survive a sweep: **a number derived in prose** from ones that were measured,
+   and **a number describing a case that was not run** — what a device *would* have carried at a
+   depth nobody simulated. Both read as data. If the report needs one, the script must print it;
+   if no script prints it, the report cannot quote it.
 3. **Every figure and link resolves,** and every figure on disk is either used or deliberately not.
-4. **Every cross-reference, against the current section order.** List every "the previous section",
+4. **Every reference line, annotation and legend label a figure hardcodes, against the table it
+   claims to match.** A constant baked into a plotting script is prose: it goes stale like prose,
+   and re-rendering the figure cannot fix it, because that constant is the one thing on the panel
+   that is not read from the data. On one audited report a superseded value survived a whole
+   correction pass this way — the CSVs, the tables and the captions were all fixed, and a dashed
+   reference line went on asserting the old number, with its own spread quoted in the legend
+   beside it, until somebody compared the line against the table underneath it.
+5. **Every cross-reference, against the current section order.** List every "the previous section",
    "above", "below" and check each; they read as ordinary prose and announce nothing when they go
    stale.
-5. **Every claim of a check, against the checks that still exist.** Retiring a script leaves
+6. **Every claim of a check, against the checks that still exist.** Retiring a script leaves
    promises behind. Grep for "cross-check", "checked", "agrees", "below", "above" and confirm each
    has a referent.
-6. **The symbol table against the body,** both ways: nothing defined and unused, nothing used and
+7. **The symbol table against the body,** both ways: nothing defined and unused, nothing used and
    undefined. Expect false positives from LaTeX inside display blocks and from fragments of image
    filenames, and check them rather than suppressing them.
