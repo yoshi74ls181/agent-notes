@@ -50,6 +50,18 @@ outside it.
   still appears in the body. The underscore pattern alone is not the rule and is not enough — it
   passes κ, ω, Σ, and any bare single letter standing for a quantity, which on one audited box
   was five of the eleven symbols present.
+- **Audit the box's comparatives, not only its symbols.** The symbol audit is four greps and a
+  box can pass all of them while asserting something the body contradicts. Any superlative or
+  comparative in it — best, worst, beats everything, the largest — is a claim about the whole
+  document and has to be checked against every table in it. One box called an unranked alternative
+  one that "would beat everything recommended here" while the report's own frequency scan beat that
+  alternative by a factor of fifteen, without needing either of the alternative's prerequisites.
+- **Name a proxy as a proxy where it first appears, including in the box.** A quantity standing in
+  for a measurement — a damage estimate, a figure of merit, an infidelity proxy — carries its metric
+  and its normalisation at first use. The word "estimate" is not enough when the coefficient, the
+  saturation rule and the choice of representative value are all conventions: a reader who meets
+  the number before the convention reads it as an infidelity, and the headline percentages will
+  have done their argumentative work by the time the definition arrives.
 - **Expand every acronym on first use,** including the ones that name the device.
 - **Name a special function on first use, and give the particular numerical facts the report
   leans on** — the peaks, zeros and limits its results sit on.
@@ -63,6 +75,19 @@ carries its own history tends to be arranged in the order the work happened.
 
 Delete discovery narratives such as "an earlier version" or "originally", and first person.
 State what is true; keep how it came to be believed in the logbook.
+
+**Deleting the narrative is not deleting the choice.** Where "an earlier version did X" is the only
+place the report says why it does Y, rewrite it as a statement of what it does and why, then check
+the replacement still carries the reason. That a scan holds an action fixed rather than a duration
+is a methodological choice a reader needs; that it replaced a previous scan is not. The §0 table
+has the right instinct for dead ends, but an agent editing prose finds §2's flat instruction first
+and takes the justification out with the history.
+
+**A limitation that governs a table belongs beside that table.** State it where the numbers are
+read and keep the full version where the limits are collected. The same goes for a stipulated input
+that can reverse a comparison: name it as consequential wherever the comparison appears. One report
+listed a stipulation as "inconsequential" in its own inventory of stipulations, having shown
+fourteen paragraphs earlier that moving it by a decade decides which of two channels dominates.
 
 **A caption carries neither the figure's edit history nor a branch of its plotting code that did
 not fire.** The justification for a *choice the reader can see* — a zero baseline, an equal aspect
@@ -114,6 +139,12 @@ in a table and on a figure axis.
 
 **Identify the measurement variant behind every quoted number**, or use one variant throughout.
 Values from different methods or conditions are not interchangeable.
+
+**A dimensionless ratio names what it is referred to.** One report gave the same device a mode-to-qubit
+ratio of 1.34 in one section and 1.31 in another. Both were right — one referred to the geometric
+mean of the qubit pair, the other to the frequency the couplings were measured at — and nothing
+said so. The same split gave two values of the quantity the ratio normalises, one of which no
+result file printed.
 
 **Finding them.** Extract every symbol and every capitalised or quoted term and list the distinct
 quantities each denotes. Where a system holds several instances of a component, the bare noun is
@@ -179,6 +210,19 @@ is edited, which is what makes it the thing to cite.
 Never "the previous section" or "as discussed above" — sections move and those references invert
 silently. Name the section by its number, or name the object.
 
+**A pointer whose target is the section containing it is a defect, not a redundancy.** Check every
+`§n` against the heading above the sentence that carries it. Numbering an existing document fails
+this way in particular, because the natural slip is to write the number of the section you are
+standing in; one such pointer survived a commit whose entire purpose was to make every pointer
+name the section it meant.
+
+**A row index, a column position or a marker on a figure is a cross-reference too**, and it goes
+stale the same way without anything in the prose changing. Prefer naming the row by its scheme,
+the column by its heading and the marker by what it marks. Where an index is unavoidable,
+re-derive every one after inserting or deleting a row. One report indexed the same table correctly
+in one section and off by one in another, because a row had been inserted between the two edits;
+the document contained its own counter-example and no rule caught it.
+
 ## 6. Arithmetic the reader will attempt must close
 
 **Replace vague quantifiers with numbers:** "a comfortable factor", "not a small perturbation",
@@ -192,11 +236,30 @@ worth stating plainly; **a factor the reader has to derive**, so print the expre
 only its two ends; and **a word that describes the wrong operation**, which sends the reader's
 arithmetic the other way.
 
-**A percentage or a factor carries its denominator.** Two ways it goes wrong even when the
+**A percentage or a factor carries its denominator.** Three ways it goes wrong even when the
 division is right. The base changes between the summary and the body, so one "99.6%" is a
-fraction of the discrete spurs in one place and of the whole excess in the other. And a ratio of
+fraction of the discrete spurs in one place and of the whole excess in the other. A ratio of
 two logarithmic readings gets reported as a factor: 1.601 dB over 0.085 dB is not "a factor of
-19" in anything physical, since the gains behind them differ by 1.42.
+19" in anything physical, since the gains behind them differ by 1.42. And a *relative* excess
+loses the word "relative": 1.12 percent of a probability is not 1.12 percentage points of it, and
+a header that drops it invites the reader to compare the number against two columns whose
+difference is 0.45 points.
+
+**Quote the numbers of one column at one precision, and let the printed operands reproduce the
+printed result.** Rounding a column's headline value to a word while quoting its neighbours to the
+digit makes one look like a scale and the others like computations, when all three came from the
+same place: "eighty times more" sat between "21 at 100 mK" and "64 at 1 K" while the evidence said
+81. And where the report shows its working — *this* is *that* times *the other* — the operands as
+printed must give the result as printed, or the sentence says which of them is rounded. One chain
+read "3.2 × 10⁻³ per gate. This is 3.2 times the zero-temperature 9.8 × 10⁻⁴", whose product is
+3.1 × 10⁻³; the two factors were evaluated at different qubit frequencies and neither the report
+nor its logs said which.
+
+**A numerical correction states the conditions it was computed under.** A table of thermal
+populations gives its temperature, its assumed level spectrum, how many levels were kept and which
+probability convention is meant. This bites hardest where the report has already said that the
+spectrum an exact treatment would need is unavailable: an approximate correction quoted without its
+model reads as the exact one, and a reader who tries to reproduce it cannot.
 
 **Check it after editing, not only after writing.**
 
@@ -251,6 +314,14 @@ and say that a finished file with twenty evidenced findings beats an unwritten o
 header.** A pass whose reader 1 was not independent, and which declares it, is worth more than a
 pass with no number audit — that audit is the one thing readers 2 and 3 cannot supply, because
 neither of them can see `results/`.
+
+**Ask it to record what it checked and found correct, not only what is wrong.** The brief is
+otherwise entirely negative and the per-finding format has no slot for a passing check, so a
+reader that verifies something and finds it sound reports nothing and the editor has to re-audit it
+to learn the difference between "checked and correct" and "not reached". Where the brief names a
+change to scrutinise, ask for the check and its result either way. On one pass this is how the
+figure whose reference lines had just been derived from the records was confirmed clean, with the
+byte-identical re-render quoted as the evidence.
 
 ### Reader 2, the second-year graduate student
 
@@ -351,6 +422,14 @@ the number audit, and re-render every figure whose data moved.
    and **a number describing a case that was not run** — what a device *would* have carried at a
    depth nobody simulated. Both read as data. If the report needs one, the script must print it;
    if no script prints it, the report cannot quote it.
+
+   **Mechanise it.** Extract every numeric literal from the report, grep each against `results/`
+   and `scripts/`, and list the ones that appear in neither. Run it *before* the three-reader pass
+   rather than after: it needs no judgement, and a referee's attention is better spent on what
+   survives it. On one audited report the sweep found four prose-only numbers that two readers
+   between them had missed, one of which described a case no script could run. Expect false
+   positives and check them rather than suppressing them — a value formatted at runtime with
+   `%.2f` and a rounded physical constant both fail the grep and are both correct.
 3. **Every figure and link resolves,** and every figure on disk is either used or deliberately not.
 4. **Every reference line, annotation and legend label a figure hardcodes, against the table it
    claims to match.** A constant baked into a plotting script is prose: it goes stale like prose,

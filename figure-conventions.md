@@ -178,6 +178,21 @@ grep -o 'rgb(100%,100%,100%)' fig.svg | head -1
 A PNG alpha channel is acceptable if all pixels are opaque. An SVG needs a filled shape covering
 the whole viewBox; finding a white fill somewhere is only an initial check.
 
+## A panel's own definitions agree with its axis label and its caption
+
+A plotted derivative says whether it is signed or an absolute value. A curve drawn from the
+magnitude of a logarithmic derivative, under a caption calling it "the logarithmic derivative",
+is a sign the reader has to guess at, and the guess is wrong.
+
+Where curves of different quantities share an axis, the axis label must not hand one quantity's
+normalisation to all of them. Say in the caption which curves it applies to and which it does not,
+or label the axis for what the panel actually shares.
+
+A caption names every marked point on the panel. An annotated operating point the caption never
+mentions leaves the reader with an unexplained vertical line and a number, and no way to tell
+whether that number should match the tables — on one figure it did not match, because the panel
+and the table referred the same ratio to two different frequencies.
+
 ## Look at every figure before shipping — in both sizes
 
 Inspect renders for obscured data, overlapping legends and annotations, missing subscripts, and
