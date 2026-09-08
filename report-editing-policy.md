@@ -140,16 +140,6 @@ Where a script computes a number in more than one place, check the places agree 
 
 The source carries **neither raw HTML nor inline LaTeX**.
 
-**Do not hard-wrap.
-One paragraph is one line.**
-Let the editor soft-wrap for the reader's window.
-
-Hard wrapping reflows unrelated text in diffs and splits searchable phrases.
-It can also change Markdown structure: a break before `|S21|`, `- `, or `1. ` may introduce a table row or list.
-
-**What stays on its own line regardless**: headings, table rows, the `![alt](path)` figure lines with their alt text intact, and display blocks.
-Those are already one logical unit per line.
-
 **Inline maths is Unicode.**
 Convert an expression only when no backslash and no brace is left, so that nothing is ever half-rewritten.
 A subscripted word stays as an underscore and its letters.
