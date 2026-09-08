@@ -62,13 +62,27 @@ SPLIT = re.compile(
 NUMBERY = re.compile(r"(?:§|\b)\d+(?:\.\d+)*[*_`'\")\]]*$")
 
 
+def _inside_quote(body, upto):
+    """True if a double quote opened before `upto` and has not closed.
+
+    A quotation can hold sentences of its own, and the sentence doing the
+    quoting is still one sentence: `One chain read "A per gate. This is 3.2
+    times B", whose product is C` must not be broken at the inner full stop,
+    or the line holds a fragment with a dangling quote. Quotes inside inline
+    code are already hidden by `_protect`.
+    """
+    seg = body[:upto]
+    return (seg.count('"') % 2 == 1
+            or seg.count("“") > seg.count("”"))
+
+
 def split_sentences(text):
     """One sentence per element, on already-unwrapped text."""
     body, keep = _protect(" ".join(text.split()))
     out, last = [], 0
     for m in SPLIT.finditer(body):
         head = body[last:m.end(1)]
-        if NUMBERY.search(head):
+        if NUMBERY.search(head) or _inside_quote(body, m.end(1)):
             continue
         out.append(head)
         last = m.end()
@@ -82,6 +96,21 @@ TABLE = re.compile(r"^\s*\|")
 HRULE = re.compile(r"^\s*([-*_])(\s*\1){2,}\s*$")
 HTMLCOM = re.compile(r"^\s*<!--")
 BULLET = re.compile(r"^(\s*)([-*+]|\d+\.)(\s+)(.*)$")
+
+# CommonMark lets an ordered list interrupt a paragraph only when it starts at
+# 1, so a mid-paragraph line beginning "81. And where ..." is prose that a hard
+# wrap happened to break in front of a number -- which is exactly what one
+# hard-wrapped paragraph of `report-editing-policy.md` did. Reading it as a
+# list item indented the sentence after it and changed the block structure.
+# Inside a list, a marker other than 1 is a real next item, so the test is on
+# the enclosing block, not on the marker alone -- and it has to survive the
+# blank line and indented continuation paragraphs between two items of a long
+# list, which is what §10 of `report-editing-policy.md` is made of. A first
+# version tested only "is a paragraph open", and swallowed items 2 to 8 of that
+# list, each of which follows a continuation paragraph indented to the item's
+# content column. A list ends at a heading, a rule, or a paragraph back at
+# column zero.
+ORDERED = re.compile(r"^\d+\.$")
 QUOTE = re.compile(r"^(\s*>(?: |$))(.*)$")   # "> " or a bare ">", never ">="
 INDENTED = re.compile(r"^ {4,}\S")
 DISPLAY = re.compile(r"^\s*\$\$")
@@ -91,6 +120,7 @@ def reflow_markdown(src):
     lines = src.split("\n")
     out, breaks = [], []
     i, in_fence, fence_tok = 0, False, None
+    in_list = False    # a list is open; see ORDERED
     para = []          # (kind, prefix, cont_prefix, [text lines])
 
     def flush():
@@ -123,6 +153,8 @@ def reflow_markdown(src):
         if (not line.strip() or HEADING.match(line) or TABLE.match(line)
                 or HRULE.match(line) or HTMLCOM.match(line)
                 or DISPLAY.match(line) or INDENTED.match(line)):
+            if line.strip() and not INDENTED.match(line):
+                in_list = False
             flush()
             out.append(line)
             i += 1
@@ -136,7 +168,11 @@ def reflow_markdown(src):
             i += 1
             continue
         mb = BULLET.match(line)
+        if mb and ORDERED.match(mb.group(2)) and mb.group(2) != "1." \
+                and para and para[0][0] == "para" and not in_list:
+            mb = None      # a wrapped number, not a list; see ORDERED
         if mb:
+            in_list = True
             flush()
             ind, mark, gap, rest = mb.groups()
             para.append(("item", ind + mark + gap,
@@ -146,7 +182,15 @@ def reflow_markdown(src):
         if para:
             para[0][3].append(line.strip())
         else:
-            para.append(("para", "", "", [line.rstrip()]))
+            if not line[:1].isspace():
+                in_list = False
+            # Keep the paragraph's own indent on every sentence of it. A
+            # continuation paragraph of a list item sits at the item's content
+            # column, which is 3 for a "1. " marker and so below INDENTED's
+            # four; dropping it to column zero takes the paragraph out of the
+            # item and ends the list.
+            ind = line[:len(line) - len(line.lstrip())]
+            para.append(("para", ind, ind, [line.strip()]))
         i += 1
     flush()
     return "\n".join(out), breaks
