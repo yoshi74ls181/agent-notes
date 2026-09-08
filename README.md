@@ -1,7 +1,7 @@
 # agent-notes
 
-Shared notes and tooling for research repositories. Add this repository as a submodule and
-use what you need.
+Shared notes and tooling for research repositories.
+Add this repository as a submodule and use what you need.
 
 | File | Purpose |
 |---|---|
@@ -20,6 +20,5 @@ npm install                          # once: mathjax-full, github-markdown-css
 node scripts/md_to_html.js report.md
 ```
 
-The builder searches upward from itself for `node_modules`, so a host repository that installs
-at its own root does not need a second install here. **The build needs the network**: it
-converts the markdown through GitHub, one request per report.
+The builder searches upward from itself for `node_modules`, so a host repository that installs at its own root does not need a second install here.
+**The build needs the network**: it converts the markdown through GitHub, one request per report.

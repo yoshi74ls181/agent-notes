@@ -46,8 +46,8 @@ if (!MODULES) {
   process.exit(3);
 }
 
-// Load MathJax components by path. Exclude bussproofs: it needs an output jax with
-// getBBox(), while this pipeline only serialises MathML.
+// Load MathJax components by path.
+// Exclude bussproofs: it needs an output jax with getBBox(), while this pipeline only serialises MathML.
 const mjReq = (rel) => require(path.join(MODULES, 'mathjax-full', rel));
 const {mathjax} = mjReq('js/mathjax.js');
 const {TeX} = mjReq('js/input/tex.js');
@@ -196,7 +196,10 @@ function prose(text) {
 }
 
 // ---------------------------------------------------------------- the request
-/** A token, if one can be had.  Optional: it only raises the rate limit. */
+/**
+ * A token, if one can be had.
+ * Optional: it only raises the rate limit.
+ */
 function githubToken() {
   if (process.env.GITHUB_TOKEN) return process.env.GITHUB_TOKEN;
   if (process.env.GH_TOKEN) return process.env.GH_TOKEN;
