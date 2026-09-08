@@ -5,8 +5,9 @@ A report is **reader-facing**: a newcomer should follow the science in logical o
 This note covers report content and source form.
 The build is documented in [`markdown-report-pipeline.md`](markdown-report-pipeline.md); figure conventions and study layout have separate notes.
 
-**The rules are ordered by what an agent needs first when drafting**: where a fact belongs and who it is written for, then what must not be carried over from the work, then structure and naming, then the form of the source, then the numbers.
-§8 to §10 are the procedures for a report that already exists.
+**The rules are ordered by what an agent needs first when drafting**: where a fact belongs and who it is written for, then what must not be carried over from the work, then structure and naming, then the form of the source.
+§8 and §9 are the procedures for a report that already exists.
+A section number is a stable handle, so a section that is removed leaves its number vacant rather than renumbering the ones after it — hence no §6, §7 or §10.
 
 ## 0. Which document carries what
 
@@ -83,7 +84,7 @@ After retargeting, sweep prose, tables, and formulas for values and comparisons 
 
 **The report presents one device.**
 Every comparison against a previous one is history, however quantitative, and every number from it is wrong.
-A retarget is a sweep of the whole document; the staleness sweep of §10 is the procedure.
+A retarget is a sweep of the whole document.
 
 **One flagged violation is a class, not an instance.**
 When a reader points at a sentence, grep the document for the *shape* before replying.
@@ -223,14 +224,14 @@ Readers 2 and 3 come from a different model family than reader 1.
 ### Reader 1, the referee
 
 **An agent with the whole repository**, including the report, logbook, result logs, scripts, and this policy.
-Check every number against evidence, the science, signs, scope, and whether §7's method was applied to the device.
+Check every number against evidence, the science, signs, and scope.
 Ask it to record what it checked and found correct, not only what is wrong.
 
 ### Reader 2, the second-year graduate student
 
 **A foreign-family agent given only the report and its figures.**
 Read front to back and quote every passage requiring a reread or guess.
-Identify unexplained nonstandard terms, §3 name collisions, §6 arithmetic, and definitions introduced late.
+Identify unexplained nonstandard terms, §3 name collisions, arithmetic that does not close, and definitions introduced late.
 Say where a first-time reader would give up and what order would help.
 
 Two things this reader needs and the others do not:

@@ -1,10 +1,9 @@
 # Figure conventions
 
-Plotting rules for web reports, manuscripts, and slides.
+Plotting rules for shipped figures.
 
 **Use one script to build every shipped figure from committed data into one output directory.**
 This keeps regeneration straightforward.
-Paths such as `scripts/` and `results/` below are relative to the study directory.
 
 ## GR font traps
 

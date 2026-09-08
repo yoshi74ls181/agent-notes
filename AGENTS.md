@@ -52,7 +52,7 @@ Each note is the durable record for its topic, so a host repository should link 
 |---|---|
 | [`report-editing-policy.md`](report-editing-policy.md) | what a report carries, who it is written for, and the three-reader pass |
 | [`markdown-report-pipeline.md`](markdown-report-pipeline.md) | the markdown-to-HTML build, its conversions, and its guards |
-| [`figure-conventions.md`](figure-conventions.md) | palettes, colour encoding, validity marking, and figure output sizes |
+| [`figure-conventions.md`](figure-conventions.md) | one script for every figure, the plotting theme, the GR font traps, and the opaque-background rule |
 | [`circuit-figures.md`](circuit-figures.md) | schematics |
 | [`subproject-structure.md`](subproject-structure.md) | how a study directory is laid out and which file is the source for which |
 | [`codex-cli.md`](codex-cli.md) | driving a foreign-family model as a reader in the three-reader pass |
