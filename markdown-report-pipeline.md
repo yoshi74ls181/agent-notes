@@ -71,7 +71,6 @@ Output also depends on GitHub's renderer, so service updates can change the gene
 
 ## Unicode in, MathJax out: the conversion, the guard and the check
 
-Unicode keeps the source readable in a plain viewer.
 The conversion layer translates notation that MathJax would otherwise treat as a glyph.
 
 For example, Unicode superscripts need TeX structure to render correctly in MathJax. `scripts/tex_unicode.js` applies the following mappings before compilation; do not assume another renderer's Unicode behavior transfers to MathJax.
@@ -103,14 +102,12 @@ unmapped Unicode in: ℵ_0 = θ² + a⊥b
 
 Add missing characters to `scripts/tex_unicode.js`: use `MACRO` for a TeX mapping, or `SAFE` only after rendering both forms and comparing their MathML, including attributes.
 
-**Two things are dropped as a deliberate trade**, accepting a small change in the typesetting to get a plainly readable source:
+**Two things are dropped as a deliberate trade** for a plainly readable source:
 
 | dropped | costs |
 |---|---|
 | `\big(` → `(` | delimiters revert to their natural size |
 | `\!` → nothing | a negative thin space of kerning |
-
-At display size those differences are barely visible.
 
 **Compare markup, not text.** `κ_{\mathrm{tot}}` and `κ_tot` have the same text content but different subscript structure.
 Validate rewrites with the build's MathJax renderer and `scripts/tex_unicode.js` rather than reimplementing the conversion tables.

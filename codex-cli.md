@@ -117,8 +117,10 @@ Treat the model's self-description as a cross-check, not proof of identity.
 - **Allow time for long reviews.**
   High-effort reads can take minutes; use the runner's background or wait mechanism.
 - **Check completion, and wait on the process rather than polling for the file.** `-o` writes the output only when the run finishes, so an absent file means "not done yet" and never "nothing came back".
-  Wait for the runner to exit and read its exit status; a review was once abandoned as having produced nothing, and three substitute runs were launched, when the original had in fact completed and written its whole reply.
+  Wait for the runner to exit and read its exit status.
   A failed run does leave no output file, so check the file exists and is non-empty **after** the process has exited.
+- **Do not put a truncating filter on the end of the command.** `| head -n` closes the pipe, the runner takes the broken pipe, and it can exit zero having written no output file and produced no reply — indistinguishable from a reader with nothing to say. `| tail -n` withholds all output until the process exits, so a run going wrong looks like one going well.
+  Redirect to a file, or let the runner's own output capture do it.
 - **Ask for whole-document coverage.**
   A reader may exhaust its response on the opening pages.
 - **Read configuration warnings.**
