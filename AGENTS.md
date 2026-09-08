@@ -58,6 +58,8 @@ Each note is the durable record for its topic, so a host repository should link 
 | [`codex-cli.md`](codex-cli.md) | driving a foreign-family model as a reader in the three-reader pass |
 | [`qultra.md`](qultra.md) | the circuit-quantisation package, and the four checks to run before using its results |
 
-**A note earns its rules from something that went wrong.**
-When a pass or a build teaches something that outlives one study, put it in the matching note with the evidence, and say what it cost.
-A rule with no incident behind it is a preference, and it will be ignored.
+**State the rule.**
+Add its failure mode only where that is what tells a reader how to check, and in one clause.
+No anecdote, no incident from the project that earned it, and no argument for why the rule is a good one; those belong in the host repository's logbook.
+A rule needing a number gives a threshold the rule sets, not a measurement from elsewhere.
+Strip anecdote and argument from any older rule you edit for another reason; sweeping a note is its own change.

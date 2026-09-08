@@ -3,7 +3,6 @@
 Plotting rules for shipped figures.
 
 **Use one script to build every shipped figure from committed data into one output directory.**
-This keeps regeneration straightforward.
 
 ## GR font traps
 
@@ -18,7 +17,6 @@ GR prints `glyph missing from current font: 8308` on stderr, but it is a warning
 Use the caret form.
 
 Word subscripts have no Unicode form at all, so use an underscore as on a whiteboard.
-That is normal on a plot axis.
 
 **Do not reach for LaTeXStrings.**
 GR's TeX subset would give real subscripts but is partial and fails unpredictably; Unicode plus underscores is the lower-risk choice.
@@ -42,8 +40,7 @@ A legend is always present for two or more series (identity is never colour-alon
 
 ## Never ship a figure with a transparent background
 
-**Every figure gets an opaque white background.**
-Transparent canvases can make dark axes and text disappear in dark-themed viewers.
+**Every figure gets an opaque white background**, or dark axes and text disappear in a dark-themed viewer.
 
 Set both `background_color` and `background_color_inside` in Plots.jl.
 For a `standalone` LaTeX figure, use the background rectangle in [`circuit-figures.md`](circuit-figures.md); `\pagecolor` interferes with cropping.

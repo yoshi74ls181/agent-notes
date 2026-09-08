@@ -23,8 +23,7 @@ Rasterised previews are intermediates too.
 
 ## Give the figure an opaque background, and not with `\pagecolor`
 
-A `standalone` page and its converted SVG need an explicit background.
-Otherwise dark strokes can disappear in dark-themed viewers; a viewer's white canvas can hide the transparency.
+A `standalone` page and its converted SVG need an explicit background, or dark strokes disappear in a dark-themed viewer.
 
 **Avoid `\pagecolor{white}`:** it can defeat `standalone` cropping and emit a full page.
 Use a TikZ background rectangle and put the padding inside it:
@@ -40,10 +39,10 @@ Use a TikZ background rectangle and put the padding inside it:
 `inner frame sep` is what puts the padding inside the white area rather than leaving a transparent margin around it.
 Verify on the file rather than by eye — there should be a white-filled path covering the whole viewBox.
 
-## Conventions, and why each one is that way
+## Conventions
 
 **Draw at final size.**
-A figure drawn ~17.6 cm wide goes into a two-column `\includegraphics[width=\textwidth]` with no scaling, which keeps the label sizes honest: a schematic scaled down 30% has labels 30% too small for the body text beside it.
+A figure drawn ~17.6 cm wide goes into a two-column `\includegraphics[width=\textwidth]` with no scaling; a schematic scaled down 30% has labels 30% too small for the body text beside it.
 For an HTML-only figure the same discipline matters twice over, because a report stylesheet will typically set `figure img{width:100%}`:
 
 * **The aspect ratio controls the displayed height.**
@@ -67,7 +66,7 @@ For perpendicular coils, write `+M_p` and `-M_p` beside the couplings.
 Opposite-sign mutuals into two loops can thread same-sign flux; the labels make the schematic checkable against the netlist.
 
 **Coils are a decoration, not a bipole.** `to[cute inductor]` is available but is hard to place on an exact segment, so draw a coil along a known segment with `decoration={coil, aspect=0.62, segment length=1.55mm, amplitude=1.15mm}`, wrapped in small `\vcoil` / `\hcoil` macros.
-A shorter `segment length` and smaller `amplitude` gives a visually smaller inductor, which is how a figure can say that a parasitic is orders below the real element beside it.
+A shorter `segment length` and smaller `amplitude` gives a visually smaller inductor.
 
 **Flux into the page is a circled cross,** drawn by a macro rather than by a character, so it scales with the line width.
 
@@ -78,7 +77,6 @@ That is the same rule as the recessive dashed grey for theory curves in [`figure
 ## Draw the netlist, not the idea
 
 Draw the simulated netlist element for element, including solver-required parasitic inductances, port resistors, and DC ground paths.
-These can explain results that an idealised drawing hides.
 
 Three consequences worth planning for:
 
@@ -109,7 +107,7 @@ Use `pdftoppm -r 130 -png -singlefile circuit.pdf circuit_preview`, then inspect
 Crop with `-x -y -W -H` for close checks of crowded regions.
 
 **Keep the committed preview in step with the source, or drop it.**
-A stale raster beside a current `.tex` is worse than none: it is the thing a reader opens.
+A stale raster is the thing a reader opens.
 
 **Preserve literal backslashes when writing TeX.**
 Prefer an editor tool to shell interpolation.

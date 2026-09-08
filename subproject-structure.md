@@ -48,8 +48,7 @@ repeated here.
 
 The marked region is copied verbatim into `README.md` and must read as human orientation.
 Keep agent-facing traps, contracts, and prohibitions outside the markers.
-
-Both files sit in the same directory, so relative links inside the marked region resolve identically in each and need no rewriting.
+Both files sit in the same directory, so relative links inside the marked region need no rewriting.
 
 ## Starting one
 
