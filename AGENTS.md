@@ -13,12 +13,6 @@ This applies to every markdown file here and to every comment in `scripts/`.
 One sentence is one line, however long that line becomes, and a paragraph is as many lines as it has sentences.
 Blank lines still separate paragraphs.
 
-The reason is that a sentence is the unit that gets edited.
-Hard wrapping at a column reflows unrelated text into a diff whenever a word is added near the start of a paragraph, so a one-word fix shows up as a rewritten paragraph and a reviewer cannot see what changed.
-Putting the whole paragraph on one line fixes that but replaces it with a different problem: the diff is then correct but unreadable, because every change to a paragraph shows as one enormous line replaced by another.
-Breaking after each sentence gives a diff whose changed lines are the changed sentences.
-It also makes a moved sentence show up as a move rather than as two rewrites.
-
 What is exempt, because it is not prose:
 
 - Fenced code blocks, and indented code blocks.
@@ -27,15 +21,6 @@ What is exempt, because it is not prose:
 - HTML comments, such as the `readme:` markers.
 - Display maths.
 - Aligned or tabular material inside a script comment.
-
-Two things this rule is **not**:
-
-- It is not a line-length limit.
-  A long sentence stays on one long line.
-  Do not break a sentence to fit a column, and do not join two sentences to fill one.
-- It is not the rule that [`report-editing-policy.md`](report-editing-policy.md) §4 sets for report sources in host repositories, which is that one paragraph is one line.
-  Those two rules govern different files and they are deliberately different.
-  Do not change either to match the other.
 
 `scripts/semantic_breaks.py` applies the rule and checks that applying it changed no content.
 Run it with `--check` to see what it would do without writing:

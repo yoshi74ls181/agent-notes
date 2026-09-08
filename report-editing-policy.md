@@ -46,11 +46,10 @@ Its private symbols carry no meaning outside it.
   Write the quantity out; every number must survive the translation.
   Do not gloss a symbol inline — remove it.
   Audit the box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, **then grep for every non-ASCII character in it and read what comes back**, and check every number in it still appears in the body.
-  The underscore pattern alone is not the rule and is not enough — it passes κ, ω, Σ, and any bare single letter standing for a quantity, which on one audited box was five of the eleven symbols present.
+  The underscore pattern alone is not the rule and is not enough — it passes κ, ω, Σ, and any bare single letter standing for a quantity.
 - **Audit the box's comparatives, not only its symbols.**
   The symbol audit is four greps and a box can pass all of them while asserting something the body contradicts.
   Any superlative or comparative in it — best, worst, beats everything, the largest — is a claim about the whole document and has to be checked against every table in it.
-  One box called an unranked alternative one that "would beat everything recommended here" while the report's own frequency scan beat that alternative by a factor of fifteen, without needing either of the alternative's prerequisites.
 - **Name a proxy as a proxy where it first appears, including in the box.**
   A quantity standing in for a measurement — a damage estimate, a figure of merit, an infidelity proxy — carries its metric and its normalisation at first use.
   The word "estimate" is not enough when the coefficient, the saturation rule and the choice of representative value are all conventions: a reader who meets the number before the convention reads it as an infidelity, and the headline percentages will have done their argumentative work by the time the definition arrives.
@@ -75,7 +74,6 @@ The §0 table has the right instinct for dead ends, but an agent editing prose f
 **A limitation that governs a table belongs beside that table.**
 State it where the numbers are read and keep the full version where the limits are collected.
 The same goes for a stipulated input that can reverse a comparison: name it as consequential wherever the comparison appears.
-One report listed a stipulation as "inconsequential" in its own inventory of stipulations, having shown fourteen paragraphs earlier that moving it by a decade decides which of two channels dominates.
 
 **A caption carries neither the figure's edit history nor a branch of its plotting code that did not fire.**
 The justification for a *choice the reader can see* — a zero baseline, an equal aspect ratio — does belong there.
@@ -86,13 +84,6 @@ After retargeting, sweep prose, tables, and formulas for values and comparisons 
 **The report presents one device.**
 Every comparison against a previous one is history, however quantitative, and every number from it is wrong.
 A retarget is a sweep of the whole document; the staleness sweep of §10 is the procedure.
-
-**And the shape that survives every automated check is the one where the number is still in `results/`.**
-A value solved against the *old* target is not stale as a number — its log is right there, so §10.1's grep passes it and §10.2's passes it too.
-What is stale is the target it was solved for, and nothing in the report records that.
-On one report a resonator capacitance and impedance solved for a shift ten times smaller than the one the document designs were attached to the new shift for three review rounds, alongside a comparison — "a factor of two short" — that was a factor of twenty short of the target actually in force.
-**So sweep for the old target's value, not only for stale numbers**: grep the logs for the superseded target, list every design value solved in the same run, and check each against the sentence that now quotes it.
-A comparative phrase is the tell, because it carries the old target implicitly.
 
 **One flagged violation is a class, not an instance.**
 When a reader points at a sentence, grep the document for the *shape* before replying.
@@ -138,9 +129,6 @@ Name each on first use and distinguish them.
 Values from different methods or conditions are not interchangeable.
 
 **A dimensionless ratio names what it is referred to.**
-One report gave the same device a mode-to-qubit ratio of 1.34 in one section and 1.31 in another.
-Both were right — one referred to the geometric mean of the qubit pair, the other to the frequency the couplings were measured at — and nothing said so.
-The same split gave two values of the quantity the ratio normalises, one of which no result file printed.
 
 **Finding them.**
 Extract every symbol and every capitalised or quoted term and list the distinct quantities each denotes.
@@ -211,65 +199,6 @@ Numbering an existing document fails this way in particular, because the natural
 **A row index, a column position or a marker on a figure is a cross-reference too**, and it goes stale the same way without anything in the prose changing.
 Prefer naming the row by its scheme, the column by its heading and the marker by what it marks.
 Where an index is unavoidable, re-derive every one after inserting or deleting a row.
-One report indexed the same table correctly in one section and off by one in another, because a row had been inserted between the two edits; the document contained its own counter-example and no rule caught it.
-
-## 6. Arithmetic the reader will attempt must close
-
-**Replace vague quantifiers with numbers:** "a comfortable factor", "not a small perturbation", and "a big win".
-If the surrounding text already gives the number, cut the restatement.
-
-**Arithmetic must close.**
-If nearby operands do not produce the stated result, explain the missing definition or design decision rather than dismissing the discrepancy as rounding.
-
-Three related shapes: **"so" between two independently computed numbers**, which hides an agreement worth stating plainly; **a factor the reader has to derive**, so print the expression rather than only its two ends; and **a word that describes the wrong operation**, which sends the reader's arithmetic the other way.
-
-**A percentage or a factor carries its denominator.**
-Three ways it goes wrong even when the division is right.
-The base changes between the summary and the body, so one "99.6%" is a fraction of the discrete spurs in one place and of the whole excess in the other.
-A ratio of two logarithmic readings gets reported as a factor: 1.601 dB over 0.085 dB is not "a factor of 19" in anything physical, since the gains behind them differ by 1.42.
-And a *relative* excess loses the word "relative": 1.12 percent of a probability is not 1.12 percentage points of it, and a header that drops it invites the reader to compare the number against two columns whose difference is 0.45 points.
-
-**Quote the numbers of one column at one precision, and let the printed operands reproduce the printed result.**
-Rounding a column's headline value to a word while quoting its neighbours to the digit makes one look like a scale and the others like computations, when all three came from the same place: "eighty times more" sat between "21 at 100 mK" and "64 at 1 K" while the evidence said 81.
-And where the report shows its working — *this* is *that* times *the other* — the operands as printed must give the result as printed, or the sentence says which of them is rounded.
-One chain read "3.2 × 10⁻³ per gate. This is 3.2 times the zero-temperature 9.8 × 10⁻⁴", whose product is 3.1 × 10⁻³; the two factors were evaluated at different qubit frequencies and neither the report nor its logs said which.
-
-**A comparison says what it holds fixed, and the thing held is rarely the thing of interest.**
-Two designs compared "at the same" something need that something named, because the reader will assume it is whichever quantity the sentence is about.
-One report offered a device that bought a factor of 1.32 in separation "at the same contrast" — the contrast in fact fell by 17.6%, as the same section said two paragraphs earlier, and what had been held across the comparison was the gain.
-Where a sweep holds one quantity to make another comparable, name it at every place the comparison is quoted, and give what the held quantity cost.
-
-**A numerical correction states the conditions it was computed under.**
-A table of thermal populations gives its temperature, its assumed level spectrum, how many levels were kept and which probability convention is meant.
-This bites hardest where the report has already said that the spectrum an exact treatment would need is unavailable: an approximate correction quoted without its model reads as the exact one, and a reader who tries to reproduce it cannot.
-
-**An edge found between two samples is bracketed, not located, and a solver failure is not a physical bound.**
-Both halves fail together, because the sentence that reports a ceiling is the one that has to say what kind of ceiling it is.
-Three things get conflated: the last parameter value at which a solve converged, the point at which a model extrapolates to a limit, and a bound the device actually has.
-Say which, and where the edge came from two samples with nothing tried between them, say so — "nothing between the two was tried, so the ceiling is bracketed and not located" is the whole fix, and a report that writes it correctly in one place and not in another reads as though the second edge were better established.
-Where the ceiling is a solver's, a second construction is what separates it from the device's, and the report should either carry that check or decline the claim.
-
-**Check it after editing, not only after writing.**
-
-## 7. Evaluate the closed form, and apply the method to the device
-
-**Evaluate printed closed forms.**
-They may predict results otherwise asserted from a parameter scan, turning the scan into an independent check.
-
-**A method validated on something other than the device** — a prescription validated on a test case and never applied to the device the report designs, whose corresponding number is fitted instead.
-
-Three honest endings, and the report must pick one: **apply it** and quote the prediction against the measurement; **say it was not applied**, so the quantity is an input rather than a prediction; or **delete it** and leave the record in `LOGBOOK.md`.
-Presenting the validation as though it licensed the result is not available.
-
-**A closed form that is maximised somewhere has an optimum of ITS OWN quantity, and that is not the optimum of what was measured.**
-The step from one to the other needs the rest of the chain to be flat in the swept parameter, and usually it is not: a susceptibility denominator depends on the same parameter, or the drive is separately re-optimised at each point.
-One report derived a self-energy difference maximised at a particular ratio and wrote that the expression "places the maximum" of the measured field separation, which it does not — it corroborates a sampled maximum and locates its own.
-Say which quantity the form maximises, and let it support the sweep rather than replace it.
-
-**And a maximum in one variable does not become a prescription on a ratio.**
-A condition written as one quantity equalling another reads as advice about both, and it is normally advice about the one that was swept.
-On the same report a maximum at "shift equals linewidth", established by moving the shift, was read as licensing a linewidth chosen to match a shift; read the other way the same expression falls monotonically and has no interior maximum at all.
-Where only one factor of a ratio has been varied, say so in the sentence that states the ratio.
 
 ## 8. When restructuring an existing report
 
@@ -291,29 +220,11 @@ Three readers, none of them the author.
 **Run the first two at once**; **run the third only after both sets of findings are in the document.**
 Readers 2 and 3 come from a different model family than reader 1.
 
-**Do not merge readers 1 and 2.**
-The referee must have the policy and the project; the student must have neither.
-A student holding either stops being a first-time reader, and a first-time reading is the one thing only reader 2 can supply.
-
 ### Reader 1, the referee
 
 **An agent with the whole repository**, including the report, logbook, result logs, scripts, and this policy.
 Check every number against evidence, the science, signs, scope, and whether §7's method was applied to the device.
-
-**Budget it, and give it a fallback.**
-This reader is auditing every number in a long document against a directory of logs, and an unbounded brief is how it fails: it audits until it runs out of room and writes nothing at all.
-Cap the investigation explicitly, in tool calls or in tables, and say that a finished file with twenty evidenced findings beats an unwritten one with forty.
-**Tell it to audit the summary last and as its own pass.**
-A brief that points a referee at the sections carrying the new work will get those sections audited and the front matter skimmed with whatever attention is left, and the summary is where a wrong claim does the most damage, because it is the part a reader quotes to someone else.
-On one pass the single finding that changed a conclusion was in the summary, and the referee reached it having nearly run out of room.
-
-**If it still does not deliver, the editor does the audit itself and says so in the file's header.**
-A pass whose reader 1 was not independent, and which declares it, is worth more than a pass with no number audit — that audit is the one thing readers 2 and 3 cannot supply, because neither of them can see `results/`.
-
-**Ask it to record what it checked and found correct, not only what is wrong.**
-The brief is otherwise entirely negative and the per-finding format has no slot for a passing check, so a reader that verifies something and finds it sound reports nothing and the editor has to re-audit it to learn the difference between "checked and correct" and "not reached".
-Where the brief names a change to scrutinise, ask for the check and its result either way.
-On one pass this is how the figure whose reference lines had just been derived from the records was confirmed clean, with the byte-identical re-render quoted as the evidence.
+Ask it to record what it checked and found correct, not only what is wrong.
 
 ### Reader 2, the second-year graduate student
 
@@ -325,7 +236,6 @@ Say where a first-time reader would give up and what order would help.
 Two things this reader needs and the others do not:
 
 - **Attach raster renders of any vector figure, and ask about them specifically.**
-  It cannot rasterise an SVG or a PDF itself.
 - **Say that the report has already been reviewed**, or it invents concerns to fill every heading, and **say that the reply must cover the whole document**, or it reads the first fifty lines exhaustively and stops.
 
 ### Readers 1 and 2, and what comes back from them
@@ -333,7 +243,7 @@ Two things this reader needs and the others do not:
 **Ask readers 1 and 2 about structure explicitly:** what belongs earlier, what is misplaced, whether the order carries the argument, and what could be removed.
 
 **Ask reader 1 to propose additions and modifications to this policy, and reader 2 additions only**, in a section of their own.
-Reader 2 has not seen the policy and so cannot say what in it to change.
+Ask them to only make proposals which are generalizable to other projects.
 
 **Both readers' findings go to a file, in one invocation each, not into messages.**
 Reader 1 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file, which needs no write access of its own.
@@ -341,19 +251,14 @@ Name them `<owner>-<subproject>-referee-feedback.md` and `<owner>-<subproject>-s
 Write with an editor tool, never a shell heredoc, which mangles backslashes.
 Do not hand-assemble either file from batches; if you must join anything, join it with a plain byte copy (`cat`).
 Have each reader confirm in one short message which item numbers its file holds, and read the file yourself.
+If the feedback file already exists, overwrite it.
+Gitignore both files.
 
 **Have each reader head its own document** with which model answered, what it was given, and that its line numbers are the report as it read it.
 **Cite the section number (§5) as well as the quoted sentence.**
-Line numbers go stale the moment the document is edited; section numbers mostly do not, and a finding that carries both stays findable after the first round of fixes.
 
 **Per finding:** the section or subsection number, the line number, the quoted sentence, what is wrong, the evidence by file and line, what it should say, and **CONFIRMED** against **PLAUSIBLE**.
 Numbered continuously across the whole file, with structural findings in a section of their own and proposed changes to this policy in another.
-
-**Gitignore both files** — `*-referee-feedback.md` and `*-student-feedback.md`.
-They are working material, deleted once the findings are in the report.
-
-**Use messages only for what is genuinely conversational**, such as a disagreement to resolve or a follow-up question.
-There: two items per message, prompt for every one, and when re-requesting give the item number you already hold and quote the last words you received.
 
 **Expect the two to disagree.**
 Resolve it in the text rather than by picking a side; where that is impossible, the referee wins on accuracy and the student wins on placement.
@@ -361,7 +266,6 @@ Resolve it in the text rather than by picking a side; where that is impossible, 
 ### Reader 3, the editor
 
 **A foreign-family agent given the report and this policy** — the text alone, with no figures.
-It is the one reader outside the repository that gets the policy, so that the rewrite comes back already obeying the rules rather than in a register that then has to be brought into line.
 It reports no findings; it returns the whole report rewritten in the style of a well-written PhD dissertation addressed to an incoming graduate student.
 **Accept the rewrite as the base document.**
 Diff it against the source to find and correct any errors the editor might have introduced.
@@ -385,51 +289,3 @@ The review-specific requirements are:
 
 **A fix is an edit, so re-run the checks after it.**
 Diff the prose for repeated sentences, re-run the number audit, and re-render every figure whose data moved.
-
-## 10. The staleness sweep, once the edits have settled
-
-1. **Every number against the evidence, and against the *right* evidence.**
-   Pull every log and data file under `results/` and check each decimal in the report appears in one of them, allowing for correct rounding and for unit changes.
-
-   **Do not automate this as "the number appears somewhere in `results/`".**
-   A stale number still has a source — the log of the earlier run that produced it — so that check passes the defect it is for.
-   The question is whether this table's numbers are in the file *this table came from*, and nothing in the report records which file that is.
-   What can be automated is one layer down: an identity the printed numbers must satisfy, checked inside the script that prints them.
-
-   **And a range quoted from a sweep carries the sub-range it was taken over.**
-   Where a script excludes rows because the reasoning behind a quantity does not apply to them — and prints them, and says why — the report inherits the exclusion along with the number.
-   One report quoted a spread "across a factor of four" from a sweep spanning a factor of thirty without saying so, and dropped the excluded row whose value was six times off the trend and unexplained.
-   Where two claims in one paragraph hold over different sub-ranges, both need stating: a constancy result and the ratio derived from it survived to different ends of the same sweep.
-2. **Every number has a script.**
-   No number or figure quoted in the report may exist only in a scratch calculation and in prose.
-   This covers two kinds that do not look like measurements and are the ones that survive a sweep: **a number derived in prose** from ones that were measured, and **a number describing a case that was not run** — what a device *would* have carried at a depth nobody simulated.
-   Both read as data.
-   If the report needs one, the script must print it; if no script prints it, the report cannot quote it.
-
-   **Mechanise it.**
-   Extract every numeric literal from the report, grep each against `results/` and `scripts/`, and list the ones that appear in neither.
-   Run it *before* the three-reader pass rather than after: it needs no judgement, and a referee's attention is better spent on what survives it.
-   On one audited report the sweep found four prose-only numbers that two readers between them had missed, one of which described a case no script could run.
-   Expect false positives and check them rather than suppressing them — a value formatted at runtime with `%.2f` and a rounded physical constant both fail the grep and are both correct.
-
-   **Expect it to come back, and grep the scripts for the last person who fixed it.**
-   This defect recurs in the same passages, because the arithmetic that derives one number from measured ones is natural to do in prose.
-   On one report a script carried a comment written by whoever closed it the previous time, in the very section where a paragraph three lines further down the report had re-introduced it.
-   A comment saying "these are printed because the report quotes them and nothing printed them" is a marker for where to look first.
-3. **Every figure and link resolves,** and every figure on disk is either used or deliberately not.
-4. **Every reference line, annotation and legend label a figure hardcodes, against the table it claims to match.**
-   A constant baked into a plotting script is prose: it goes stale like prose, and re-rendering the figure cannot fix it, because that constant is the one thing on the panel that is not read from the data.
-   On one audited report a superseded value survived a whole correction pass this way — the CSVs, the tables and the captions were all fixed, and a dashed reference line went on asserting the old number, with its own spread quoted in the legend beside it, until somebody compared the line against the table underneath it.
-5. **Every cross-reference, against the current section order.**
-   List every "the previous section", "above", "below" and check each; they read as ordinary prose and announce nothing when they go stale.
-6. **Every claim of a check, against the checks that still exist.**
-   Retiring a script leaves promises behind.
-   Grep for "cross-check", "checked", "agrees", "below", "above" and confirm each has a referent.
-7. **The symbol table against the body,** both ways: nothing defined and unused, nothing used and undefined.
-   Expect false positives from LaTeX inside display blocks and from fragments of image filenames, and check them rather than suppressing them.
-8. **Every DIRECTION the summary asserts, re-derived from the current tables.**
-   This is the item the other seven cannot supply, and the reason it is needed is that a direction contains no number.
-   "Improves as the modes are narrowed" has nothing for §10.1 to check against `results/`, a script behind every number it does quote so §10.2 passes it, and sound cross-references.
-   It is nonetheless capable of asserting the exact opposite of the section it summarises — on one report it reproduced the trend of a comparison that the body itself discredits two paragraphs later, because a new sweep had inverted the answer and the summary was written from the old one.
-   So after any new sweep, list every rises, falls, improves, grows, better and worse in the summary and confirm each against the table it now describes.
-   §1's audit of the box's comparatives is the neighbouring check; a direction is neither a comparative nor a superlative, so that audit does not catch it.
