@@ -121,7 +121,10 @@ function scan(tex) {
   return out;
 }
 
-/** Rewrite the Unicode maths in `tex` as LaTeX.  Idempotent on anything already in LaTeX. */
+/**
+ * Rewrite the Unicode maths in `tex` as LaTeX.
+ * Idempotent on anything already in LaTeX.
+ */
 function normalise(tex) {
   let out = '';
   for (const t of scan(tex)) {
@@ -179,9 +182,8 @@ const SCRIPT_JUST_CONSUMED = '\u0000';
 
 /**
  * Match {base, sub, length} at the start of s, or return null.
- * prev is the preceding plain-prose character, '' after other tokens or at the start,
- * and SCRIPT_JUST_CONSUMED after a script. This rejects w_EJ inside low_EJ while
- * accepting adjacent scripts in φ_aφ_b; do not pass the raw preceding character.
+ * Here prev is the preceding plain-prose character, '' after other tokens or at the start, and SCRIPT_JUST_CONSUMED after a script.
+ * This rejects w_EJ inside low_EJ while accepting adjacent scripts in φ_aφ_b; do not pass the raw preceding character.
  */
 function proseSubscript(s, prev) {
   if (prev && /[A-Za-z_.]/.test(prev)) return null;
