@@ -270,8 +270,12 @@ Resolve it in the text rather than by picking a side; where that is impossible, 
 
 **A foreign-family agent given the report and this policy** — the text alone, with no figures.
 It reports no findings; it returns the whole report rewritten in the style of a well-written PhD dissertation addressed to an incoming graduate student.
+
+**Copy the report to `<owner>-<subproject>-unedited-report.md` before convening this reader**, beside the report, and gitignore it.
+Take the copy once readers 1 and 2 are fully incorporated, and overwrite it if it already exists.
+
 **Accept the rewrite as the base document.**
-Diff it against the source to find and correct any errors the editor might have introduced.
+Diff it against `<owner>-<subproject>-unedited-report.md` to find and correct any errors the editor might have introduced.
 
 ### Readers 2 and 3, which come from outside the local model family
 
