@@ -322,7 +322,17 @@ const exportNote = '*This is a shareable, self-contained export of `' + mdName +
   'markdown.*';
 
 // Page layout around the embedded github-markdown-css content styles.
+// The stylesheet scopes its theme variables to .markdown-body, so html and body inherit none of them and fall back to the browser's white.
+// The two --bgColor-default values below are mirrored from it.
 const WRAPPER_CSS = `
+html, body {
+  margin: 0;
+  color-scheme: light dark;
+  background-color: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  html, body { background-color: #0d1117; }
+}
 .markdown-body {
   box-sizing: border-box;
   min-width: 200px;

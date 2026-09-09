@@ -1,5 +1,7 @@
 # Editing policy for reports
 
+**Rules here are stated, not justified**, under "State the rule" at the end of [`AGENTS.md`](AGENTS.md).
+
 A report is **reader-facing**: a newcomer should follow the science in logical order without learning the project's discovery history.
 
 This note covers report content and source form.
@@ -7,7 +9,7 @@ The build is documented in [`markdown-report-pipeline.md`](markdown-report-pipel
 
 The rules are ordered by what an agent needs first when drafting.
 §8 and §9 are the procedures for a report that already exists.
-A section number is a stable handle, so a removed section leaves its number vacant rather than renumbering the ones after it — hence no §6, §7 or §10 — and a new section takes the next free number rather than a vacated one.
+A removed section leaves its number vacant rather than renumbering the ones after it, and a new section takes the next free number rather than a vacated one.
 
 ## 0. Which document carries what
 
@@ -32,7 +34,6 @@ Leave standard vocabulary unexplained.
 For unfamiliar concepts, retain the correct name and add one operational sentence stating what was computed.
 
 **Do not assume the reader has read the source paper.**
-Its private symbols carry no meaning outside it.
 
 - **Minimise them.**
   Give a quantity its plain-English name.
@@ -65,13 +66,11 @@ Its private symbols carry no meaning outside it.
 ## 2. Order by logic, not by discovery, and keep the history out
 
 The report says what is true, not how it came to be believed.
-That governs the sentences and the order of the sections alike.
 
 Delete discovery narratives such as "an earlier version" or "originally", and first person.
 
 **Deleting the narrative is not deleting the choice.**
 Where "an earlier version did X" is the only place the report says why it does Y, rewrite it as a statement of what it does and why, then check the replacement still carries the reason.
-That a scan holds an action fixed rather than a duration is a methodological choice a reader needs; that it replaced a previous scan is not.
 
 **A limitation that governs a table belongs beside that table.**
 State it where the numbers are read and keep the full version where the limits are collected.
@@ -87,8 +86,7 @@ After retargeting, sweep prose, tables and formulas for values and comparisons c
 Every comparison against a previous one is history, however quantitative, and every number from it is wrong.
 A retarget is a sweep of the whole document.
 
-**One flagged violation is a class, not an instance.**
-When a reader points at a sentence, grep the document for the *shape* before replying.
+**When a reader points at a sentence, grep the document for the *shape* before replying.**
 
 **General case first, special case second.**
 Introduce a controlling parameter *before* the cases it distinguishes, and let each case follow from where it sits.
@@ -107,25 +105,21 @@ Three constraints the body does not obey:
   Avoid only the number whose *meaning* needs the body.
 
 **A headline in absolute units needs one anchor**: a comparison against a standard alternative, a bound, or an explicitly unreachable ideal.
-Put the anchor in the limitations at **one significant figure**; more digits, or a place in the summary box, make it read as a computed result rather than a scale.
-
-Applying any of this usually means *moving* material rather than cutting it.
+Put the anchor in the limitations at **one significant figure**, not in the summary box.
 
 ## 3. One name, one meaning
 
 A symbol, a word or a phrase means exactly one thing in a document.
 
 **Rename symbols reused for unrelated quantities.**
-A gloss does not remove the collision.
 Remove the symbol entirely when the quantity does not need a name.
 
 **Name objects distinctly.**
-Name each on first use and distinguish them; two devices called "the device", or two sources called "the paper", invite a reader to combine incompatible numbers.
+Name each on first use and distinguish them.
 
 **Name the referent when a word could stand for several numbers**, such as different quantities in a table and on a figure axis.
 
 **Identify the measurement variant behind every quoted number**, or use one variant throughout.
-Values from different methods or conditions are not interchangeable.
 This extends to a parameter that counts something, which is quoted with what it counts; a bare count is ambiguous between the parameter and the quantity it expands to.
 
 **A figure's axis labels, legend entries and on-canvas annotations are part of the document's naming, and are swept with the prose.**
@@ -156,7 +150,7 @@ A subscripted word stays as an underscore and its letters.
 **The build sets those underscores as real subscripts**, with `scripts/md_to_html.js` setting them as `<sub>`.
 Two consequences:
 
-- **A subscript is one letter, an underscore, then letters or digits.** `snake_case` is left alone, which is what separates identifiers and filenames from subscripts.
+- **A subscript is one letter, an underscore, then letters or digits.** `snake_case` is left alone.
 - **Put code in backticks.**
   A single-letter variable name in bare prose will be set as a subscript; backticked spans are never touched. `proseSubscript` in `scripts/tex_unicode.js` is the rule.
 
@@ -167,9 +161,8 @@ Asides, restated definitions and unit conversions may stay inline.
 **Use Unicode for the symbols inside the `$$` too.**
 Three things stay macros:
 
-* **Function names**, which are set upright; spelled literally they render as italic variables.
+* **Function names**, which are set upright.
 * **Multi-letter sub- and superscripts.**
-  A LaTeX script takes one token, so without braces the subscript loses its letters to the baseline.
   Use `\mathrm{}`.
 * **Structure**: `\frac`, `\sqrt`, `\begin{gathered}`, `\\`, `\,`, `\qquad`.
 
@@ -181,21 +174,20 @@ The build rejects unknown Unicode; see the conversion table in [`markdown-report
 
 **What no-HTML costs, and accept it:** semantic colouring becomes bold, multi-column layouts become sequential sections, badges fold into their heading text, and sub- and superscripts become Unicode where the character exists and `^x` or `_x` where it does not.
 
-The builder is more permissive than this rule and will not catch a violation, so the project needs its own check that counts raw tags, inline maths and stray macros outside display blocks and exits non-zero.
+**The project needs its own check** that counts raw tags, inline maths and stray macros outside display blocks and exits non-zero.
 
 ## 5. Sections are numbered, and cross-references name their target
 
 **Number every section and subsection, to whatever depth the report goes.** `## 4.` and `### 4.2` in the main text; `## C.`, `### C.2` and `#### C.2.1` in the appendices.
 Front matter ahead of the first section is not a section and takes no number.
 
-Never "the previous section" or "as discussed above" — sections move and those references invert silently.
+Never "the previous section" or "as discussed above".
 Name the section by its number, or name the object.
 
 **A pointer whose target is the section containing it is a defect, not a redundancy.**
 Check every `§n` against the heading above the sentence that carries it.
-Numbering an existing document fails this way in particular: the natural slip is to write the number of the section you are standing in.
 
-**A row index, a column position or a marker on a figure is a cross-reference too**, and it goes stale the same way without anything in the prose changing.
+**A row index, a column position or a marker on a figure is a cross-reference too.**
 Prefer naming the row by its scheme, the column by its heading and the marker by what it marks.
 Where an index is unavoidable, re-derive every one after inserting or deleting a row.
 
@@ -204,9 +196,7 @@ Where an index is unavoidable, re-derive every one after inserting or deleting a
 1. **Diff the visible word multiset before and after.**
    Content meant to move verbatim should show zero losses.
 2. **Re-read the first sentence of every section in order.**
-   Forward references become backward ones when sections swap.
 3. **Re-check every claim of scope against the new scope.**
-   A sentence can be true of the report it was written for and false of the report it now sits in.
 4. **Check that every symbol is still introduced before it is used.**
    Walk the symbols in order of first appearance.
 5. **Deleting a section needs its own sweep.**
@@ -239,7 +229,11 @@ Two things this reader needs and the others do not:
 
 ### Readers 1 and 2, and what comes back from them
 
-**Ask readers 1 and 2 about structure explicitly:** what belongs earlier, what is misplaced, whether the order carries the argument, and what could be removed.
+**Ask readers 1 and 2 about structure explicitly:** what belongs earlier, what is misplaced, and whether the order carries the argument.
+
+**Ask both readers for aggressive cuts wherever a cut streamlines the logic.**
+A passage that does not carry the argument goes, however well written, and material whose place is the logbook is named as such.
+Each proposed cut gives the section, the line range, what it removes, and what is lost.
 
 **Ask reader 1 to propose additions and modifications to this policy, and reader 2 additions only**, in a section of their own.
 Ask them to only make proposals which are generalizable to other projects.
@@ -249,9 +243,9 @@ Record its byte hash in the invocation and at the head of each feedback file, an
 If a rebuild lands mid-pass, re-run the affected reader rather than merging findings written against two texts.
 
 **Both readers' findings go to a file, in one invocation each, not into messages.**
-Reader 1 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file, which needs no write access of its own.
+Reader 1 writes its own; reader 2's comes from pointing the runner's last-message-to-file flag at the file.
 Name them `<owner>-<subproject>-referee-feedback.md` and `<owner>-<subproject>-student-feedback.md`, beside the report they review.
-Write with an editor tool, never a shell heredoc, which mangles backslashes.
+Write with an editor tool, never a shell heredoc.
 Do not hand-assemble either file from batches; if you must join anything, join it with a plain byte copy (`cat`).
 Have each reader confirm in one short message which item numbers its file holds, and read the file yourself.
 If the feedback file already exists, overwrite it.
@@ -261,7 +255,7 @@ Gitignore both files.
 **Cite the section number (§5) as well as the quoted sentence.**
 
 **Per finding:** the section or subsection number, the line number, the quoted sentence, what is wrong, the evidence by file and line, what it should say, and **CONFIRMED** against **PLAUSIBLE**.
-Numbered continuously across the whole file, with structural findings in a section of their own and proposed changes to this policy in another.
+Numbered continuously across the whole file, with structural findings and proposed cuts in a section of their own and proposed changes to this policy in another.
 
 **Expect the two to disagree.**
 Resolve it in the text rather than by picking a side; where that is impossible, the referee wins on accuracy and the student wins on placement.
@@ -270,8 +264,12 @@ Resolve it in the text rather than by picking a side; where that is impossible, 
 
 **A foreign-family agent given the report and this policy** — the text alone, with no figures.
 It reports no findings; it returns the whole report rewritten in the style of a well-written PhD dissertation addressed to an incoming graduate student.
+
+**Copy the report to `<owner>-<subproject>-unedited-report.md` before convening this reader**, beside the report, and gitignore it.
+Take the copy once readers 1 and 2 are fully incorporated, and overwrite it if it already exists.
+
 **Accept the rewrite as the base document.**
-Diff it against the source to find and correct any errors the editor might have introduced.
+Diff it against `<owner>-<subproject>-unedited-report.md` to find and correct any errors the editor might have introduced.
 
 ### Readers 2 and 3, which come from outside the local model family
 
@@ -281,16 +279,15 @@ The review-specific requirements are:
 
 - **Verify which model read the document.**
   Ask it to name its own model and runtime before anything else, and keep the answer at the head of what it writes.
-  A plugin offering a foreign model may route through a wrapper of the local family.
 - **Give the reader a working root outside the repository**, or the foreign harness reads `AGENTS.md` and the restricted view is gone.
 - **Inline the document rather than pointing at a path.**
   The whole report in the prompt, inside `<document>` tags, with `cat -n` line numbers so it can cite them.
   Reader 3 also gets this policy, in its own tags beside the report; reader 2 does not.
-- **Set the reasoning effort explicitly**, since it defaults from the runner's own config.
+- **Set the reasoning effort explicitly.**
 
 ### Once a finding has been acted on
 
-**A fix is an edit, so re-run the checks after it.**
+**Re-run the checks after every fix.**
 Diff the prose for repeated sentences, re-run the number audit, and re-render every figure whose data moved.
 
 ## 11. What a number is allowed to claim
@@ -306,7 +303,7 @@ A crossing, a threshold, or a claim holding for any value however small needs a 
 A boundary found by search is bracketed, never located.
 
 **A sensitivity, derivative or slope is quoted with the interval it was computed over.**
-A generated difference column is labelled by one endpoint of its interval, so quoting it as the local value imports an average.
+A generated difference column is labelled by one endpoint of its interval.
 Compute it centred where the argument needs the local value; name the interval where it does not.
 
 **A conclusion drawn at one operating condition is supported by the quantity evaluated at that condition.**
