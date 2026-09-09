@@ -239,7 +239,11 @@ Two things this reader needs and the others do not:
 
 ### Readers 1 and 2, and what comes back from them
 
-**Ask readers 1 and 2 about structure explicitly:** what belongs earlier, what is misplaced, whether the order carries the argument, and what could be removed.
+**Ask readers 1 and 2 about structure explicitly:** what belongs earlier, what is misplaced, and whether the order carries the argument.
+
+**Ask both readers for aggressive cuts wherever a cut streamlines the logic.**
+A passage that does not carry the argument goes, however well written, and material whose place is the logbook is named as such.
+Each proposed cut gives the section, the line range, what it removes, and what is lost.
 
 **Ask reader 1 to propose additions and modifications to this policy, and reader 2 additions only**, in a section of their own.
 Ask them to only make proposals which are generalizable to other projects.
@@ -261,7 +265,7 @@ Gitignore both files.
 **Cite the section number (§5) as well as the quoted sentence.**
 
 **Per finding:** the section or subsection number, the line number, the quoted sentence, what is wrong, the evidence by file and line, what it should say, and **CONFIRMED** against **PLAUSIBLE**.
-Numbered continuously across the whole file, with structural findings in a section of their own and proposed changes to this policy in another.
+Numbered continuously across the whole file, with structural findings and proposed cuts in a section of their own and proposed changes to this policy in another.
 
 **Expect the two to disagree.**
 Resolve it in the text rather than by picking a side; where that is impossible, the referee wins on accuracy and the student wins on placement.
