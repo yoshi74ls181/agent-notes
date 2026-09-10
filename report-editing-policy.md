@@ -80,7 +80,8 @@ The same goes for a stipulated input that can reverse a comparison: name it as c
 The justification for a *choice the reader can see* — a zero baseline, an equal aspect ratio — does belong there.
 
 **Superseded design targets are history too.**
-After retargeting, sweep prose, tables and formulas for values and comparisons carried over from the old design point.
+After retargeting, sweep prose, tables, formulas, every figure's on-canvas text and axis annotations, every hand-written figure source, and every module and script docstring the report paraphrases, for values and comparisons carried over from the old design point.
+Grep the old target and its derived values rather than the new ones: the sweep is over what should have disappeared.
 
 **The report presents one device.**
 Every comparison against a previous one is history, however quantitative, and every number from it is wrong.
@@ -300,7 +301,8 @@ Report it as a consistency check, with what it does test.
 
 **A sweep licenses claims at its rows and about its endpoints, not about the interval between two of them.**
 A crossing, a threshold, or a claim holding for any value however small needs a sample each side of it, quoted with the two rows that bracket it.
-A boundary found by search is bracketed, never located.
+A boundary found by search is bracketed, never located, and so is every quantity derived from its position.
+A margin, clearance or distance to a bracketed boundary is a range, and is quoted as the range the two bracketing rows allow rather than as the value the nearer row gives.
 
 **A sensitivity, derivative or slope is quoted with the interval it was computed over.**
 A generated difference column is labelled by one endpoint of its interval.
@@ -314,3 +316,11 @@ Preserve the distinction in summaries and captions, and state the scope of any n
 
 **A tolerance, spread or agreement figure in generated prose is printed from the value the generating script measured, never written as a literal.**
 Assert no more precision than the document prints: print the measured difference rather than a rounded pair the reader must subtract.
+
+**This holds for every number in generated prose, not only for tolerances.**
+Where one generated file quotes a value another owns, the quoting script reads it or recomputes it rather than carrying it as a literal.
+A literal in generated prose goes stale the moment the design point moves and survives any check that compares a report against its results file, because the file agrees with itself.
+
+**A report that states a rule about its own numbers is held to it.**
+Where the text says a quantity is good to n figures, or that no ratio of a given kind is quoted beyond n figures, bring every instance of that quantity and of those ratios to n figures, in the summary and in headings and captions and tables as well as in the body.
+Stating such a rule and then breaking it is worse than not stating it, because the reader has to rescale numbers already read.
