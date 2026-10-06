@@ -1,7 +1,7 @@
 # Driving Ansys AEDT from PyAEDT
 
 How to script Ansys Electronics Desktop (AEDT) 2022 R2 through PyAEDT on Windows without hanging the session, corrupting a project, or trusting a number the solver did not earn.
-It covers HFSS driven-modal, Q3D capacitance and Q2D work; eigenmode and energy-participation workflows are not recorded here yet.
+It covers HFSS driven-modal and eigenmode, Q3D capacitance and Q2D work; energy-participation analysis is not recorded here yet.
 
 ## The interpreter
 
@@ -193,6 +193,19 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
 - **S11 poor at low frequency and improving with frequency is a sub-micrometre gap acting as a series capacitor.**
   Metal that must touch a face has to reach its exact measured coordinate.
 
+## HFSS eigenmode
+
+- **Model a Josephson junction as a lumped inductor on a sheet across the barrier.**
+  Put a planar sheet through the barrier with one edge on each electrode, and assign `assign_lumped_rlc_to_sheet(sheet, axisdir=[start, end], rlctype="Parallel", Lvalue=L)` with the integration line from one electrode to the other.
+  Pass `Lvalue` as a number in henries; pyaedt appends `H` itself, so a string such as `"18.9nH"` becomes `18.9nHH`, which AEDT rejects in a message while the solve runs on without the inductor.
+- **Converge only on the modes you need.**
+  The criterion `MaxDeltaFreq` is taken over every requested mode, so an extra high mode that the mesh does not resolve keeps the criterion from ever settling.
+- **Require a minimum pass count and several converged passes.**
+  A coarse mesh can meet a loose criterion on two consecutive passes by chance; set `MinimumPasses` and `MinimumConvergedPasses` of at least 3 and check the convergence table.
+- **Refine the faceting of any curved face whose area sets a capacitance.**
+  HFSS meshes a circle as a polygon, at its default with about 16 sides and 2.5 % less area; assign `mesh.assign_surface_mesh_manual(objects, normal_dev="5deg")` to the junction electrodes and barrier.
+- Read eigenfrequencies with `get_solution_data(expressions=["Mode(1)", ...], setup_sweep_name="Setup1 : LastAdaptive", report_category="Eigenmode Parameters")`, and export convergence with `export_convergence`.
+
 ## Q3D capacitance
 
 - **Insert a capacitance-only setup natively.**
@@ -213,6 +226,8 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   After a script re-attaches, `get_setup` can return a setup with empty `props`.
 - Read the matrix with `q.post.get_solution_data(expressions=["C(A,B)", ...], setup_sweep_name="Setup1 : LastAdaptive")`, and take each entry's unit from `sol.units_data`.
   The entries are the Maxwell matrix with the reference at infinity; deleting a conductor's row and column gives the matrix with that conductor grounded.
+- **Export convergence natively for a natively inserted setup**: `q.odesign.ExportConvergence("Setup1", "", "CG", path, True)`.
+  The pyaedt call `export_convergence` writes nothing for a setup it did not create.
 
 ## Q2D
 
