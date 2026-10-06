@@ -1,7 +1,7 @@
 # Driving Ansys AEDT from PyAEDT
 
 How to script Ansys Electronics Desktop (AEDT) 2022 R2 through PyAEDT on Windows without hanging the session, corrupting a project, or trusting a number the solver did not earn.
-It covers HFSS driven-modal and Q2D work; eigenmode and energy-participation workflows are not recorded here yet.
+It covers HFSS driven-modal, Q3D capacitance and Q2D work; eigenmode and energy-participation workflows are not recorded here yet.
 
 ## The interpreter
 
@@ -192,6 +192,27 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   Find it with the point probe before suspecting the port.
 - **S11 poor at low frequency and improving with frequency is a sub-micrometre gap acting as a series capacitor.**
   Metal that must touch a face has to reach its exact measured coordinate.
+
+## Q3D capacitance
+
+- **Insert a capacitance-only setup natively.**
+  A setup with DC or AC resistance-inductance blocks demands sources and sinks and fails the solve without them, and `create_setup` in 0.6.94 always adds both blocks.
+  Insert the setup with only its `Cap` block:
+
+  ```python
+  q.odesign.GetModule("AnalysisSetup").InsertSetup("Matrix", [
+      "NAME:Setup1", "AdaptiveFreq:=", "1GHz", "SaveFields:=", False, "Enabled:=", True,
+      ["NAME:Cap", "MaxPass:=", 25, "MinPass:=", 1, "MinConvPass:=", 2, "PerError:=", 0.5,
+       "PerRefine:=", 30, "AutoIncreaseSolutionOrder:=", True, "SolutionOrder:=", "High",
+       "Solver Type:=", "Iterative"]])
+  ```
+
+- **Conductors that touch are one net.**
+  The call `auto_identify_nets` groups conductors by contact, so two electrodes separated only by a thin dielectric must be separated by a modelled gap to stay separate nets; check `q.nets` against the conductors you expect before solving.
+- **Build, set up, solve and read in one process.**
+  After a script re-attaches, `get_setup` can return a setup with empty `props`.
+- Read the matrix with `q.post.get_solution_data(expressions=["C(A,B)", ...], setup_sweep_name="Setup1 : LastAdaptive")`, and take each entry's unit from `sol.units_data`.
+  The entries are the Maxwell matrix with the reference at infinity; deleting a conductor's row and column gives the matrix with that conductor grounded.
 
 ## Q2D
 
