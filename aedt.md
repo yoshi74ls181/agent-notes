@@ -198,6 +198,13 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
 - **Model a Josephson junction as a lumped inductor on a sheet across the barrier.**
   Put a planar sheet through the barrier with one edge on each electrode, and assign `assign_lumped_rlc_to_sheet(sheet, axisdir=[start, end], rlctype="Parallel", Lvalue=L)` with the integration line from one electrode to the other.
   Pass `Lvalue` as a number in henries; pyaedt appends `H` itself, so a string such as `"18.9nH"` becomes `18.9nHH`, which AEDT rejects in a message while the solve runs on without the inductor.
+- **Write lumped values as explicit strings, then read them back.**
+  The pyaedt call appends a bare `F` to `Cvalue`, which AEDT reads as `f`, so a capacitance given in farads becomes 10^-15 of itself and the capacitor is effectively open; no error is raised.
+  After assigning, set `b.props["Capacitance"] = "100fF"` (or `"Inductance"`) on the returned boundary, call `b.update()`, and print every lumped boundary's value before solving.
+- **Check each mode's energy balance.**
+  A mode's peak inductive energy equals its total, so the inductive participations must sum to 1; a sum far from 1 means a lumped value or a line integral is wrong.
+- Field-calculator energy for eigenmodes: `D` is not available, so build it as `EnterQty("E")`, `ClcMaterial("Permittivity (epsi)", "mult")`, then dot with `E` conjugated; select a mode first with `GetModule("Solutions").EditSources([["FieldType:=", "EigenPeakElectricField"], ["Name:=", "Modes", "Magnitudes:=", [...], "Phases:=", [...]]])`.
+  A line integral needs the line entered twice: `EnterLine`, `Tangent`, `Dot`, then `EnterLine` again before `Integrate`.
 - **Converge only on the modes you need.**
   The criterion `MaxDeltaFreq` is taken over every requested mode, so an extra high mode that the mesh does not resolve keeps the criterion from ever settling.
 - **Require a minimum pass count and several converged passes.**
