@@ -86,6 +86,11 @@ Attached images survive into a resumed session, so a session is worth continuing
 
 **Set reasoning effort explicitly** rather than inheriting an unintended `config.toml` default. `-c` accepts dotted config keys, parsing values as TOML with a literal-string fallback.
 
+**Pick a model the logged-in account offers, and probe it before a long run.**
+A `model` in `config.toml` the account does not offer fails every call with `The '<model>' model is not supported when using Codex with a ChatGPT account`, and `-o` then writes nothing.
+The account's models are listed, by `slug`, in `$CODEX_HOME/models_cache.json`; pass one with `-m` and send a one-line prompt first.
+Passing `--ignore-user-config` drops the configured model too, so it needs an explicit `-m` as well.
+
 ## Continuing a session
 
 ```bash
