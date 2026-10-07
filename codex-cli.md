@@ -124,6 +124,8 @@ Treat the model's self-description as a cross-check, not proof of identity.
 - **Check completion, and wait on the process rather than polling for the file.** `-o` writes the output only when the run finishes, so an absent file means "not done yet" and never "nothing came back".
   Wait for the runner to exit and read its exit status.
   A failed run does leave no output file, so check the file exists and is non-empty **after** the process has exited.
+- **A runner can write its reply and then fail to exit.**
+  If the output file has stopped changing well before the runner exits, check that the reply ends where the brief asked it to end, and if it does, take it and stop the runner rather than waiting on a background time limit.
 - **Do not put a truncating filter on the end of the command.** `| head -n` closes the pipe, the runner takes the broken pipe, and it can exit zero having written no output file and produced no reply — indistinguishable from a reader with nothing to say. `| tail -n` withholds all output until the process exits, so a run going wrong looks like one going well.
   Redirect to a file, or let the runner's own output capture do it.
 - **Ask for whole-document coverage.**

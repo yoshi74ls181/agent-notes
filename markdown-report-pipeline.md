@@ -155,6 +155,8 @@ Keep the whole caption italic: a bold lead-in opens with `***`, but the paragrap
 
 **Keep captions in one paragraph.**
 A blank line splits the emphasis run, preventing caption recognition and leaving literal asterisks in the output.
+A caption may span several source lines, one sentence to a line, as long as no line between them is blank.
+The same holds for the italic note under a table, which is an ordinary paragraph and not a caption.
 
 **Formulas are pulled out before any markdown rule runs.**
 Otherwise `$L_J$` gets eaten at the underscore.
