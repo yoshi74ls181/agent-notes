@@ -60,6 +60,11 @@ For unfamiliar concepts, retain the correct name and add one operational sentenc
   Give beside it the derived quantity that does reproduce the printed value.
 - **The units the table declares are the units the display equations use.**
   A symbol declared dimensionless, or in units of a natural quantum, does not appear as the argument of a trigonometric function or an exponential without a visible conversion.
+  A display evaluated in the declared units gives its result in the declared units, or the conversion factor is shown beside it.
+- **A quantity with more than one variant names the variant each symbol denotes**, such as a linear eigenfrequency against a transition frequency, or a bare frequency against a dressed one, and says which variant a design target constrains.
+- **An energy ratio names its numerator, its denominator and its amplitude convention.**
+  Electric, inductive and total energy stay distinct in prose, formulas and tables.
+- **Give whatever a reader needs to reproduce a derived component value**, including a shape where a size alone leaves the area undetermined.
 - **A row or sentence stating how the document words something is verified by grep before it is written**, over headings, table headers, captions and figure text, not only body prose.
   If it cannot be verified, leave it out.
 
@@ -74,6 +79,8 @@ Where "an earlier version did X" is the only place the report says why it does Y
 
 **A limitation that governs a table belongs beside that table.**
 State it where the numbers are read and keep the full version where the limits are collected.
+The converse holds too: every omission, placeholder, idealisation or assumption stated in a caption or beside a number also appears among the collected limits.
+Grep the captions for those words and match each hit against the list.
 The same goes for a stipulated input that can reverse a comparison: name it as consequential wherever the comparison appears.
 
 **A caption carries neither the figure's edit history nor a branch of its plotting code that did not fire.**
@@ -134,6 +141,15 @@ State which components are included, which are left out, and the statistical mod
 Where a method excludes a case, say which computational assumption fails rather than redefining the object to match it.
 
 **A dimensionless ratio names what it is referred to.**
+
+**A word of size applied to a signed quantity says whether it means the value or the magnitude.**
+Falls, rises, grows, stronger and weaker are ambiguous beside a negative coefficient; grep for them beside every symbol the definitions table declares signed.
+
+**A sweep driven in one variant of a quantity and tabulated in another names both.**
+Where a sweep is set by a target in one variant (bare, set) and its table shows another (dressed, achieved), the table header names the tabulated variant, and any boundary of the sweep is quoted in the variant of the column beside it, or in both.
+
+**A physical parameter keeps its meaning when an approximation changes a local coefficient.**
+Where a bias or a linearisation rescales an expansion coefficient, introduce the effective quantity explicitly rather than letting the parameter's symbol silently take the new value.
 
 **Finding them.**
 Extract every symbol and every capitalised or quoted term and list the distinct quantities each denotes.
@@ -215,6 +231,7 @@ Readers 2 and 3 come from a different model family than reader 1.
 **An agent with the whole repository**, including the report, logbook, result logs, scripts, and this policy.
 Check every number against evidence, the science, signs, and scope.
 Ask it to record what it checked and found correct, not only what is wrong.
+Give it a scratch directory and the study's environment, so it can recompute claims rather than only compare text against result files, and ask it to mark which claims it recomputed and which it read off the evidence.
 
 ### Reader 2, the second-year graduate student
 
@@ -269,8 +286,12 @@ It reports no findings; it returns the whole report rewritten in the style of a 
 **Copy the report to `<owner>-<subproject>-unedited-report.md` before convening this reader**, beside the report, and gitignore it.
 Take the copy once readers 1 and 2 are fully incorporated, and overwrite it if it already exists.
 
+**Tell the editor what it may not change:** numbers, signs, units, symbols, equations, table entries, figure paths, section numbering, and the strength of every qualification.
+
 **Accept the rewrite as the base document.**
 Diff it against `<owner>-<subproject>-unedited-report.md` to find and correct any errors the editor might have introduced.
+Compare mechanically first: the multiset of numbers, every table row, every display equation, every heading and the figure lines, then rerun the summary-box audit of §1.
+Then read the rewrite whole for what no mechanical check sees: a qualification weakened, a conditional made absolute, a cause asserted where the source only correlated.
 
 ### Readers 2 and 3, which come from outside the local model family
 
@@ -324,3 +345,26 @@ A literal in generated prose goes stale the moment the design point moves and su
 **A report that states a rule about its own numbers is held to it.**
 Where the text says a quantity is good to n figures, or that no ratio of a given kind is quoted beyond n figures, bring every instance of that quantity and of those ratios to n figures, in the summary and in headings and captions and tables as well as in the body.
 Stating such a rule and then breaking it is worse than not stating it, because the reader has to rescale numbers already read.
+
+**Every number in a report is found in, or follows by stated arithmetic from, a generated results file.**
+A number found only in a logbook is either generated or cut: a logbook is a record, not evidence a reader can regenerate.
+
+**A design target is worded as a target, in the summary as well as the body.**
+A value a solve was set to reach is not presented as an outcome of the model.
+
+**A number fixed by an assumed input is quoted to the precision the assumption supports**, and where it appears in the summary, with the assumed value beside it.
+More figures than that describe the solver, not the device.
+
+**A quantity said to be fixed or constant across a sweep names what was held fixed**, and where a closed form exists, the report gives it, so the reader sees how the quantity scales with what was held.
+A ratio constant only because a target in it was held fixed is quoted with that target.
+
+**A coupling said to vanish by symmetry names the symmetry and every element of the model that breaks it.**
+Say whether the computed residual is zero or only suppressed, and quote the residual and what sets its size; write "no coupling" only where the model gives zero.
+The same holds for any claim of "only", "entirely" or "exactly": it names the approximation or the domain that makes it true.
+
+**An omitted term is quoted with the parameter that sets its size.**
+Mark the rows of a table where that parameter is not small, or limit the table's claims to the columns the omission does not touch.
+
+**A choice justified as the best of a sweep is a claim about its rows.**
+It names the unsampled interval in which an untested point could beat it, and gives the threshold behind any qualifier such as "reasonable" or "acceptable".
+A sampled table of examples does not imply an optimum without a stated objective and admissible range.

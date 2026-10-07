@@ -3,7 +3,7 @@
 [QuLTRA](https://github.com/SimonaZaccaria/QuLTRA) performs energy-participation-ratio quantisation of superconducting circuits with **lumped and distributed elements together**.
 It accepts coplanar-waveguide sections and returns mode frequencies, linewidths, participation ratios, and the Kerr matrix.
 
-**Read the four checks below before using results.**
+**Read the six checks below before using results.**
 The first covers three ways the mode finder loses a mode; any one of them changes the normalisation of every participation ratio and so every Kerr, including for the modes it found.
 
 > **Scope.**
@@ -103,6 +103,21 @@ The model omits finite conductor width, gap, metal thickness, and substrate dept
 **Its line lengths describe that idealised medium.**
 Validate them with a cross-section calculation before using them as fabrication dimensions.
 
+**Set `qultra.constants.epsilon_r` before building any `CPW`.**
+Each line reads it once, when it is constructed, and the default is 11.9; a value set afterwards does not reach lines already built.
+
+## 5. A wide window returns modes you did not design for
+
+Widening `(fmin, fmax)` to keep a swept mode inside it (check 4) also brings in modes outside the design, such as a common mode of floating nodes against ground.
+**Identify each designed mode by its participations, not by its index or frequency order,** and assert a lower bound on the mode count rather than an exact count.
+Modes of different symmetry can also cross as a parameter moves, which reorders them.
+
+## 6. A root-finder can land on another mode's branch
+
+A bracket wide enough to find a target can contain the same target met by a different mode, so a solve for, say, a line length that puts "the readout" at 6 GHz can return a line that puts another mode there.
+**Classify the mode at every function evaluation, keep brackets close to the design, and treat a jump in the solved parameter as a branch change, not a design.**
+A boundary found this way is a limit of the solve's bounds and is reported as one.
+
 ## 4. A mode leaving its search window surfaces as an error from inside the Jacobian
 
 `QuLTRA` raises `No zeros found in the specified interval` when `(fmin, fmax)` contains no mode.
@@ -129,6 +144,30 @@ Against two other quantisations of the same lumped circuit, participations agree
 
 It also takes the junction's linear inductance and **derives `EJ` from it** rather than accepting both.
 A tool given both can end up describing two different junctions; the signature is every Kerr off by one constant factor while every frequency and linewidth is right.
+
+**Electric participation in any capacitor comes from the node voltages.**
+The method `eigenvectors()` returns each mode's node voltages, ground first, and `total_inductive_energy()` its peak inductive energy, which for a lossless mode is also its total energy.
+A capacitor's share of a mode's electric energy is ½C|ΔV|² over that total.
+Check a sum of such shares against a closed-form capacitance ratio; the agreement tests the bookkeeping, not the physics, because both use the same capacitances.
+
+**For a lumped circuit, a second quantisation from the capacitance and inverse-inductance matrices is cheap.**
+Solve the generalised eigenproblem of the two matrices, drop the zero-frequency charge mode of any floating island, and compare frequencies and participations.
+
+## A phase-biased junction
+
+A flux through a loop of junctions biases each one to a static phase φ.
+**Replacing each junction's inductance by L_J/cos φ captures the bias in the linear modes and in the quartic Kerr terms**, since both the quadratic and the quartic coefficients scale as E_J cos φ, and the derived `EJ` becomes E_J cos φ accordingly.
+**It omits the cubic terms the bias creates**, whose second-order contribution to the Kerr coefficients relative to the quartic one grows as tan²φ.
+Report Kerr values under bias as quartic-only estimates, mark where tan²φ is not small, and say which branch of the loop's static solution was followed, since a loop near half a flux quantum can have two of equal energy.
+
+## Installing it
+
+```bash
+python -m venv .venv
+.venv/Scripts/python -m pip install git+https://github.com/SimonaZaccaria/QuLTRA    # Windows; .venv/bin/python elsewhere
+```
+
+Keep the environment out of version control.
 
 ## Sign convention
 

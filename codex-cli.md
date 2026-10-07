@@ -86,6 +86,11 @@ Attached images survive into a resumed session, so a session is worth continuing
 
 **Set reasoning effort explicitly** rather than inheriting an unintended `config.toml` default. `-c` accepts dotted config keys, parsing values as TOML with a literal-string fallback.
 
+**Pick a model the logged-in account offers, and probe it before a long run.**
+A `model` in `config.toml` the account does not offer fails every call with `The '<model>' model is not supported when using Codex with a ChatGPT account`, and `-o` then writes nothing.
+The account's models are listed, by `slug`, in `$CODEX_HOME/models_cache.json`; pass one with `-m` and send a one-line prompt first.
+Passing `--ignore-user-config` drops the configured model too, so it needs an explicit `-m` as well.
+
 ## Continuing a session
 
 ```bash
@@ -119,6 +124,8 @@ Treat the model's self-description as a cross-check, not proof of identity.
 - **Check completion, and wait on the process rather than polling for the file.** `-o` writes the output only when the run finishes, so an absent file means "not done yet" and never "nothing came back".
   Wait for the runner to exit and read its exit status.
   A failed run does leave no output file, so check the file exists and is non-empty **after** the process has exited.
+- **A runner can write its reply and then fail to exit.**
+  If the output file has stopped changing well before the runner exits, check that the reply ends where the brief asked it to end, and if it does, take it and stop the runner rather than waiting on a background time limit.
 - **Do not put a truncating filter on the end of the command.** `| head -n` closes the pipe, the runner takes the broken pipe, and it can exit zero having written no output file and produced no reply — indistinguishable from a reader with nothing to say. `| tail -n` withholds all output until the process exits, so a run going wrong looks like one going well.
   Redirect to a file, or let the runner's own output capture do it.
 - **Ask for whole-document coverage.**
