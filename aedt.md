@@ -156,6 +156,9 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   The watchdog watches the log's modification time; on a stall of ten minutes it blacklists the in-progress item, kills AEDT and relaunches the script.
 - **Screen coarse, then refine generously.**
   Screen over the objective band only, then re-solve the top twenty candidates at tight settings: coarse adaptive meshes move results by more than the differences between candidates and can under-rank the optimum.
+- **Keep a resumable sweep's case list consistent with the geometry code.**
+  A case is skipped once its tag is in the results file, and any unfinished case still in the list is rebuilt from whatever the geometry code now draws.
+  When a default changes, remove the cases written for the old geometry from the list, keeping their rows in the results file, so none is rebuilt under its old name.
 
 ## Solving
 
@@ -166,6 +169,11 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   Watch free memory: once the machine pages, the solve goes out of core and crawls.
 - **To abort a solve, stop the driver and then the `hf3d` and `mpiexec` processes, leaving `ansysedt` alive.**
   Results from setups solved earlier survive and the session stays usable.
+- **A driver stopped by anything else leaves its solve running.**
+  The `hf3d` processes outlive the Python that started them and keep their memory, with nothing left to read the result; stop them the same way.
+- **Size a model's memory before a long solve, and watch it during one.**
+  Memory grows with every adaptive pass, and a lossy eigenmode solve with several modes on a model with fine features hundreds of micrometres apart can exhaust tens of gigabytes.
+  Trim the ground-plane margin and the air-region padding to what the fields need, loosen the convergence, and cap the passes; if free memory falls toward a few gigabytes, stop the solve before the machine pages.
 
 ## Ports and S-parameters
 
@@ -212,6 +220,14 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
 - **Refine the faceting of any curved face whose area sets a capacitance.**
   HFSS meshes a circle as a polygon, at its default with about 16 sides and 2.5 % less area; assign `mesh.assign_surface_mesh_manual(objects, normal_dev="5deg")` to the junction electrodes and barrier.
 - Read eigenfrequencies with `get_solution_data(expressions=["Mode(1)", ...], setup_sweep_name="Setup1 : LastAdaptive", report_category="Eigenmode Parameters")`, and export convergence with `export_convergence`.
+- **Identify modes by their participations, not by their order.**
+  A lossy solve can return spurious low modes that carry no junction energy, and modes of different symmetry can swap order from case to case; request more modes than you need and pick each by its junction participations.
+- **Take a mode's decay into a port from the fields, and check HFSS's Q against it.**
+  Terminate the line in lumped resistors and compute the linewidth as the power into them, Σ ½|V|²/R from line integrals across each resistor, over 2π times the mode's stored energy.
+  HFSS's own f/Q agrees with this once the mode is identified correctly; when they disagree, suspect a misidentified or unresolved mode before either number.
+- **Short a CPW's odd mode with a ground strap before terminating it.**
+  A termination of two resistors, one across each gap, absorbs the slotline mode as well as the CPW mode, so a mode that drives the line antisymmetrically leaks into the termination where a real chip with crossovers would not let it.
+  A strap from ground to ground over the centre conductor, near the cut-out, removes that path.
 
 ## Q3D capacitance
 
@@ -266,6 +282,9 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
 
   Orientations are `trimetric`, `dimetric`, `isometric`, `right`, `left`, `top`, `bottom`, `front` and `back`; planar features read best from `right` or `top`.
 - `FitAll()` fits every object regardless of transparency, so delete the bulky objects before zooming to a small feature.
+- **Give the picture the model's aspect ratio.**
+  The export crops to the requested width and height, not to the fit, so a long model in a square frame loses its ends.
+  In the `top` view x runs down the image and y across it.
 - Setting visibility through `oeditor.ChangeProperty` errors; set `Object3d.transparency` (0 opaque to 1 clear) and `.color` instead.
 - The closing `PyVista module is required` warning is harmless.
 
