@@ -56,7 +56,7 @@ Each note is the durable record for its topic, so a host repository should link 
 | [`circuit-figures.md`](circuit-figures.md) | schematics |
 | [`subproject-structure.md`](subproject-structure.md) | how a study directory is laid out and which file is the source for which |
 | [`codex-cli.md`](codex-cli.md) | driving a foreign-family model as a reader in the three-reader pass |
-| [`qultra.md`](qultra.md) | the circuit-quantisation package, and the four checks to run before using its results |
+| [`qultra.md`](qultra.md) | the circuit-quantisation package, the six checks to run before using its results, and biased junctions |
 | [`aedt.md`](aedt.md) | scripting Ansys AEDT through PyAEDT without hanging the session, and reading its numbers honestly |
 
 **State the rule.**
