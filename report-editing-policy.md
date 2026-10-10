@@ -2,7 +2,7 @@
 
 **Rules here are stated, not justified**, under "State the rule" at the end of [`AGENTS.md`](AGENTS.md).
 
-**This policy applies on top of the author's general writing style** (`writing-style.md`), which governs all human-facing prose: leading with the answer, defining terms before use, one name per quantity, keeping history out, captions, cross-references, and figure placement.
+**This policy applies on top of [`writing-style.md`](writing-style.md)**, which governs all human-facing prose: leading with the answer, defining terms before use, one name per quantity, keeping history out, captions, cross-references, and figure placement.
 This note adds what a scientific report needs beyond it, and where the two differ this note governs a report.
 
 A report is **reader-facing**: a newcomer should follow the science in logical order without learning the project's discovery history.
