@@ -2,6 +2,9 @@
 
 **Rules here are stated, not justified**, under "State the rule" at the end of [`AGENTS.md`](AGENTS.md).
 
+**This policy applies on top of [`writing-style.md`](writing-style.md)**, which governs all human-facing prose: leading with the answer, defining terms before use, one name per quantity, keeping history out, captions, cross-references, and figure placement.
+This note adds what a scientific report needs beyond it, and where the two differ this note governs a report.
+
 A report is **reader-facing**: a newcomer should follow the science in logical order without learning the project's discovery history.
 
 This note covers report content and source form.
@@ -30,14 +33,11 @@ A removed section leaves its number vacant rather than renumbering the ones afte
 ## 1. Write for a working experimentalist, and define what survives
 
 **Assume a working experimentalist in the report's field.**
+This reader replaces the writing style's default reader.
 Leave standard vocabulary unexplained.
 For unfamiliar concepts, retain the correct name and add one operational sentence stating what was computed.
 
-**Do not assume the reader has read the source paper.**
-
-- **Minimise them.**
-  Give a quantity its plain-English name.
-  The one exception is the section reproducing the paper's own formula.
+- **The writing style's preference for plain-English names over symbols has one exception:** the section reproducing the source paper's own formula.
 - **Define what survives, once, before it is used**, in a short table ahead of the first section that needs it.
 - **That table declares dimensions and signs, not only meanings.**
   Say which entries are frequencies and which are dimensionless, and whether the table gives magnitudes or signed coefficients where the body carries a signed matrix of the same quantities.
@@ -53,9 +53,6 @@ For unfamiliar concepts, retain the correct name and add one operational sentenc
 - **Name a proxy as a proxy where it first appears, including in the box.**
   A quantity standing in for a measurement — a damage estimate, a figure of merit, an infidelity proxy — carries its metric and its normalisation at first use.
   "Estimate" is not enough where the coefficient, the saturation rule and the choice of representative value are conventions; name them.
-- **Expand every acronym on first use,** including the ones that name the device.
-- **Name a special function on first use, and give the particular numerical facts the report leans on** — the peaks, zeros and limits its results sit on.
-- **Name a sibling study rather than pointing at it.**
 - **A quantity whose value would come out differently if the reader computed it from its standard definition is defined in the table, with the difference named.**
   Give beside it the derived quantity that does reproduce the printed value.
 - **The units the table declares are the units the display equations use.**
@@ -72,10 +69,7 @@ For unfamiliar concepts, retain the correct name and add one operational sentenc
 
 The report says what is true, not how it came to be believed.
 
-Delete discovery narratives such as "an earlier version" or "originally", and first person.
-
-**Deleting the narrative is not deleting the choice.**
-Where "an earlier version did X" is the only place the report says why it does Y, rewrite it as a statement of what it does and why, then check the replacement still carries the reason.
+**No first person.**
 
 **A limitation that governs a table belongs beside that table.**
 State it where the numbers are read and keep the full version where the limits are collected.
@@ -83,8 +77,7 @@ The converse holds too: every omission, placeholder, idealisation or assumption 
 Grep the captions for those words and match each hit against the list.
 The same goes for a stipulated input that can reverse a comparison: name it as consequential wherever the comparison appears.
 
-**A caption carries neither the figure's edit history nor a branch of its plotting code that did not fire.**
-The justification for a *choice the reader can see* — a zero baseline, an equal aspect ratio — does belong there.
+**A caption does not describe a branch of its plotting code that did not fire.**
 
 **Superseded design targets are history too.**
 After retargeting, sweep prose, tables, formulas, every figure's on-canvas text and axis annotations, every hand-written figure source, and every module and script docstring the report paraphrases, for values and comparisons carried over from the old design point.
@@ -96,54 +89,25 @@ A retarget is a sweep of the whole document.
 
 **When a reader points at a sentence, grep the document for the *shape* before replying.**
 
-**General case first, special case second.**
-Introduce a controlling parameter *before* the cases it distinguishes, and let each case follow from where it sits.
-**Make the fork explicit**: a short hinge section stating the regimes and what each implies.
-**The summary box leads with the recommendation** — what should someone build, and what does it cost.
-
-**The summary has to stand alone.**
-Three constraints the body does not obey:
-
-* **No terminology the report itself invents.**
-  Standard vocabulary of the field is fine.
-  A coined term is glossed in the same breath or left to the body.
-* **No justifying the claims.**
-  The finding, not the evidence for it.
-* **Numbers, yes — the conclusions are the numbers.**
-  Avoid only the number whose *meaning* needs the body.
-
 **A headline in absolute units needs one anchor**: a comparison against a standard alternative, a bound, or an explicitly unreachable ideal.
 Put the anchor in the limitations at **one significant figure**, not in the summary box.
 
 ## 3. One name, one meaning
 
-A symbol, a word or a phrase means exactly one thing in a document.
-
-**Rename symbols reused for unrelated quantities.**
-Remove the symbol entirely when the quantity does not need a name.
-
-**Name objects distinctly.**
-Name each on first use and distinguish them.
-
-**Name the referent when a word could stand for several numbers**, such as different quantities in a table and on a figure axis.
+The writing style's naming rule holds throughout: one name per quantity, one quantity per name, the same names on the figures as in the prose, and size words beside signed quantities made unambiguous.
+A report adds the following.
 
 **Identify the measurement variant behind every quoted number**, or use one variant throughout.
 This extends to a parameter that counts something, which is quoted with what it counts; a bare count is ambiguous between the parameter and the quantity it expands to.
 
-**A figure's axis labels, legend entries and on-canvas annotations are part of the document's naming, and are swept with the prose.**
-A quantity does not carry one name in the prose and another on the figure that shows it.
-A reference line or marker draws the same variant of a quantity that the prose quotes, or its caption says which variant it draws.
+**A reference line or marker draws the same variant of a quantity that the prose quotes**, or its caption says which variant it draws.
 
-**A quantity that aggregates part of a system is not named as though it aggregated all of it.**
-State which components are included, which are left out, and the statistical model.
+**A quantity that aggregates part of a system states its statistical model** as well as which components it includes.
 
 **Keep a property of the object separate from what the method can handle.**
 Where a method excludes a case, say which computational assumption fails rather than redefining the object to match it.
 
-**A dimensionless ratio names what it is referred to.**
-
-**A word of size applied to a signed quantity says whether it means the value or the magnitude.**
-Falls, rises, grows, stronger and weaker are ambiguous beside a negative coefficient; grep for them beside every symbol the definitions table declares signed.
+**Check size words against signs by grep:** falls, rises, grows, stronger and weaker, beside every symbol the definitions table declares signed.
 
 **A sweep driven in one variant of a quantity and tabulated in another names both.**
 Where a sweep is set by a target in one variant (bare, set) and its table shows another (dressed, achieved), the table header names the tabulated variant, and any boundary of the sweep is quoted in the variant of the column beside it, or in both.
@@ -197,9 +161,6 @@ The build rejects unknown Unicode; see the conversion table in [`markdown-report
 
 **Number every section and subsection, to whatever depth the report goes.** `## 4.` and `### 4.2` in the main text; `## C.`, `### C.2` and `#### C.2.1` in the appendices.
 Front matter ahead of the first section is not a section and takes no number.
-
-Never "the previous section" or "as discussed above".
-Name the section by its number, or name the object.
 
 **A pointer whose target is the section containing it is a defect, not a redundancy.**
 Check every `§n` against the heading above the sentence that carries it.
