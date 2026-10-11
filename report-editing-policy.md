@@ -128,6 +128,12 @@ The source carries **neither raw HTML nor inline LaTeX**.
 Convert an expression only when no backslash and no brace is left, so that nothing is ever half-rewritten.
 A subscripted word stays as an underscore and its letters.
 
+**Write each variable in Unicode mathematical italics, in display equations and in prose alike,** so that the source reads as maths without a TeX renderer: `𝑓_q`, `𝛼_𝑚`, `𝐶_J`, and `$$𝜒_{𝑚𝑛} = −\sum_𝑗 …$$`.
+A variable is a single letter standing for a quantity or an index.
+Labels, units, numerals, function names and words stay plain, so the subscript of `𝜒_qr` and the `MHz` after a number are ASCII; capital Greek stays upright, and nothing inside backticks is italicised, since backticks name code.
+Write one quantity one way everywhere, so that a grep for its italic form finds every use.
+The build keeps them italic in the HTML's prose and hands formulas the plain letters ([`markdown-report-pipeline.md`](markdown-report-pipeline.md)), so converting a report to italics changes its HTML only by `<i>` tags, which is the check that the conversion changed nothing else.
+
 **The build sets those underscores as real subscripts**, with `scripts/md_to_html.js` setting them as `<sub>`.
 Two consequences:
 

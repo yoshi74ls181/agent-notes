@@ -34,6 +34,7 @@ The builder uses `markdown` mode to avoid these `gfm` behaviors:
 
 ## What the endpoint cannot do, and so what the builder still does
 
+0. **Italics:** map Unicode mathematical italics to plain letters, set in `<i>` in prose, as described below.
 1. **Maths:** extract formulas before Markdown parsing, render them locally to MathML, then restore them over ASCII placeholders.
    The API's raw TeX or inert `<math-renderer>` output would require client-side processing.
 2. **Unicode:** normalise symbols and reject unmapped characters, as described below.
@@ -70,6 +71,15 @@ Output also depends on GitHub's renderer, so service updates can change the gene
 ```
 
 ## Unicode in, MathJax out: the conversion, the guard and the check
+
+**Mathematical italics become plain letters, set in italic in prose.**
+A source may write its variables in Unicode mathematical italics, such as `𝑓_q` or `𝛼_𝑚`, so that its formulas read as maths in a viewer without a TeX renderer ([`report-editing-policy.md`](report-editing-policy.md) §4).
+The prose pass replaces each italic letter by the plain one it stands for: 𝑎–𝑧 and 𝐴–𝑍 with ℎ (U+210E, the italic h), and the italic Greek block 𝛼–𝜔 and 𝛢–𝛺 with its variant letters.
+In prose, headings, tables and captions it wraps the plain letter in `<i>`, inside a subscript or superscript as well, so `𝛼_𝑚` becomes `<i>α</i><sub><i>m</i></sub>` and `𝜒_qr` becomes `<i>χ</i><sub>qr</sub>`; capital Greek, `∂` and `∇` stay upright.
+Formulas, code spans, image alt text and the page title get the plain letter alone, since MathJax sets a single-letter identifier in italic itself.
+The subscript and superscript rules therefore see plain letters, and a source written in italics builds to the HTML of the same source written plainly with the `<i>` tags added; after converting a report, strip `<i>` and `</i>` from its build and compare it with the plain build, ignoring whitespace, since GitHub breaks the line after a `<td>` that opens with a tag.
+The table is `ITALIC` in `scripts/tex_unicode.js`.
+Bold, script and the other mathematical alphabets are not mapped, so the guard below rejects them inside a formula.
 
 The conversion layer translates notation that MathJax would otherwise treat as a glyph.
 

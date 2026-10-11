@@ -204,5 +204,28 @@ function proseSuperscript(s, prev) {
   return body ? {sup: body, length: 1 + body.length} : null;
 }
 
-module.exports = {normalise, unmapped, codepoint, scan, proseSubscript, proseSuperscript,
-                  SUP, SUB, MACRO, SAFE, TEXT_MACROS, PROSE_SUB, PROSE_SUP, SCRIPT_JUST_CONSUMED};
+// Unicode mathematical italics, to the plain letter they stand for.
+// A source may write its variables in mathematical italic so that it reads as maths without a renderer; md_to_html.js maps them to plain letters, set in <i> in prose and left bare in formulas, where MathJax italicises them itself.
+// Latin italic h is the letter-like U+210E, since its slot in the italic block is unassigned.
+// Italic Greek capitals become upright capitals, which the build sets as macros.
+const ITALIC = new Map();
+for (let i = 0; i < 26; i++) {
+  ITALIC.set(String.fromCodePoint(0x1D434 + i), String.fromCharCode(0x41 + i));
+  if (i !== 7) ITALIC.set(String.fromCodePoint(0x1D44E + i), String.fromCharCode(0x61 + i));
+}
+ITALIC.set('ℎ', 'h');
+for (let i = 0; i < 25; i++) {
+  if (i !== 17) ITALIC.set(String.fromCodePoint(0x1D6E2 + i), String.fromCharCode(0x391 + i));
+  ITALIC.set(String.fromCodePoint(0x1D6FC + i), String.fromCharCode(0x3B1 + i));
+}
+for (const [cp, ch] of [[0x1D6F3, 'Θ'], [0x1D6FB, '∇'], [0x1D715, '∂'], [0x1D716, 'ϵ'], [0x1D717, 'ϑ'],
+                        [0x1D718, 'ϰ'], [0x1D719, 'ϕ'], [0x1D71A, 'ϱ'], [0x1D71B, 'ϖ']]) {
+  ITALIC.set(String.fromCodePoint(cp), ch);
+}
+
+function deitalic(text) {
+  return Array.from(text, (ch) => ITALIC.get(ch) || ch).join('');
+}
+
+module.exports = {normalise, unmapped, deitalic, codepoint, scan, proseSubscript, proseSuperscript,
+                  SUP, SUB, MACRO, SAFE, ITALIC, TEXT_MACROS, PROSE_SUB, PROSE_SUP, SCRIPT_JUST_CONSUMED};
