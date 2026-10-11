@@ -164,15 +164,17 @@ function codepoint(ch) {
 }
 
 /*
- * Prose subscripts have a single-letter base. Preserve existing Unicode scripts;
- * use HTML for labels that Unicode's incomplete subscript alphabet cannot express.
+ * Prose subscripts have a single-letter base.
+ * Preserve existing Unicode scripts; use HTML for labels that Unicode's incomplete subscript alphabet cannot express.
  *
- *   x_b  E_J  2E_J  λ_threshold  |S_ab|  L_J/L_b         subscripts
+ *   x_b  E_J  2E_J  λ_threshold  |S_ab|  L_J/L_b  C_bf,L  subscripts
  *   fig1_a_vs_b.png  low_EJ  md_to_html.js  20_plots.jl  unchanged
+ *
+ * A comma joins two labels in one subscript only when a letter or digit follows it directly, so C_bf,L is one subscript and "J_1, J_2" is two.
  *
  * A bare g_form is ambiguous; the caller must protect code spans.
  */
-const PROSE_SUB = /^([A-Za-zͰ-Ͽħℓ])_([A-Za-z0-9]{1,12}|Δ)(?![_A-Za-z0-9])/;
+const PROSE_SUB = /^([A-Za-zͰ-Ͽħℓ])_([A-Za-z0-9]{1,12}(?:,[A-Za-z0-9]{1,12})*|Δ)(?![_A-Za-z0-9])/;
 
 // Caret scripts support labels and numbers: a₃^eff, h^2.02, (z/2)^m.
 // Require attachment to preceding content; leave unattached carets literal.
