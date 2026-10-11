@@ -14,7 +14,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const {execFileSync} = require('child_process');
-const {normalise, unmapped, codepoint, proseSubscript, proseSuperscript,
+const {normalise, unmapped, deitalic, codepoint, proseSubscript, proseSuperscript,
        SCRIPT_JUST_CONSUMED} = require('./tex_unicode.js');
 
 const [, , mdPath, modPath] = process.argv;
@@ -64,7 +64,8 @@ const mjDoc = mathjax.document('', {
 const mjVisitor = new SerializedMmlVisitor();
 
 const ROOT = path.dirname(path.resolve(mdPath));
-const src = fs.readFileSync(mdPath, 'utf8').replace(/\r\n?/g, '\n');
+// Mathematical italics go back to plain letters first, so every later step sees the source as if written without them.
+const src = deitalic(fs.readFileSync(mdPath, 'utf8').replace(/\r\n?/g, '\n'));
 const stats = {math: 0, display: 0, figures: 0, tables: 0, bytes: 0};
 
 // ---------------------------------------------------------------- maths
