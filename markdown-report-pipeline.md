@@ -137,7 +137,8 @@ Whatever GitHub understands, plus two house conventions:
 | `$$x$$` | a display equation, as MathML. Inline `$x$` also works, but prefer Unicode |
 | `![alt](fig.png)` alone, then an all-italic paragraph | a `<figure>` with the figure inlined and that paragraph as its `<figcaption>`. The alt text stays an accessibility description and is *not* used as the caption |
 
-An underscore after a **single** letter is set as a subscript, and a caret as a superscript, so `E_J` and `h^2` need no markup. `snake_case` in filenames and identifiers is left alone, and so is anything in backticks — which is where a single-letter code name has to go, since bare `g_form` in prose is indistinguishable from a subscript.
+An underscore after a **single** letter is set as a subscript, and a caret as a superscript, so `E_J` and `h^2` need no markup.
+A comma followed directly by a letter or digit stays inside the subscript, so `C_bf,L` is one subscript, while the comma in `J_1, J_2` ends it. `snake_case` in filenames and identifiers is left alone, and so is anything in backticks — which is where a single-letter code name has to go, since bare `g_form` in prose is indistinguishable from a subscript.
 
 Everything else is GitHub's markdown: headings, lists, tables, code fences, block quotes, horizontal rules, emphasis.
 
