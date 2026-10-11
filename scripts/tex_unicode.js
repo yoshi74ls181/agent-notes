@@ -205,7 +205,7 @@ function proseSuperscript(s, prev) {
 }
 
 // Unicode mathematical italics, to the plain letter they stand for.
-// A source may write its variables in mathematical italic so that it reads as maths without a renderer; md_to_html.js maps them back before anything else runs, so the output is the same as for plain letters.
+// A source may write its variables in mathematical italic so that it reads as maths without a renderer; md_to_html.js maps them to plain letters, set in <i> in prose and left bare in formulas, where MathJax italicises them itself.
 // Latin italic h is the letter-like U+210E, since its slot in the italic block is unassigned.
 // Italic Greek capitals become upright capitals, which the build sets as macros.
 const ITALIC = new Map();

@@ -14,7 +14,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const {execFileSync} = require('child_process');
-const {normalise, unmapped, deitalic, codepoint, proseSubscript, proseSuperscript,
+const {normalise, unmapped, deitalic, ITALIC, codepoint, proseSubscript, proseSuperscript,
        SCRIPT_JUST_CONSUMED} = require('./tex_unicode.js');
 
 const [, , mdPath, modPath] = process.argv;
@@ -64,8 +64,7 @@ const mjDoc = mathjax.document('', {
 const mjVisitor = new SerializedMmlVisitor();
 
 const ROOT = path.dirname(path.resolve(mdPath));
-// Mathematical italics go back to plain letters first, so every later step sees the source as if written without them.
-const src = deitalic(fs.readFileSync(mdPath, 'utf8').replace(/\r\n?/g, '\n'));
+const src = fs.readFileSync(mdPath, 'utf8').replace(/\r\n?/g, '\n');
 const stats = {math: 0, display: 0, figures: 0, tables: 0, bytes: 0};
 
 // ---------------------------------------------------------------- maths
@@ -115,11 +114,41 @@ function math(tex, display) {
 }
 
 // ---------------------------------------------------------------- prose
+// Capital Greek and the italic operators stay upright when their italics are mapped back.
+const UPRIGHT = /[Α-Ω∂∇]/;
+
+/**
+ * Map mathematical italics to plain letters, and mark which plain characters were italic.
+ * Each mark lines up with one UTF-16 unit of the plain text, so the marks index it as the text does.
+ */
+function italicMarks(text) {
+  let plain = '';
+  const marks = [];
+  for (const ch of text) {
+    const p = ITALIC.get(ch);
+    if (p) {
+      plain += p;
+      marks.push(!UPRIGHT.test(p));
+    } else {
+      plain += ch;
+      for (let k = 0; k < ch.length; k++) marks.push(false);
+    }
+  }
+  return {plain, marks};
+}
+
 /**
  * Extract formulas and prose scripts, skipping recognised code spans, links, and raw tags.
  * Leave headings, emphasis, lists, and tables to GitHub.
+ * A prose letter written as a mathematical italic is set as <i> around the plain letter, its scripts included; formulas, code spans and image alt text get the plain letter, since MathJax sets single-letter identifiers in italic itself.
  */
-function prose(text) {
+function prose(source, given) {
+  const {plain: text, marks} = given || italicMarks(source);
+  const em = (a, b) => {
+    let s = '';
+    for (let k = a; k < b; k++) s += marks[k] ? '<i>' + text[k] + '</i>' : text[k];
+    return s;
+  };
   let out = '';
   let i = 0;
   // Track the preceding prose character; scripts use SCRIPT_JUST_CONSUMED, other tokens ''.
@@ -152,7 +181,9 @@ function prose(text) {
 
     const link = /^(!?\[)([^\]]*)(\]\()([^)\s]+)(\))/.exec(rest);
     if (link) {
-      out += link[1] + prose(link[2]) + link[3] + link[4] + link[5];
+      const a = i + link[1].length;
+      const inner = link[1] === '![' ? new Array(link[2].length).fill(false) : marks.slice(a, a + link[2].length);
+      out += link[1] + prose(null, {plain: link[2], marks: inner}) + link[3] + link[4] + link[5];
       i += link[0].length;
       plainPrev = '';
       continue;
@@ -168,14 +199,14 @@ function prose(text) {
 
     const sub = proseSubscript(rest, plainPrev);
     if (sub) {
-      out += sub.base + '<sub>' + sub.sub + '</sub>';
+      out += em(i, i + sub.base.length) + '<sub>' + em(i + sub.base.length + 1, i + sub.length) + '</sub>';
       i += sub.length;
       plainPrev = SCRIPT_JUST_CONSUMED;
       continue;
     }
     const sup = proseSuperscript(rest, plainPrev);
     if (sup) {
-      out += '<sup>' + sup.sup + '</sup>';
+      out += '<sup>' + em(i + 1, i + 1 + sup.sup.length) + '</sup>';
       i += sup.length;
       plainPrev = SCRIPT_JUST_CONSUMED;
       continue;
@@ -189,7 +220,7 @@ function prose(text) {
       continue;
     }
 
-    out += text[i];
+    out += em(i, i + 1);
     plainPrev = text[i];
     i++;
   }
@@ -310,7 +341,7 @@ function balanced(html) {
 }
 
 // ---------------------------------------------------------------- go
-const title = (/^#\s+(.*)$/m.exec(src) || [, 'Report'])[1]
+const title = (/^#\s+(.*)$/m.exec(deitalic(src)) || [, 'Report'])[1]
   .replace(/\$[^$]*\$/g, '').replace(/[*`]/g, '').trim();
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 

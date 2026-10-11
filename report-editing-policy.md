@@ -132,7 +132,7 @@ A subscripted word stays as an underscore and its letters.
 A variable is a single letter standing for a quantity or an index.
 Labels, units, numerals, function names and words stay plain, so the subscript of `𝜒_qr` and the `MHz` after a number are ASCII; capital Greek stays upright, and nothing inside backticks is italicised, since backticks name code.
 Write one quantity one way everywhere, so that a grep for its italic form finds every use.
-The build maps the italics back to plain letters before converting ([`markdown-report-pipeline.md`](markdown-report-pipeline.md)), so converting a report to italics leaves its HTML byte-identical, which is the check that the conversion changed nothing else.
+The build keeps them italic in the HTML's prose and hands formulas the plain letters ([`markdown-report-pipeline.md`](markdown-report-pipeline.md)), so converting a report to italics changes its HTML only by `<i>` tags, which is the check that the conversion changed nothing else.
 
 **The build sets those underscores as real subscripts**, with `scripts/md_to_html.js` setting them as `<sub>`.
 Two consequences:
