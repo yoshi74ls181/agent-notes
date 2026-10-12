@@ -96,6 +96,7 @@ The same holds at the head of each section: its first sentences give the section
 
 - Bad → Good: "Our answer is that a long junction is a relativistic field theory that fits on a chip, and that one circuit parameter sets how quantum that theory is. … written $\beta^2=2\pi Z/R_Q$ …" → "One answer is that a long junction is a relativistic field theory that fits on a chip, with particles that can be counted, imaged and put to work."
 - Bad → Good: "The three-junction circuit provides readout through the junctions' nonlinearity, while the bridge's stray capacitance limits the qubit's barrier participation." as the second sentence of a long section → the stray-capacitance limit moved to the subsection on barrier participation
+- Bad → Good: "It is a merged-element transmon split into two junctions, read out through elements outside the bridge; halving or doubling the paddles' and the coupler pad's capacitances, in the ways §2.6 lists, changes the qubit's barrier participation by less than 10⁻⁶." in a report's opening paragraph → "The split mergemon is a flux-tunable qubit that keeps 0.9969 of its electric energy in its junction barriers …"; the robustness check stays in its section
 
 ### R12. Keep abstracts and summaries to the answer and the key results, and make them stand alone
 
@@ -198,3 +199,11 @@ Introduce a controlling parameter before the cases it distinguishes, and let eac
 Where the cases fork, make the fork explicit in a short passage that states the regimes and what each implies.
 
 - Bad → Good: three sections on three junction lengths, each with its own threshold → one paragraph on the length that separates them, then the three cases in order of it
+
+### R25. Put the methods in an appendix
+
+In a report on a design or a result, the body carries the device and its results.
+How the inputs were extracted, how the model was solved, and the numerical settings go to an appendix, with one sentence in the body saying where.
+Keep in the body only the method a result cannot be read without, such as which of two models a number comes from.
+
+- Bad → Good: "§2.4 How the circuit's elements are extracted" and "§2.5 How the circuit is solved" between the circuit's modes and its design point → both moved to "Appendix B. How the circuit is built and solved", with §2's overview ending "Appendix B explains how the circuit's elements are extracted from the layout and how the circuit is solved."
