@@ -138,7 +138,7 @@ The build keeps them italic in the HTML's prose and hands formulas the plain let
 **The build sets those underscores as real subscripts**, with `scripts/md_to_html.js` setting them as `<sub>`.
 Two consequences:
 
-- **A subscript is one letter, an underscore, then letters or digits.** `snake_case` is left alone.
+- **A subscript is one letter, an underscore, then letters or digits, which a comma may join with no space after it.** `𝐶_bf,L` is one subscript, `J_1, J_2` two, and `snake_case` is left alone.
 - **Put code in backticks.**
   A single-letter variable name in bare prose will be set as a subscript; backticked spans are never touched. `proseSubscript` in `scripts/tex_unicode.js` is the rule.
 
