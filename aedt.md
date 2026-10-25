@@ -251,6 +251,14 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   The entries are the Maxwell matrix with the reference at infinity; deleting a conductor's row and column gives the matrix with that conductor grounded.
 - **Export convergence natively for a natively inserted setup**: `q.odesign.ExportConvergence("Setup1", "", "CG", path, True)`.
   The pyaedt call `export_convergence` writes nothing for a setup it did not create.
+- **Judge a Q3D solve's progress by its `caxtr` process.**
+  Each adaptive pass runs in a `caxtr` process that `q3d_solver` starts, and the CPU counters of `q3d_solver`, `Q3DCOMENGINE` and `ansysedt` barely move during a pass, so a watch on them reports a stall while the solve is computing.
+  To abort, stop the driver and then `caxtr`, `q3d_solver` and `Q3DCOMENGINE`, leaving `ansysedt` alive; the last completed pass stays readable as `LastAdaptive`.
+- **A converged capacitance can still be rising.**
+  The `PerError` test is met by `MinConvPass` consecutive quiet passes, which can come while the entries are still climbing, so two solves that stopped at different passes do not compare.
+  When solves must compare, set `MinPass` equal to `MaxPass` so every one runs the same passes, and judge convergence from the per-pass matrices rather than from the stop.
+- **Read the per-pass matrices from the results folder.**
+  Each pass's capacitance matrix is in `<project>.aedtresults/<design>.results/*_MCAP<pass>_*.sd`, as `c(...)` entries row by row in farads; the rows are numbered, not named, so map their order against the final matrix before using them.
 
 ## Q2D
 
