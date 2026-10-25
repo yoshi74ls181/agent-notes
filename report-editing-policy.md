@@ -42,11 +42,13 @@ For unfamiliar concepts, retain the correct name and add one operational sentenc
 - **That table declares dimensions and signs, not only meanings.**
   Say which entries are frequencies and which are dimensionless, and whether the table gives magnitudes or signed coefficients where the body carries a signed matrix of the same quantities.
   Say which values are design *targets* and which are consequences.
+  State once whether energies are quoted as frequencies or angular rates, and which Hamiltonian defines each nonlinear coefficient.
+- **The summary box runs to no more than about 300 words.**
 - **The summary box uses no symbol at all.**
   It sits before that table.
   Write the quantity out; every number must survive the translation.
   Do not gloss a symbol inline — remove it.
-  Audit the box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, **then grep for every non-ASCII character in it and read what comes back**, and check every number in it still appears in the body.
+  Audit the box after every edit: extract it, grep for `[A-Za-z]_[A-Za-z0-9]` and for a caret, **then grep for every non-ASCII character in it and read what comes back**, and check every number in it appears in the body in the same configuration, not only somewhere.
   The underscore pattern alone is not enough: it passes κ, ω, Σ, and any bare single letter standing for a quantity.
 - **Audit the box's comparatives, not only its symbols.**
   Any superlative or comparative in it — best, worst, beats everything, the largest — is a claim about the whole document and is checked against every table in it.
@@ -100,12 +102,18 @@ A report adds the following.
 **Identify the measurement variant behind every quoted number**, or use one variant throughout.
 This extends to a parameter that counts something, which is quoted with what it counts; a bare count is ambiguous between the parameter and the quantity it expands to.
 
+**A reading taken in a different variant from its target names both**, and separates the fixed offset between the variants from the real miss; only the miss is an overshoot or a shortfall.
+
 **A reference line or marker draws the same variant of a quantity that the prose quotes**, or its caption says which variant it draws.
+
+**A plotted ratio names its numerator and denominator as the code computes them.**
 
 **A quantity that aggregates part of a system states its statistical model** as well as which components it includes.
 
 **Keep a property of the object separate from what the method can handle.**
 Where a method excludes a case, say which computational assumption fails rather than redefining the object to match it.
+An absence that exists only because the model leaves out an element is stated as a property of the model.
+A description of what a calculation ran with is checked against the code.
 
 **Check size words against signs by grep:** falls, rises, grows, stronger and weaker, beside every symbol the definitions table declares signed.
 
@@ -118,7 +126,7 @@ Where a bias or a linearisation rescales an expansion coefficient, introduce the
 **Finding them.**
 Extract every symbol and every capitalised or quoted term and list the distinct quantities each denotes.
 Where a system holds several instances of a component, the bare noun is never safe: name the instance.
-Where a script computes a number in more than one place, check the places agree before quoting either.
+Where a script computes a number in more than one place, or two scripts measure the same quantity, check they agree before quoting either, and quote the finer-resolution one.
 
 ## 4. The source is portable markdown: Unicode maths, no HTML
 
@@ -187,6 +195,8 @@ Where an index is unavoidable, re-derive every one after inserting or deleting a
 5. **Deleting a section needs its own sweep.**
    Grep the deleted section for every number, symbol and proper noun it contained, then grep the survivor for each.
    Check the display equations and the figures, including any left on disk with nothing pointing at them.
+6. **Adding a section needs its own sweep.**
+   Grep for universal words (every, all, only, throughout, the rest of) and check that each still holds over the new material.
 
 ## 9. The three-reader pass
 
@@ -200,6 +210,7 @@ Readers 2 and 3 come from a different model family than reader 1.
 Check every number against evidence, the science, signs, and scope.
 Ask it to record what it checked and found correct, not only what is wrong.
 Give it a scratch directory and the study's environment, so it can recompute claims rather than only compare text against result files, and ask it to mark which claims it recomputed and which it read off the evidence.
+On a new section, ask it to re-run at least one row with the settings the text does not mention varied, such as the probe frequency, the basis truncation, the window and the reference level.
 
 ### Reader 2, the second-year graduate student
 
@@ -302,6 +313,26 @@ Where a nearby round value is quoted instead, say that it bounds the real one an
 
 **Identify every quantitative result as measured, assumed, analytically approximated, or numerically computed, at first presentation.**
 Preserve the distinction in summaries and captions, and state the scope of any numerical accuracy claim.
+Keep a numerical failure, an instability inferred from one, and a physical limit apart.
+
+**An agreement figure for a formula with an exact and a leading-order form names the form it refers to.**
+A scaling law quoted beside a finite-difference measurement says whether the measurement is in the regime where the law holds.
+
+**A column derived by fixed formula from another column is not independent evidence.**
+
+**A ratio involving a quantity a solver drives to zero is zero to solver precision**, not a number of orders of magnitude.
+
+**A deviation called a residual is quoted with the residual measured**, and checked against any scaling the document itself establishes.
+
+**An optimum found on a grid is quoted to the grid's resolution.**
+
+**A threshold imported from another study is recomputed at this study's parameters**, or quoted as the other study's.
+
+**A stated limit quotes the quantity that sets it.**
+
+**A headline metric names the operating protocol it was measured under**: what was tuned, what was held, and at which point.
+
+**Quote a number to the precision the reader's decision needs**; further figures go to the logbook.
 
 **A tolerance, spread or agreement figure in generated prose is printed from the value the generating script measured, never written as a literal.**
 Assert no more precision than the document prints: print the measured difference rather than a rounded pair the reader must subtract.

@@ -36,8 +36,10 @@ Don't assume the reader has read the source paper.
 
 State the confidence and the evidence for each claim plainly.
 Don't stack hedges ("may possibly suggest").
+Make a recommendation no stronger than what was tested: keep what was shown, what is inferred and what is untested apart, and don't turn a bounded test into an open-ended rule.
 
 - Bad → Good: "This might perhaps indicate a possible link." → "Two of three datasets show the link; the third is too small to tell."
+- Bad → Good: "Any batch size above 64 works." → "Batch sizes of 64 and 128 work; larger ones were not tried."
 
 ### R4. Prefer the concrete
 
@@ -207,3 +209,23 @@ How the inputs were extracted, how the model was solved, and the numerical setti
 Keep in the body only the method a result cannot be read without, such as which of two models a number comes from.
 
 - Bad → Good: "§2.4 How the circuit's elements are extracted" and "§2.5 How the circuit is solved" between the circuit's modes and its design point → both moved to "Appendix B. How the circuit is built and solved", with §2's overview ending "Appendix B explains how the circuit's elements are extracted from the layout and how the circuit is solved."
+
+### R26. Say each thing once
+
+Give each result, definition and caveat one home, and point to it from anywhere else that needs it.
+A summary states a finding without its evidence, and a conclusion says what follows from the results rather than restating them.
+
+- Bad → Good: the same caveat in the summary, beside the result and again in the conclusion → stated once beside the result, with the summary and the conclusion citing that section
+
+### R27. An improvement names its price
+
+A sentence reporting a gain names what the gain costs in the same sentence, or says that nothing measured got worse.
+
+- Bad → Good: "The new index cuts query time by 60%." → "The new index cuts query time by 60% and doubles write latency."
+
+### R28. Compare like with like
+
+Compare two options at equal cost and against the reference the rest of the document uses.
+Where the conditions differ, name the difference beside each number.
+
+- Bad → Good: "Caching saves 30 ms and prefetching 45 ms." with prefetching measured on a faster machine → both measured on the same machine, or "prefetching saves 45 ms on the faster machine"
