@@ -13,6 +13,7 @@ Add this repository as a submodule and use what you need.
 | [`circuit-figures.md`](circuit-figures.md) | CircuiTikZ sources, layout, and export |
 | [`qultra.md`](qultra.md) | Circuit quantisation, solver pitfalls, and validation |
 | [`aedt.md`](aedt.md) | Driving Ansys AEDT from PyAEDT: sessions, geometry, sweeps, and reading results |
+| [`sonnet.md`](sonnet.md) | Driving Sonnet em from Python: projects, meshing, ports, and extraction |
 | `scripts/md_to_html.js` | HTML builder using GitHub Markdown, MathJax, and embedded CSS |
 | `scripts/tex_unicode.js` | Unicode-to-LaTeX conversion and unmapped-character guard |
 

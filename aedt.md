@@ -171,6 +171,7 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   Results from setups solved earlier survive and the session stays usable.
 - **A driver stopped by anything else leaves its solve running.**
   The `hf3d` processes outlive the Python that started them and keep their memory, with nothing left to read the result; stop them the same way.
+- **Run one field solve at a time on a machine**, AEDT or any other solver; two at once can exhaust memory, and a driver killed for memory leaves its solve running.
 - **Size a model's memory before a long solve, and watch it during one.**
   Memory grows with every adaptive pass, and a lossy eigenmode solve with several modes on a model with fine features hundreds of micrometres apart can exhaust tens of gigabytes.
   Trim the ground-plane margin and the air-region padding to what the fields need, loosen the convergence, and cap the passes; if free memory falls toward a few gigabytes, stop the solve before the machine pages.
@@ -251,6 +252,7 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   The entries are the Maxwell matrix with the reference at infinity; deleting a conductor's row and column gives the matrix with that conductor grounded.
 - **Export convergence natively for a natively inserted setup**: `q.odesign.ExportConvergence("Setup1", "", "CG", path, True)`.
   The pyaedt call `export_convergence` writes nothing for a setup it did not create.
+  The file's pass table is delimited by `|` (`pass|triangles|delta %|`), so split its rows on `|`, not on whitespace; the `Completed :` line gives the pass count.
 - **Judge a Q3D solve's progress by its `caxtr` process.**
   Each adaptive pass runs in a `caxtr` process that `q3d_solver` starts, and the CPU counters of `q3d_solver`, `Q3DCOMENGINE` and `ansysedt` barely move during a pass, so a watch on them reports a stall while the solve is computing.
   To abort, stop the driver and then `caxtr`, `q3d_solver` and `Q3DCOMENGINE`, leaving `ansysedt` alive; the last completed pass stays readable as `LastAdaptive`.
@@ -259,6 +261,7 @@ A batch should reuse one long-lived session rather than kill and relaunch per it
   When solves must compare, set `MinPass` equal to `MaxPass` so every one runs the same passes, and judge convergence from the per-pass matrices rather than from the stop.
 - **Read the per-pass matrices from the results folder.**
   Each pass's capacitance matrix is in `<project>.aedtresults/<design>.results/*_MCAP<pass>_*.sd`, as `c(...)` entries row by row in farads; the rows are numbered, not named, so map their order against the final matrix before using them.
+  The final matrix is `MCAP0`, a copy of the last pass's, so map the rows against it.
 
 ## Q2D
 
