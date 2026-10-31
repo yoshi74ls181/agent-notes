@@ -1,7 +1,7 @@
 # How a subproject is laid out
 
 The file layout and adoption process for a study directory.
-For document audiences and content, see [`report-editing-policy.md`](report-editing-policy.md) §0.
+For document audiences and content, see [`reports.md`](https://github.com/yoshi74ls181/writing-rules/blob/main/reports.md) §0 in writing-rules.
 
 The scaffolding, synchronisation, and checker commands below are host-project tools; they are not included in this repository.
 
