@@ -2,10 +2,10 @@
 
 Shared notes and tooling for research repositories.
 Add this repository as a submodule and use what you need.
+The writing rules are not here: read them in [writing-rules](https://github.com/yoshi74ls181/writing-rules/blob/main/README.md), on its `main` branch.
 
 | File | Purpose |
 |---|---|
-| [`report-editing-policy.md`](report-editing-policy.md) | Report content, source format, editing rules, and review |
 | [`subproject-structure.md`](subproject-structure.md) | Study layout, generated READMEs, and adoption |
 | [`markdown-report-pipeline.md`](markdown-report-pipeline.md) | Markdown-to-HTML builds, notation, and validation |
 | [`codex-cli.md`](codex-cli.md) | Non-interactive readers, output capture, and review context |

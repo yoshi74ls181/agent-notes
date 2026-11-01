@@ -47,11 +47,10 @@ There is no `scripts` block in `package.json`, so call the builder with `node` d
 ## Notes in this repository
 
 Each note is the durable record for its topic, so a host repository should link to it rather than restate it.
+The writing rules, including the report-editing policy, live in [writing-rules](https://github.com/yoshi74ls181/writing-rules/blob/main/README.md) instead, which is read on its `main` branch and never vendored; `writing-style.md` and `report-editing-policy.md` here only point there.
 
 | note | what it covers |
 |---|---|
-| [`writing-style.md`](writing-style.md) | the style for all human-facing prose, which the report-editing policy builds on |
-| [`report-editing-policy.md`](report-editing-policy.md) | what a scientific report needs on top of the writing style: what it carries, who it is written for, and the three-reader pass |
 | [`markdown-report-pipeline.md`](markdown-report-pipeline.md) | the markdown-to-HTML build, its conversions, and its guards |
 | [`figure-conventions.md`](figure-conventions.md) | one script for every figure, the plotting theme, the GR font traps, and the opaque-background rule |
 | [`circuit-figures.md`](circuit-figures.md) | schematics |

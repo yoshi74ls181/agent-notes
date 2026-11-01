@@ -1,6 +1,7 @@
 # Figure conventions
 
-Plotting rules for shipped figures.
+How to build shipped figures with Plots.jl and GR.
+What a figure must show, including the theme's legend, colour and background rules (R33–R36), is in writing-rules' [`figures.md`](https://github.com/yoshi74ls181/writing-rules/blob/main/figures.md).
 
 **Use one script to build every shipped figure from committed data into one output directory.**
 
@@ -35,12 +36,11 @@ default(fontfamily = "Helvetica", framestyle = :box,
         markerstrokewidth = 0)
 ```
 
-Recessive grid and axes; data is the darkest thing in the frame.
-A legend is always present for two or more series (identity is never colour-alone), and text wears text colours — never a series colour.
+This theme gives the recessive grid and axes of R35 and the text colours of R34; a legend (R33) is still added per plot.
 
-## Never ship a figure with a transparent background
+## Giving a figure an opaque background
 
-**Every figure gets an opaque white background**, or dark axes and text disappear in a dark-themed viewer.
+R36 asks for an opaque background on every figure.
 
 Set both `background_color` and `background_color_inside` in Plots.jl.
 For a `standalone` LaTeX figure, use the background rectangle in [`circuit-figures.md`](circuit-figures.md); `\pagecolor` interferes with cropping.
