@@ -3,7 +3,8 @@
 Draw circuit figures as hand-written `standalone` LaTeX sources so geometry is reviewable and symbols and fonts match the surrounding maths.
 Keep circuit-specific reasoning in each figure's `.tex` file.
 
-The plotting rules — colour, honesty, what to check before shipping — are in [`figure-conventions.md`](figure-conventions.md), and the ones about recessive elements and about opaque backgrounds apply here too.
+What a circuit diagram must show is in writing-rules' [`figures.md`](https://github.com/yoshi74ls181/writing-rules/blob/main/figures.md): standard symbols (R19), final size (R30), an opaque background (R36), the netlist rather than the idea (R37), mutual-inductance signs (R38), faint subordinate elements (R39) and an aspect ratio near 1.6:1 (R40).
+This note covers how to draw it with CircuiTikZ.
 
 ## Building
 
@@ -41,12 +42,10 @@ Verify on the file rather than by eye — there should be a white-filled path co
 
 ## Conventions
 
-**Draw at final size.**
-A figure drawn ~17.6 cm wide goes into a two-column `\includegraphics[width=\textwidth]` with no scaling; a schematic scaled down 30% has labels 30% too small for the body text beside it.
-For an HTML-only figure the same discipline matters twice over, because a report stylesheet will typically set `figure img{width:100%}`:
+**Final size (R30).**
+A figure drawn ~17.6 cm wide goes into a two-column `\includegraphics[width=\textwidth]` with no scaling.
+A report stylesheet will typically set `figure img{width:100%}` for an HTML-only figure, so:
 
-* **The aspect ratio controls the displayed height.**
-  Aim near 1.6:1; a square schematic at full column width is tall.
 * **A small drawing magnifies its labels when expanded to column width.**
   Enlarge the geometry while keeping fonts at `footnotesize`.
   For example, changing to `x=1.75cm, y=1.75cm` scales coordinates; multiply absolute bipole lengths, node sizes, line widths, arrows, and decoration dimensions by 1.75 separately.
@@ -61,31 +60,16 @@ jj/.style={draw, line width=0.9pt, fill=white, inner sep=0pt, minimum size=4.4mm
     (path picture bounding box.north west) -- (path picture bounding box.south east);}}
 ```
 
-**Label mutual-inductance signs explicitly when winding sense is ambiguous.**
-For perpendicular coils, write `+M_p` and `-M_p` beside the couplings.
-Opposite-sign mutuals into two loops can thread same-sign flux; the labels make the schematic checkable against the netlist.
-
 **Coils are a decoration, not a bipole.** `to[cute inductor]` is available but is hard to place on an exact segment, so draw a coil along a known segment with `decoration={coil, aspect=0.62, segment length=1.55mm, amplitude=1.15mm}`, wrapped in small `\vcoil` / `\hcoil` macros.
 A shorter `segment length` and smaller `amplitude` gives a visually smaller inductor.
 
 **Flux into the page is a circled cross,** drawn by a macro rather than by a character, so it scales with the line width.
 
-**Subordinate elements are `black!45`.**
-A bias line that is real but not the subject is drawn faint.
-That is the same rule as the recessive dashed grey for theory curves in [`figure-conventions.md`](figure-conventions.md).
+**Subordinate elements (R39) are `black!45`.**
 
-## Draw the netlist, not the idea
+## Omitted elements
 
-Draw the simulated netlist element for element, including solver-required parasitic inductances, port resistors, and DC ground paths.
-
-Three consequences worth planning for:
-
-* **State parasitic values.**
-  For example, label a 0.1 pH loop inductance beside a 100 pH main inductor, and draw it short.
-* **Name omitted elements in the caption.**
-  An inactive port may be omitted for space; record how to restore it in the `.tex` source.
-* **Explain drawn elements absent from the netlist.**
-  If a component is removed at an exact open-circuit bias point, say that it carries no current.
+When R37 lets an inactive port be left out for space, record in the `.tex` source how to restore it.
 
 ## Traps
 

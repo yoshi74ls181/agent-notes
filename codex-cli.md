@@ -1,6 +1,6 @@
 # Driving the Codex CLI as a non-interactive reader
 
-Run an OpenAI model as a reader in the three-reader pass of [`reports.md`](https://github.com/yoshi74ls181/writing-rules/blob/main/reports.md) §9.
+Run an OpenAI model as a reader in the three-reader pass of [`review.md`](https://github.com/yoshi74ls181/writing-rules/blob/main/review.md).
 Readers 2 and 3 must come from a different model family than reader 1.
 Any runner accepting stdin and saving a final response can serve the same role.
 
